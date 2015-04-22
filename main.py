@@ -49,7 +49,7 @@ class upload:
                                 validators=[form.Validator('Please upload a file or enter a video link.', lambda x: x.uploadfile or x.filelink), 
                                             form.Validator('Upload a file OR select a YouTube video, not both.', lambda x: not (x.uploadfile and x.filelink))])
     
-    datadir = '/home/sravana/data/webphonetics/'
+    datadir = open('filepaths.txt').read().strip()
     
     def GET(self):
         form = self.uploadsound()
