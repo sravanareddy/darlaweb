@@ -1,0 +1,19 @@
+$def with (form)
+
+<div class="left-col">
+
+<span class="breadcrumbs"><a href="http://darla.dartmouth.edu" target="_blank">About DARLA</a></span>
+<span class="breadcrumbs"><a href="http://darla.dartmouth.edu#cite" target="_blank">How to cite</a></span><p>
+
+<h2>Completely Automated Vowel Extraction</h2><p><p>
+
+<a href="upload"><small>Click here at any time to cancel or start over.</small></a><p>
+
+<form name="upload" method="post"> 
+$if not form.valid: <p class="error">Try again, AmeriCAN:</p>
+$:form.render()
+<input type="submit" />    
+</form>
+
+</div>
+

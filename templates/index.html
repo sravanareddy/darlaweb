@@ -1,0 +1,96 @@
+<div class="center-col">
+
+<p>DARLA, short for Dartmouth Linguistic Automation, provides a completely automated vowel formant extraction system tailored to the research questions of sociophonetics.</p>
+
+<p> We invite you to <a href="upload" target="_blank">try DARLA</a> with your own data. It is recommended that you look through the discussion below on the system's functionality and limitations before you begin. </p>
+
+<hr>
+<span class="breadcrumbs"><a href="#cave">Completely Automated Vowel Extraction</a></span>
+<span class="breadcrumbs"><a href="#function">Using DARLA</a></span>
+<span class="breadcrumbs"><a href="#how">How does DARLA work?</a></span>
+<span class="breadcrumbs"><a href="#limits">Limitations</a></span>
+<span class="breadcrumbs"><a href="#contact">Contact</a></span>
+<span class="breadcrumbs"><a href="#cite">How to cite</a></span>
+
+<a name="cave"></a><h3>Completely Automated Vowel Extraction</h3>
+<p>In the last few years, sociolinguists have begun using semi-automated speech processing methods such as Penn's <a href="http://fave.ling.upenn.edu/index.html" target="_blank">FAVE</a> program to extract vowel formants. These systems have accelerated the pace of linguistic research, but require significant human effort to manually create sentence-level transcriptions. </p>
+
+<p>We believe that sociolinguistics is on the brink of an even more transformative technology: large-scale, completely automated vowel extraction without any need for human transcription. This technology would make it possible to quickly extract pronunciation features from hours of recordings, including YouTube and vast audio archives. DARLA takes a step in this direction. </p>
+
+<a name="function"></a><h3>Using DARLA</h3> 
+
+<p>Upload one or more raw audio files of English speech. DARLA outputs </p>
+
+<ol>
+<li> formant plots representing the speakers' vowel space
+<li> a table of vowel formant measurements
+<li> probabilities for the preceding and following phonetic environments of each vowel token
+</ol>
+
+<p>There is also an option to manually check and correct the automatic sentence transcriptions.</p>
+
+<p>DARLA transcribes and aligns the input speech data using automatic speech recognition (ASR) techniques.
+We use the <a href="https://github.com/JoFrhwld/FAVE/tree/master/FAVE-extract" target="_blank">FAVE-extract code</a> (developed by Rosenfelder, Fruehwald, Evanini, and Labov) for formant measurement, and the <a href="http://cran.r-project.org/web/packages/vowels/index.html" target="_blank">R vowels package</a> (by Kendall and Thomas) for plotting.</p>
+
+<a name="how"></a><h3>How does DARLA work?</h3>
+
+<p>While ASR is far from perfect, we believe sociophoneticians do not need to wait for years to take advantage of speech recognition. Unlike applications like dictation software where accurate word recognition is the primary goal, sociophonetics typically focuses on a much narrower objective: extracting a representative vowel space for speakers, based on stressed vowel tokens.
+For example, it would usually not be crucial to know that the stressed vowel in the word "turning" was extracted from "turn it" rather than "turning", or that "tack" was wrongly transcribed as "sack".  Such differences will have little effect on the speaker's vowel space for many sociophonetic questions. </p>
+
+<p>It turns out that most ASR errors affect the identity of the <i>words</i> but not the identity of the <i>vowels</i> (especially stressed vowels), making it an ideal technology for automated vowel analysis. 
+Of course, there will be instances of vowel error, but the effect of these errors is reduced by the large amount of data with hundreds or thousands of vowel tokens.</p>
+
+<p>Important contrasts like "cot" versus "caught" tend to be handled by ASR's modeling of grammatical plausibility (using a <a href="http://en.wikipedia.org/wiki/Language_model" target="_blank">language model</a>). The system would be unlikely to transcribe "I caught the ball" as "I cot the ball" since the latter would be improbable under an English language model.</p>
+
+<p>Finally, since DARLA shows probabilities for the phonetic environment around each vowel (e.g., obstruent+vowel+nasal consonant), researchers can examine contrasts like pin/pen versus pit/pet.</p>
+
+<p>See a draft of <a href="darla_lingvanguard.pdf" target="_blank">our paper</a> for more information, including a test of DARLA on the U.S. Southern Vowel Shift.</p>
+
+<a name="limits"></a><h3>Limitations of DARLA</h3>
+
+<p> This system cannot provide perfect transcriptions or perfect formant measurements. The automatic transcriptions typically contain a very large number of errors, especially in free speech data. Current ASR technology simply cannot match the accuracy of human manual transcriptions.</p>
+
+<p>DARLA's automated approach to sociophonetics may help open the way toward large-scale audio analysis, but there is a tradeoff. As with many other sciences, automated processing necessitates error-reporting in the measurements, not just in the statistical modeling. We find that DARLA can be useful for extracting a representative vowel space for sociophonetic purposes, as long as error levels are considered and reported. In other words, fast large-scale data analysis requires a higher tolerance of noise in the data.</p>
+
+<a name="contact"></a><h3>Contact</h3>
+<p>Please e-mail <a href="mailto:darla.dartmouth@gmail.com">darla.dartmouth@gmail.com</a> with questions or suggestions.</p>
+
+<a name="cite"></a><h3> How to cite</h3> 
+<p>DARLA is designed and implemented by <a href="http://www.cs.dartmouth.edu/~sravana/" target="_blank">Sravana Reddy</a> and <a href="http://www.dartmouth.edu/~jstanford/" target="_blank">James Stanford</a>, with programming assistance from Irene Feng, and supported by the <a href="http://neukom.dartmouth.edu" target="_blank">Neukom Institute for Computational Science</a>.</p>
+
+<p>Suggested in-text citation: DARLA (Reddy & Stanford 2015), using FAVE (Rosenfelder, Fruehwald, Evanini & Yuan 2011) and the Vowels R package (Kendall & Thomas 2010).</p>
+
+<p>Suggested bibliographic entries:</p>
+
+<ul>
+<li>Reddy, Sravana and James Stanford. 2015. Toward completely automated vowel extraction: 
+  Introducing DARLA. Manuscript. Submitted to <i>Linguistics Vanguard</i>.
+
+<li>Rosenfelder, Ingrid; Fruehwald, Joe; Evanini, Keelan and Jiahong Yuan. 2011. FAVE (Forced Alignment and Vowel Extraction) Program Suite. <a href="http://fave.ling.upenn.edu" target="_blank">fave.ling.upenn.edu</a>.
+
+<li>Kendall, Tyler and Erik R. Thomas. 2010. Vowels: vowel manipulation, normalization, and 
+  plotting in R. R package. <a href="http://cran.r-project.org/web/packages/vowels/index.html" target="_blank">cran.r-project.org/web/packages/vowels/index.html</a>.
+</ul>
+
+<p></p>
+<p>In addition, if you use the <a href="http://ncslaap.lib.ncsu.edu/tools/norm/about_norm1.php" target="_blank">NORM toolkit</a> for custom normalization and plotting of the vowel space, please also cite:</p>
+
+<ul>
+<li>Thomas, Erik R. and Tyler Kendall. 2007. NORM: The vowel normalization and plotting suite. Online Resource. <a href="http://ncslaap.lib.ncsu.edu/tools/norm/" target="_blank">ncslaap.lib.ncsu.edu/tools/norm</a>
+</ul>
+
+</div>
+
+<!-- Start of StatCounter Code -->
+<script type="text/javascript">
+var sc_project=10248963; 
+var sc_invisible=1; 
+var sc_security="c97556ae"; 
+var scJsHost = (("https:" == document.location.protocol) ? "https://secure." : "http://www.");
+document.write("<sc"+"ript type='text/javascript' src='" + scJsHost+"statcounter.com/counter/counter.js'></"+"script>");
+</script>
+
+<noscript><div class="statcounter"><a title="web analytics" href="http://statcounter.com/" target="_blank"><img class="statcounter" src="http://c.statcounter.com/10248963/0/c97556ae/1/" alt="web analytics"></a></div>
+</noscript>
+
+<!-- End of StatCounter Code for Default Guide -->
