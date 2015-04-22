@@ -9,9 +9,12 @@ $def with (form)
 
 <a href="upload"><small>Click here at any time to cancel or start over.</small></a><p>
 
-<form name="upload" method="post"> 
-$if not form.valid: <p class="error">Try again, AmeriCAN:</p>
-$:form.render()
+<form name="upload" method="post" enctype="multipart/form-data"> 
+$if not form.valid:
+  <p class="error">Correct the errors below.</p>
+  $:form.render()
+$else:
+  $:form.render_disabled()
 <input type="submit" />    
 </form>
 
