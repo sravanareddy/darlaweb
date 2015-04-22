@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 
 """Creates intermediate script files based on user options and data
-
-Required existing directory:
-- taskname.wav/splits/  #taskname is a random hash. holds the wav files (with original, sanitized names)
 """
 
 import argparse
@@ -95,8 +92,12 @@ def randomname(fnamelen):
 
 def make_task(datadir):
     taskname = randomname(30)
-    os.mkdir(os.path.join(datadir, taskname+'.wav'))
-    return taskname
+    wavdir = os.path.join(datadir, taskname+'.wav')
+    if os.path.exists(wavdir): #check if taskname exists
+        make_task(datadir)
+    else:
+        os.mkdir(wavdir)
+        return taskname
 
 def mp3_to_wav(filename):
         print os.getcwd()
