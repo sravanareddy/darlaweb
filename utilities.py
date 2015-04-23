@@ -84,7 +84,7 @@ def send_email(receiver, filename, taskname):
 def get_basename(filename):
     basename = ntpath.basename(filename.replace('\\','/').replace(' ', '_'))
     basename, extension = os.path.splitext(basename)
-    return basename+extension.lower()
+    return basename, extension.lower()
 
 def randomname(fnamelen):
     fname = ''
@@ -101,6 +101,16 @@ def make_task(datadir):
         os.mkdir(audiodir)
         return taskname, audiodir
 
+def process_audio(audiodir, filename, filecontent):
+    #write contents of file
+    o = open(os.path.join(audiodir, filename), 'w')
+    o.write(filecontent)
+    o.close()
+
+    #split and convert frequency
+    samprate = soxConversion(filename, audiodir)
+    return samprate
+                
 def mp3_to_wav(filename):
         print os.getcwd()
         lame = subprocess.Popen(shlex.split('lame --decode '+filename+'.mp3 '+filename+'.wav'), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -179,7 +189,7 @@ def soxConversion(filename, audiodir):
 
     os.remove(os.path.join(audiodir, filename))
     
-    return sample_rate, file_size, retval
+    return sample_rate
 
 def gen_argfiles(taskname, filename, samprate, lw, dialect, email):
     """create ctl files"""

@@ -6,6 +6,7 @@ from web import form
 import myform
 import utilities
 import os
+import zipfile
 
 render = web.template.render('templates/', base='layout')
 
@@ -66,27 +67,48 @@ class upload:
                                     self.lw, self.email, self.taskname)
         form = uploadsound()
         x = web.input(uploadfile={})
+        
         if not form.validates(): 
             return render.formtest(form)
         
-        elif 'uploadfile' in x:  #TODO: handle mp3 and zip files
-            
-            #create new task                                                               
-            taskname, audiodir = utilities.make_task(self.datadir)
-            self.taskname.value = taskname
-            
+        elif 'uploadfile' in x:  #TODO: handle mp3 files
+                        
             #sanitize filename
-            filename = utilities.get_basename(x.uploadfile.filename)
-            
-            #write contents of file
-            o = open(os.path.join(audiodir, filename), 'w')
-            o.write(x.uploadfile.file.read())
-            o.close()
+            filename, extension = utilities.get_basename(x.uploadfile.filename)
 
-            #split and convert frequency
-            samprate, filesize, rate = utilities.soxConversion(filename, audiodir)
-            
-            return "Great success! your file: {0} has a sampling rate of {1}. Your email: {2}".format(filename, samprate, form.email.value)            
+            if extension not in ['.wav', '.zip']:
+                return "File type should be wav or zip." #TODO: make this an in-form error
+
+            else:
+                #create new task                                                               
+                taskname, audiodir = utilities.make_task(self.datadir)
+                self.taskname.value = taskname
+                
+                if extension == '.zip': #extract zip contents
+                    z = zipfile.ZipFile(x.uploadfile.file)
+                    filecount = 0
+                    for subname in z.namelist():
+                        subfilename, subextension = utilities.get_basename(subname)
+                        
+                        if subfilename in ['', '__MACOSX', '.DS_Store']:
+                            continue
+                        
+                        if subextension not in ['.wav']:
+                            return "Extension incorrect for file {0} in the zip folder {1}.zip. Make sure your folder only contains .wav or .mp3 files.".format(subname, filename)   #TODO: make this an in-form error or just ignore this file without raising an error
+                        else:
+                            samprate = utilities.process_audio(audiodir,
+                                                     subfilename+subextension,
+                                z.open(subname).read())
+                            filecount += 1
+
+                    return "Success! your file {0} contains {1} files. Your email: {2}".format(filename, filecount, form.email.value)
+                
+                elif extension == '.wav':
+                    samprate = utilities.process_audio(audiodir,
+                                             filename+extension,
+                        x.uploadfile.file.read())
+                
+                    return "Success! your file {0} has a sampling rate of {1}. Your email: {2}".format(filename, samprate, form.email.value)            
     
 if __name__=="__main__":
     web.internalerror = web.debugerror
