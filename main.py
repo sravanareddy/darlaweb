@@ -43,40 +43,48 @@ class upload:
                                      'Please enter a valid email address.'),
                          post='We will not store or distribute your address.',
                          description='Your e-mail address')
-    uploadsound = myform.MyForm(uploadfile, 
-                                filelink, 
-                                dialect, 
-                                lw, 
-                                email, 
-                                validators=[form.Validator('Please upload a file or enter a video link.', lambda x: x.uploadfile or x.filelink), 
-                                            form.Validator('Upload a file OR select a YouTube video, not both.', lambda x: not (x.uploadfile and x.filelink))])
+    taskname = form.Hidden('taskname')
+    
+    soundvalid = [form.Validator('Please upload a file or enter a video link (but not both).', lambda x: (x.filelink!='' or x.uploadfile) and not (x.uploadfile and x.filelink!=''))]   #TODO: why doesn't this work?
     
     datadir = open('filepaths.txt').read().strip()
     
     def GET(self):
-        form = self.uploadsound()
+        self.dialect.value = 'standard'
+        self.lw.value = '7' #defaults
+        uploadsound = myform.MyForm(self.uploadfile, 
+                                    self.filelink, 
+                                    self.dialect, 
+                                    self.lw, self.email, self.taskname)
+        form = uploadsound()
         return render.formtest(form)
 
-    def POST(self): 
-        form = self.uploadsound()
+    def POST(self):
+        uploadsound = myform.MyForm(self.uploadfile, 
+                                    self.filelink, 
+                                    self.dialect, 
+                                    self.lw, self.email, self.taskname)
+        form = uploadsound()
         x = web.input(uploadfile={})
-        if not form.validates(): #TODO: can't display uploaded filename.
+        if not form.validates(): 
             return render.formtest(form)
-        else:
+        
+        elif 'uploadfile' in x:  #TODO: handle mp3 and zip files
+            
             #create new task                                                               
             taskname = utilities.make_task(self.datadir)
+            self.taskname.value = taskname
+            
             #sanitize filename
             filename = utilities.get_basename(x.uploadfile.filename)
+            
             #write contents of file
             o = open(os.path.join(self.datadir, taskname+'.wav', filename), 'w')
             o.write(x.uploadfile.file.read())
             o.close()
         
-            #disable form
-            form.disable()
-            
-            return render.formtest(form)
-
+            return "Great success! your file: {0}, email: {1}".format(filename, form.email.value)            
+    
 if __name__=="__main__":
     web.internalerror = web.debugerror
     app.run()
