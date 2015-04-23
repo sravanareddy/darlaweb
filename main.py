@@ -72,18 +72,21 @@ class upload:
         elif 'uploadfile' in x:  #TODO: handle mp3 and zip files
             
             #create new task                                                               
-            taskname = utilities.make_task(self.datadir)
+            taskname, audiodir = utilities.make_task(self.datadir)
             self.taskname.value = taskname
             
             #sanitize filename
             filename = utilities.get_basename(x.uploadfile.filename)
             
             #write contents of file
-            o = open(os.path.join(self.datadir, taskname+'.wav', filename), 'w')
+            o = open(os.path.join(audiodir, filename), 'w')
             o.write(x.uploadfile.file.read())
             o.close()
-        
-            return "Great success! your file: {0}, email: {1}".format(filename, form.email.value)            
+
+            #split and convert frequency
+            samprate, filesize, rate = utilities.soxConversion(filename, audiodir)
+            
+            return "Great success! your file: {0} has a sampling rate of {1}. Your email: {2}".format(filename, samprate, form.email.value)            
     
 if __name__=="__main__":
     web.internalerror = web.debugerror

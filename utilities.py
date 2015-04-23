@@ -82,7 +82,9 @@ def send_email(receiver, filename, taskname):
                 print 'Unable to send e-mail '
 
 def get_basename(filename):
-    return ntpath.basename(filename.replace('\\','/').replace(' ', '_'))
+    basename = ntpath.basename(filename.replace('\\','/').replace(' ', '_'))
+    basename, extension = os.path.splitext(basename)
+    return basename+extension.lower()
 
 def randomname(fnamelen):
     fname = ''
@@ -92,12 +94,12 @@ def randomname(fnamelen):
 
 def make_task(datadir):
     taskname = randomname(30)
-    wavdir = os.path.join(datadir, taskname+'.wav')
-    if os.path.exists(wavdir): #check if taskname exists
+    audiodir = os.path.join(datadir, taskname+'.audio')
+    if os.path.exists(audiodir): #check if taskname exists
         make_task(datadir)
     else:
-        os.mkdir(wavdir)
-        return taskname
+        os.mkdir(audiodir)
+        return taskname, audiodir
 
 def mp3_to_wav(filename):
         print os.getcwd()
@@ -133,19 +135,17 @@ def process_wav(filename, taskname, fileid):
     except:
         print "<span class=\"error\" id=\"error_msg\">ERROR: something went wrong while processing the file "+filename+"</span>"
 
-def soxConversion(filename, taskname):
+def soxConversion(filename, audiodir):
     sample_rate = 0
     file_size = 0.0
-    args = "sox --i "+taskname+".wav/"+filename
+    args = "sox --i "+os.path.join(audiodir, filename)
     sox = subprocess.Popen(shlex.split(args), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     for line in sox.stdout.readlines():
-        # print line
         if "Sample Rate" in line:
             line = line.split(':')
             sample_rate = int(line[1].strip())
         if "Duration" in line:
             m = re.search("(=\s)(.*)(\ssamples)", line)
-            #print m.group(2)                                                                               
             file_size = float(m.group(2))
             file_size = file_size / sample_rate #gets duration, in seconds of the file.                  
 
@@ -163,21 +163,22 @@ def soxConversion(filename, taskname):
     else: 
         # return sample_rate, "sample rate not high enough"
         # raise CustomException("sample rate not high enough")
-        # print "eep"
         return sample_rate, file_size, CustomException("sample rate not high enough")
-        #TODO: actually make it work instead of break.                                                                           
+        #TODO: actually make it work instead of break.                                   
 
     #convert to 16-bit, signed, little endian as well as downsample                                       
-    conv = subprocess.Popen(['sox', taskname+".wav/"+filename, '-r', ratecode, '-b', '16', '-e', 'signed', '-L', taskname+'.wav/converted_'+filename, 'channels', '1'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    conv = subprocess.Popen(['sox', os.path.join(audiodir, filename), '-r', ratecode, '-b', '16', '-e', 'signed', '-L', os.path.join(audiodir, 'converted_'+filename), 'channels', '1'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     retval = conv.wait()
 
-    #split into 30sec chunks. TODO: split on silence                                                        
-    if not os.path.isdir(taskname+'.wav/splits/'):
-        os.mkdir(taskname+'.wav/splits/')
-    conv = subprocess.Popen(['sox', taskname+".wav/converted_"+filename, taskname+".wav/splits/converted_"+filename[:-4]+'.split.wav', 'trim', '0', '20', ':', 'newfile', ':', 'restart'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    #split into 30sec chunks. TODO: split on silence                          
+    if not os.path.isdir(os.path.join(audiodir, 'splits')):
+        os.mkdir(os.path.join(audiodir, 'splits'))
+    basename, _ = os.path.splitext(filename)
+    conv = subprocess.Popen(['sox', os.path.join(audiodir, 'converted_'+filename), os.path.join(audiodir, 'splits', basename+'.split.wav'), 'trim', '0', '20', ':', 'newfile', ':', 'restart'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     retval = conv.wait()
 
-    os.remove(taskname+'.wav/'+filename)
+    os.remove(os.path.join(audiodir, filename))
+    
     return sample_rate, file_size, retval
 
 def gen_argfiles(taskname, filename, samprate, lw, dialect, email):
