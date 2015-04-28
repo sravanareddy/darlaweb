@@ -79,7 +79,7 @@ class upload:
           filename = utilities.youtube_wav(url, taskname)
           return "Youtube" 
         
-        elif 'uploadfile' in x:  #TODO: handle mp3 files
+        elif 'uploadfile' in x:  
                         
             #sanitize filename
             filename, extension = utilities.get_basename(x.uploadfile.filename)
@@ -116,7 +116,8 @@ class upload:
                                              filename, extension,
                         x.uploadfile.file.read())
                 
-                    return "Success! your file {0} has a sampling rate of {1}. Your email: {2}".format(filename, samprate, form.email.value)              
+                    return "Success! your file {0} has a sampling rate of {1}. Your email: {2}".format(filename, samprate, form.email.value)
+                
     
 if __name__=="__main__":
     web.internalerror = web.debugerror
