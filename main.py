@@ -5,12 +5,12 @@ import shutil
 from web import form
 import myform
 import utilities
-import os
 import zipfile
+from align import app_align
 
 render = web.template.render('templates/', base='layout')
 
-urls = ('/', 'index', '/upload', 'upload')
+urls = ('/', 'index', '/upload', 'upload', '/align', app_align)
 app = web.application(urls, globals())
 web.config.debug = True
         
@@ -46,7 +46,9 @@ class upload:
                          description='Your e-mail address')
     taskname = form.Hidden('taskname')
     
-    soundvalid = [form.Validator('Please upload a file or enter a video link (but not both).', lambda x: (x.filelink!='' or x.uploadfile) and not (x.uploadfile and x.filelink!=''))]
+    soundvalid = [form.Validator('Please upload a file or enter a video link (but not both).', lambda x: (x.filelink!='' or x.uploadfile) and not (x.uploadfile and x.filelink!=''))
+     ,form.Validator('Please choose .wav or .zip file', lambda x: x.uploadfile.filename)]
+
     
     datadir = open('filepaths.txt').read().strip()
     
@@ -74,10 +76,16 @@ class upload:
 
         elif x.filelink!="": #TODO - youtube files
           #make taskname
-          taskname, audiodir = utilities.make_task(self.datadir)
-          self.taskname.value = taskname
-          filename = utilities.youtube_wav(url, taskname)
-          return "Youtube" 
+          # taskname, audiodir = utilities.make_task(self.datadir)
+          # self.taskname.value = taskname
+
+          # filename = utilities.youtube_wav(url, taskname)
+          # samprate = utilities.soxConversion(audiodir,
+          #                                    filename)
+
+          # return "Success! your file {0} has a sampling rate of {1}. Your email: {2}".format(filename, samprate, form.email.value)
+          return "Youtube"
+          #return new form? 
         
         elif 'uploadfile' in x:  
                         
@@ -111,14 +119,17 @@ class upload:
 
                     return "Success! your file {0} contains {1} files. Your email: {2}".format(filename, filecount, form.email.value)
 
-                else:  #wav or mp3
-                    samprate = utilities.process_audio(audiodir,
+                else:
+
+                  if extension == '.mp3': #TODO: convert mp3 to wav
+                    return "mp3"
+
+                  samprate = utilities.process_audio(audiodir,
                                              filename, extension,
                         x.uploadfile.file.read())
                 
                     return "Success! your file {0} has a sampling rate of {1}. Your email: {2}".format(filename, samprate, form.email.value)
-                
-    
+
 if __name__=="__main__":
     web.internalerror = web.debugerror
     app.run()
