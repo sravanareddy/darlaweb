@@ -96,7 +96,7 @@ def make_task(datadir):
     taskname = randomname(30)
     audiodir = os.path.join(datadir, taskname+'.audio')
     if os.path.exists(audiodir): #check if taskname exists
-        make_task(datadir)
+        make_task(datadir) #make a new taskname
     else:
         os.mkdir(audiodir)
         return taskname, audiodir
@@ -118,7 +118,7 @@ def mp3_to_wav(filename):
 
 def youtube_wav(url,taskname):
     tube = subprocess.Popen(shlex.split('youtube-dl '+url+' --extract-audio --audio-format wav --audio-quality 16k -o /home/sravana/data/webphonetics/'+taskname+'.wav/ytvideo.%(ext)s'), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    return tube.stdout.readlines()
+    return "ytvideo"
         
 def process_wav(filename, taskname, fileid):
     try:

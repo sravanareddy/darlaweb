@@ -46,7 +46,7 @@ class upload:
                          description='Your e-mail address')
     taskname = form.Hidden('taskname')
     
-    soundvalid = [form.Validator('Please upload a file or enter a video link (but not both).', lambda x: (x.filelink!='' or x.uploadfile) and not (x.uploadfile and x.filelink!=''))]   #TODO: why doesn't this work?
+    soundvalid = [form.Validator('Please upload a file or enter a video link (but not both).', lambda x: (x.filelink!='' or x.uploadfile) and not (x.uploadfile and x.filelink!=''))]
     
     datadir = open('filepaths.txt').read().strip()
     
@@ -64,12 +64,20 @@ class upload:
         uploadsound = myform.MyForm(self.uploadfile, 
                                     self.filelink, 
                                     self.dialect, 
-                                    self.lw, self.email, self.taskname)
+                                    self.lw, self.email, self.taskname,
+                                    validators = self.soundvalid)
         form = uploadsound()
         x = web.input(uploadfile={})
         
-        if not form.validates(): 
+        if not form.validates(): #not validated
             return render.formtest(form)
+
+        elif x.filelink!="": #TODO - youtube files
+          #make taskname
+          taskname, audiodir = utilities.make_task(self.datadir)
+          self.taskname.value = taskname
+          filename = utilities.youtube_wav(url, taskname)
+          return "Youtube" 
         
         elif 'uploadfile' in x:  #TODO: handle mp3 files
                         
@@ -108,7 +116,7 @@ class upload:
                                              filename+extension,
                         x.uploadfile.file.read())
                 
-                    return "Success! your file {0} has a sampling rate of {1}. Your email: {2}".format(filename, samprate, form.email.value)            
+                    return "Success! your file {0} has a sampling rate of {1}. Your email: {2}".format(filename, samprate, form.email.value)              
     
 if __name__=="__main__":
     web.internalerror = web.debugerror
