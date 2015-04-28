@@ -105,12 +105,15 @@ class upload:
                     filecount = 0
                     for subname in z.namelist():
                         subfilename, subextension = utilities.get_basename(subname)
+                        print subfilename, subextension
                         
-                        if subfilename in ['', '__MACOSX', '.DS_Store']:
+                        if subfilename in ['', '__MACOSX', '.DS_Store', '._']:
                             continue
                         
                         if subextension not in ['.wav', '.mp3']:
-                            return "Extension incorrect for file {0} in the zip folder {1}.zip. Make sure your folder only contains .wav or .mp3 files.".format(subname, filename)   #TODO: make this an in-form error or just ignore this file without raising an error
+                            form.note = "Extension incorrect for file {0} in the zip folder {1}.zip. Make sure your folder only contains .wav or .mp3 files.".format(subfilename+subextension, filename)
+                            return render.formtest(form)
+                        
                         else:
                             samprate = utilities.process_audio(audiodir,
                                                      subfilename, subextension,
