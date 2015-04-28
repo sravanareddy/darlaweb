@@ -10,7 +10,7 @@ from align import app_align
 
 render = web.template.render('templates/', base='layout')
 
-urls = ('/', 'index', '/upload', 'upload', '/align', app_align)
+urls = ('/', 'index', '/upload', 'upload', '/align', 'app_align')
 app = web.application(urls, globals())
 web.config.debug = True
         
@@ -46,9 +46,8 @@ class upload:
                          description='Your e-mail address')
     taskname = form.Hidden('taskname')
     
-    soundvalid = [form.Validator('Please upload a file or enter a video link (but not both).', lambda x: (x.filelink!='' or x.uploadfile) and not (x.uploadfile and x.filelink!=''))
-     ,form.Validator('Please choose .wav or .zip file', lambda x: x.uploadfile.filename)]
-
+    soundvalid = [form.Validator('Please upload a file or enter a video link (but not both).',
+                                 lambda x: (x.filelink!='' or x.uploadfile) and not (x.uploadfile and x.filelink!=''))]
     
     datadir = open('filepaths.txt').read().strip()
     
@@ -88,12 +87,13 @@ class upload:
           #return new form? 
         
         elif 'uploadfile' in x:  
-                        
+            
             #sanitize filename
             filename, extension = utilities.get_basename(x.uploadfile.filename)
 
             if extension not in ['.wav', '.zip', '.mp3']:
-                return "File type should be wav, mp3, or zip." #TODO: make this an in-form error
+                form.note = "Please upload a .wav, .mp3, or .zip file"
+                return render.formtest(form)
 
             else:
                 #create new task                                                               
@@ -119,12 +119,8 @@ class upload:
 
                     return "Success! your file {0} contains {1} files. Your email: {2}".format(filename, filecount, form.email.value)
 
-                else:
-
-                  if extension == '.mp3': #TODO: convert mp3 to wav
-                    return "mp3"
-
-                  samprate = utilities.process_audio(audiodir,
+                else:  #must be mp3 or wav
+                    samprate = utilities.process_audio(audiodir,
                                              filename, extension,
                         x.uploadfile.file.read())
                 
