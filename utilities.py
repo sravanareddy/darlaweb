@@ -192,23 +192,23 @@ def soxConversion(filename, audiodir):
     
     return sample_rate
 
-def gen_argfiles(taskname, filename, samprate, lw, dialect, email):
+def gen_argfiles(datadir, taskname, uploadfilename, samprate, lw, dialect, email):
     """create ctl files"""
     filelist = map(lambda filename: filename[:-4],
                           filter(lambda filename: filename.endswith('.wav'),
-                                 os.listdir(taskname+'.wav/splits/')))
+                                 os.listdir(os.path.join(datadir, taskname+'.audio', 'splits'))))
     numfiles = len(filelist)
     
     #numsplits = min(numfiles, 8)
     
     #for i in range(numsplits):
-    o = open(taskname+'.ctl', 'w')
+    o = open(os.path.join(datadir, taskname+'.ctl'), 'w')
     o.write('\n'.join(filelist))
     o.write('\n')
     o.close()
 
     """feature extraction"""
-    options = {'di': taskname+'.wav/splits/',
+    options = {'di': taskname+'.audio/splits/',
                'do': taskname+'.mfc',
                'ei': 'wav',
                'eo': 'mfc',
@@ -234,14 +234,14 @@ def gen_argfiles(taskname, filename, samprate, lw, dialect, email):
                        'upperf': '6800'})
 
     #for i in range(numsplits):
-    o = open(taskname+'.featurize_args', 'w')
+    o = open(os.path.join(datadir, taskname+'.featurize_args'), 'w')
     options['c'] = taskname+'.ctl'
     o.write('\n'.join(map(lambda (k, v): '-'+k+' '+v,
                           options.items())))
     o.close()
 
-    os.system('mkdir -p '+taskname+'.mfc')
-    os.system('chmod g+w '+taskname+'.mfc')
+    os.system('mkdir -p '+os.path.join(datadir, taskname)+'.mfc')
+    os.system('chmod g+w '+os.path.join(datadir, taskname)+'.mfc')
     
     """recognition"""
     options = {}
@@ -273,7 +273,7 @@ def gen_argfiles(taskname, filename, samprate, lw, dialect, email):
                     'cmninit': '40'})
     
     #for i in range(numsplits):
-    o = open(taskname+'.recognize_args', 'w')
+    o = open(os.path.join(datadir, taskname+'.recognize_args'), 'w')
     options.update({'ctl': taskname+'.ctl',
                     'hyp': taskname+'.hyp',
                     'hypseg': taskname+'.hypseg'})
@@ -281,12 +281,10 @@ def gen_argfiles(taskname, filename, samprate, lw, dialect, email):
                           options.items())))
     o.close()
 
-    os.system('mkdir -p '+taskname+'.lat')
-    
     """Align and extract"""
-    o = open(taskname+'.alext_args', 'w')
+    o = open(os.path.join(datadir, taskname+'.alext_args'), 'w')
     
-    o.write(filename+' ')
+    o.write(uploadfilename+' ')
     
     if samprate==8000:
             o.write('/home/sravana/acousticmodels/prosodylab-8.zip ')

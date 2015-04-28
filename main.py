@@ -98,7 +98,7 @@ class upload:
             else:
                 #create new task                                                               
                 taskname, audiodir = utilities.make_task(self.datadir)
-                self.taskname.value = taskname
+                form.taskname.value = taskname
                 
                 if extension == '.zip': #extract zip contents
                     z = zipfile.ZipFile(x.uploadfile.file)
@@ -120,14 +120,22 @@ class upload:
                                 z.open(subname).read())
                             filecount += 1
 
+                    #generate ctl files
+                    utilities.gen_argfiles(self.datadir, form.taskname.value, filename, samprate, form.lw.value, form.dialect.value, form.email.value)
+
                     return "Success! your file {0} contains {1} files. Your email: {2}".format(filename, filecount, form.email.value)
 
-                else:  #must be mp3 or wav
+                else:  #will be mp3 or wav
                     samprate = utilities.process_audio(audiodir,
                                              filename, extension,
                         x.uploadfile.file.read())
+
+                    #generate ctl files
+                    utilities.gen_argfiles(self.datadir, form.taskname.value, filename, samprate, form.lw.value, form.dialect.value, form.email.value)
+                    
+                    #TODO: show speaker form by adding fields to existing form and re-rendering?
                 
-                    return "Success! your file {0} has a sampling rate of {1}. Your email: {2}".format(filename, samprate, form.email.value)
+                    return "Success! your file {0} has a sampling rate of {1}. Taskname: {2}, LW: {3}, Dialect: {4}, Email: {5}".format(filename, samprate, form.taskname.value, form.lw.value, form.dialect.value, form.email.value)
 
 if __name__=="__main__":
     web.internalerror = web.debugerror
