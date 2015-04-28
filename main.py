@@ -84,8 +84,8 @@ class upload:
             #sanitize filename
             filename, extension = utilities.get_basename(x.uploadfile.filename)
 
-            if extension not in ['.wav', '.zip']:
-                return "File type should be wav or zip." #TODO: make this an in-form error
+            if extension not in ['.wav', '.zip', '.mp3']:
+                return "File type should be wav, mp3, or zip." #TODO: make this an in-form error
 
             else:
                 #create new task                                                               
@@ -101,19 +101,19 @@ class upload:
                         if subfilename in ['', '__MACOSX', '.DS_Store']:
                             continue
                         
-                        if subextension not in ['.wav']:
+                        if subextension not in ['.wav', '.mp3']:
                             return "Extension incorrect for file {0} in the zip folder {1}.zip. Make sure your folder only contains .wav or .mp3 files.".format(subname, filename)   #TODO: make this an in-form error or just ignore this file without raising an error
                         else:
                             samprate = utilities.process_audio(audiodir,
-                                                     subfilename+subextension,
+                                                     subfilename, subextension,
                                 z.open(subname).read())
                             filecount += 1
 
                     return "Success! your file {0} contains {1} files. Your email: {2}".format(filename, filecount, form.email.value)
-                
-                elif extension == '.wav':
+
+                else:  #wav or mp3
                     samprate = utilities.process_audio(audiodir,
-                                             filename+extension,
+                                             filename, extension,
                         x.uploadfile.file.read())
                 
                     return "Success! your file {0} has a sampling rate of {1}. Your email: {2}".format(filename, samprate, form.email.value)              

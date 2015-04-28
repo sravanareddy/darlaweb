@@ -101,21 +101,22 @@ def make_task(datadir):
         os.mkdir(audiodir)
         return taskname, audiodir
 
-def process_audio(audiodir, filename, filecontent):
+def process_audio(audiodir, filename, extension, filecontent):
     #write contents of file
-    o = open(os.path.join(audiodir, filename), 'w')
+    o = open(os.path.join(audiodir, filename+extension), 'w')
     o.write(filecontent)
     o.close()
 
+    if extension == '.mp3':
+        print 'converting', os.path.join(audiodir, filename+extension)
+        os.system('lame --decode '+os.path.join(audiodir, filename+extension)+' '+os.path.join(audiodir, filename+'.wav'))  #TODO: use subprocess instead
+        extension = '.wav'
+        print "converted to", filename+extension
+    
     #split and convert frequency
-    samprate = soxConversion(filename, audiodir)
+    samprate = soxConversion(filename+extension, audiodir)
     return samprate
-                
-def mp3_to_wav(filename):
-        print os.getcwd()
-        lame = subprocess.Popen(shlex.split('lame --decode '+filename+'.mp3 '+filename+'.wav'), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        lame.wait()
-
+                        
 def youtube_wav(url,taskname):
     tube = subprocess.Popen(shlex.split('youtube-dl '+url+' --extract-audio --audio-format wav --audio-quality 16k -o /home/sravana/data/webphonetics/'+taskname+'.wav/ytvideo.%(ext)s'), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     return "ytvideo"
@@ -187,7 +188,7 @@ def soxConversion(filename, audiodir):
     conv = subprocess.Popen(['sox', os.path.join(audiodir, 'converted_'+filename), os.path.join(audiodir, 'splits', basename+'.split.wav'), 'trim', '0', '20', ':', 'newfile', ':', 'restart'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     retval = conv.wait()
 
-    os.remove(os.path.join(audiodir, filename))
+    #os.remove(os.path.join(audiodir, filename))
     
     return sample_rate
 
