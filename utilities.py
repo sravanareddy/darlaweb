@@ -117,8 +117,8 @@ def mp3_to_wav(filename):
         lame.wait()
 
 def youtube_wav(url,taskname):
-    tube = subprocess.Popen(shlex.split('youtube-dl '+url+' --extract-audio --audio-format wav --audio-quality 16k -o /home/sravana/data/webphonetics/'+taskname+'.wav/ytvideo.%(ext)s'), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    return "ytvideo"
+    tube = subprocess.Popen(shlex.split('youtube-dl '+url+' --extract-audio --audio-format wav --audio-quality 16k -o /home/sravana/data/webphonetics/'+taskname+'.audio/ytvideo.%(ext)s'), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    return "ytvideo.wav"
         
 def process_wav(filename, taskname, fileid):
     try:
