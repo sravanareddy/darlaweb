@@ -109,7 +109,7 @@ def process_audio(audiodir, filename, extension, filecontent):
 
     if extension == '.mp3':
         print 'converting', os.path.join(audiodir, filename+extension)
-        os.system('lame --decode '+os.path.join(audiodir, filename+extension)+' '+os.path.join(audiodir, filename+'.wav'))  #TODO: use subprocess instead
+        os.system('lame --decode '+os.path.join(audiodir, filename+extension)+' '+os.path.join(audiodir, filename+'.wav'))  #TODO: use subprocess instead (it's getting stuck on lame for some reason)
         extension = '.wav'
         print "converted to", filename+extension
     
@@ -158,7 +158,8 @@ def soxConversion(filename, audiodir):
         if "Duration" in line:
             m = re.search("(=\s)(.*)(\ssamples)", line)
             file_size = float(m.group(2))
-            file_size = file_size / sample_rate #gets duration, in seconds of the file.                  
+            file_size = file_size / sample_rate #gets duration, in seconds of the file.
+            file_size /= 60.0
 
     retval = sox.wait()
 
@@ -190,7 +191,7 @@ def soxConversion(filename, audiodir):
 
     #os.remove(os.path.join(audiodir, filename))
     
-    return sample_rate
+    return sample_rate, file_size
 
 def gen_argfiles(datadir, taskname, uploadfilename, samprate, lw, dialect, email):
     """create ctl files"""

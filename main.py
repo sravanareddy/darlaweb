@@ -19,8 +19,9 @@ class index:
         return render.index()
 
 class upload:
+    MINDURATION = 30 #in minutes
     uploadfile = myform.MyFile('uploadfile',
-                           post='Longer recordings (of at least 30 minutes) are recommended. Your uploaded files are stored temporarily on the Dartmouth servers in order to process your job, and deleted after.',
+                           post='Longer recordings (of at least {0} minutes) are recommended. Your uploaded files are stored temporarily on the Dartmouth servers in order to process your job, and deleted after.'.format(MINDURATION),
                            description='Upload a .wav, .mp3, or .zip file with multiple recordings')
     filelink = form.Textbox('filelink',
                             form.regexp(r'^$|https\://www\.youtube\.com/watch\?v\=\S+', 'Check your link. It should start with https://www.youtube.com/watch?v='),
@@ -103,6 +104,7 @@ class upload:
                 if extension == '.zip': #extract zip contents
                     z = zipfile.ZipFile(x.uploadfile.file)
                     filecount = 0
+                    total_size = 0.0
                     for subname in z.namelist():
                         subfilename, subextension = utilities.get_basename(subname)
                         print subfilename, subextension
@@ -115,27 +117,26 @@ class upload:
                             return render.formtest(form)
                         
                         else:
-                            samprate = utilities.process_audio(audiodir,
+                            samprate, file_size = utilities.process_audio(audiodir,
                                                      subfilename, subextension,
                                 z.open(subname).read())
+                            
                             filecount += 1
-
-                    #generate ctl files
-                    utilities.gen_argfiles(self.datadir, form.taskname.value, filename, samprate, form.lw.value, form.dialect.value, form.email.value)
-
-                    return "Success! your file {0} contains {1} files. Your email: {2}".format(filename, filecount, form.email.value)
+                            total_size += file_size
 
                 else:  #will be mp3 or wav
-                    samprate = utilities.process_audio(audiodir,
+                    samprate, total_size = utilities.process_audio(audiodir,
                                              filename, extension,
                         x.uploadfile.file.read())
-
-                    #generate ctl files
-                    utilities.gen_argfiles(self.datadir, form.taskname.value, filename, samprate, form.lw.value, form.dialect.value, form.email.value)
-                    
-                    #TODO: show speaker form by adding fields to existing form and re-rendering?
                 
-                    return "Success! your file {0} has a sampling rate of {1}. Taskname: {2}, LW: {3}, Dialect: {4}, Email: {5}".format(filename, samprate, form.taskname.value, form.lw.value, form.dialect.value, form.email.value)
+                    if total_size < self.MINDURATION:  #TODO: ensure that this re-renders (perhaps with speakers)
+                        form.note = "Warning: Your files total only {0} minutes of speech. We recommend at least {1} minutes for best results.".format(total_size, self.MINDURATION)
+                    
+                #generate ctl files
+                utilities.gen_argfiles(self.datadir, form.taskname.value, filename, samprate, form.lw.value, form.dialect.value, form.email.value)
+                    
+                #TODO: show speaker form by adding fields to existing form and re-rendering (?)
+                return "Success!"
 
 if __name__=="__main__":
     web.internalerror = web.debugerror
