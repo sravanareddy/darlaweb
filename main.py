@@ -24,7 +24,7 @@ class upload:
                            description='Upload a .wav, .mp3, or .zip file with multiple recordings')
     filelink = form.Textbox('filelink',
                             form.regexp(r'^$|https\://www\.youtube\.com/watch\?v\=\S+', 'Check your link. It should start with https://www.youtube.com/watch?v='),
-                              post='Long, single-speaker videos with no music work best',
+                              post='Long, single-speaker videos with no music work best.',
                               description='or copy and paste a link to a YouTube video')
     dialect = form.Radio('dialect',
                          [('standard', 'Standard American '),
