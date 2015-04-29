@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""Creates intermediate script files based on user options and data
+"""Creates intermediate argument files, does basic audio processing and conversion.
 """
 
 import argparse
@@ -108,7 +108,7 @@ def process_audio(audiodir, filename, extension, filecontent):
     o.close()
 
     if extension == '.mp3':
-        print 'converting', os.path.join(audiodir, filename+extension)
+        print 'converting', os.path.join(audiodir, filename+extension)  #TODO: try and except here
         os.system('lame --decode '+os.path.join(audiodir, filename+extension)+' '+os.path.join(audiodir, filename+'.wav'))  #TODO: use subprocess instead (it's getting stuck on lame for some reason)
         extension = '.wav'
         print "converted to", filename+extension
@@ -176,21 +176,19 @@ def soxConversion(filename, audiodir):
         # return sample_rate, "sample rate not high enough"
         # raise CustomException("sample rate not high enough")
         return sample_rate, file_size, CustomException("sample rate not high enough")
-        #TODO: actually make it work instead of break.                                   
+        #TODO: actually make it work instead of break. Note: this is also a way to catch non-sound files that have been (maliciously?) uploaded using a .wav extension.
 
     #convert to 16-bit, signed, little endian as well as downsample                                       
     conv = subprocess.Popen(['sox', os.path.join(audiodir, filename), '-r', ratecode, '-b', '16', '-e', 'signed', '-L', os.path.join(audiodir, 'converted_'+filename), 'channels', '1'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     retval = conv.wait()
 
-    #split into 30sec chunks. TODO: split on silence                          
+    #split into 20sec chunks. TODO: split on silence                          
     if not os.path.isdir(os.path.join(audiodir, 'splits')):
         os.mkdir(os.path.join(audiodir, 'splits'))
     basename, _ = os.path.splitext(filename)
     conv = subprocess.Popen(['sox', os.path.join(audiodir, 'converted_'+filename), os.path.join(audiodir, 'splits', basename+'.split.wav'), 'trim', '0', '20', ':', 'newfile', ':', 'restart'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     retval = conv.wait()
 
-    #os.remove(os.path.join(audiodir, filename))
-    
     return sample_rate, file_size
 
 def gen_argfiles(datadir, taskname, uploadfilename, samprate, lw, dialect, email):

@@ -100,11 +100,14 @@ class upload:
                 #create new task                                                               
                 taskname, audiodir = utilities.make_task(self.datadir)
                 form.taskname.value = taskname
+
+                filenames = []   #for use in speakers form
                 
                 if extension == '.zip': #extract zip contents
                     z = zipfile.ZipFile(x.uploadfile.file)
-                    filecount = 0
+
                     total_size = 0.0
+                    
                     for subname in z.namelist():
                         subfilename, subextension = utilities.get_basename(subname)
                         print subfilename, subextension
@@ -121,15 +124,16 @@ class upload:
                                                      subfilename, subextension,
                                 z.open(subname).read())
                             
-                            filecount += 1
+                            filenames.append(subfilename)
                             total_size += file_size
 
                 else:  #will be mp3 or wav
                     samprate, total_size = utilities.process_audio(audiodir,
                                              filename, extension,
                         x.uploadfile.file.read())
+                    filenames.append(filename)
                 
-                    if total_size < self.MINDURATION:  #TODO: ensure that this re-renders (perhaps with speakers)
+                if total_size < self.MINDURATION:  #TODO: ensure that this re-renders (perhaps with speakers)
                         form.note = "Warning: Your files total only {0} minutes of speech. We recommend at least {1} minutes for best results.".format(total_size, self.MINDURATION)
                     
                 #generate ctl files
