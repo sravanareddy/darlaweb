@@ -73,7 +73,7 @@ class upload:
         if not form.validates(): #not validated
             return render.formtest(form)
 
-        elif x.filelink!="": #TODO - youtube files
+        elif x.filelink!="": #TODO - work with youtube files
           #make taskname
           # taskname, audiodir = utilities.make_task(self.datadir)
           # self.taskname.value = taskname
