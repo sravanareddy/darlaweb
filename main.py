@@ -121,12 +121,9 @@ class upload:
 
                 else:
 
-                  if extension == '.mp3': #TODO: convert mp3 to wav
-                    return "mp3"
-
                   samprate = utilities.process_audio(audiodir,
                                              filename, extension,
-                        x.uploadfile.file.read())
+                        x.uploadfile.file.read()) #does mp3 conversion there.
                 
                   return "Success! your file {0} has a sampling rate of {1}. Your email: {2}".format(filename, samprate, form.email.value)              
 
