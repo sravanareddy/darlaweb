@@ -6,6 +6,7 @@ from web import form
 import myform
 import utilities
 import zipfile
+import tarfile
 from align import app_align
 
 render = web.template.render('templates/', base='layout')
@@ -22,7 +23,7 @@ class upload:
     MINDURATION = 30 #in minutes
     uploadfile = myform.MyFile('uploadfile',
                            post='Longer recordings (of at least {0} minutes) are recommended. Your uploaded files are stored temporarily on the Dartmouth servers in order to process your job, and deleted after.'.format(MINDURATION),
-                           description='Upload a .wav, .mp3, or .zip file with multiple recordings')
+                           description='Upload a .wav or .mp3 file. You may also upload a .zip or tar.gz/.tgz archive with multiple recordings.')
     filelink = form.Textbox('filelink',
                             form.regexp(r'^$|https\://www\.youtube\.com/watch\?v\=\S+', 'Check your link. It should start with https://www.youtube.com/watch?v='),
                               post='Long, single-speaker videos with no music work best.',
@@ -92,8 +93,8 @@ class upload:
             #sanitize filename
             filename, extension = utilities.get_basename(x.uploadfile.filename)
 
-            if extension not in ['.wav', '.zip', '.mp3']:
-                form.note = "Please upload a .wav, .mp3, or .zip file"
+            if extension not in ['.wav', '.zip', '.mp3', '.gz', '.tgz']:
+                form.note = "Please upload a .wav, .mp3, .zip, .tgz, or .tar.gz file"
                 return render.formtest(form)
 
             else:
@@ -136,7 +137,7 @@ class upload:
                 if total_size < self.MINDURATION:  #TODO: ensure that this re-renders (perhaps with speakers)
                         form.note = "Warning: Your files total only {0} minutes of speech. We recommend at least {1} minutes for best results.".format(total_size, self.MINDURATION)
                     
-                #generate ctl files
+                #generate argument files
                 utilities.gen_argfiles(self.datadir, form.taskname.value, filename, samprate, form.lw.value, form.dialect.value, form.email.value)
                     
                 #TODO: show speaker form by adding fields to existing form and re-rendering (?)
