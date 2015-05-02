@@ -27,13 +27,13 @@ class upload:
     filelink = form.Textbox('filelink',
                             form.regexp(r'^$|https\://www\.youtube\.com/watch\?v\=\S+', 'Check your link. It should start with https://www.youtube.com/watch?v='),
                               post='Long, single-speaker videos with no music work best.',
-                              description='or copy and paste a link to a YouTube video')
+                              description='or copy and paste a link to a YouTube video:')
     dialect = form.Radio('dialect',
                          [('standard', 'Standard American '),
                           ('southern', 'Southern ')],
                          value = 'standard',
                          post='Selecting the appropriate dialect for the acoustic model may increase transcription accuracy. If your data contains speakers of multiple dialects, select Standard American. Other dialects may be added in the future.',
-                         description='Dialect of the majority of speakers')
+                         description='Dialect of the majority of speakers:')
     lw = form.Radio('lw',
                     [('7', 'Free speech or reading passage '),
                      ('3', 'Word list ')],
@@ -45,7 +45,7 @@ class upload:
                          form.regexp(r'^[\w.+-]+@[\w.+-]+\.[\w.+-]+$',
                                      'Please enter a valid email address.'),
                          post='We will not store or distribute your address.',
-                         description='Your e-mail address')
+                         description='Your e-mail address:')
     taskname = form.Hidden('taskname')
     
     soundvalid = [form.Validator('Please upload a file or enter a video link (but not both).',
@@ -93,8 +93,8 @@ class upload:
             #sanitize filename
             filename, extension = utilities.get_basename(x.uploadfile.filename)
 
-            if extension not in ['.wav', '.zip', '.mp3', '.gz', '.tgz']:
-                form.note = "Please upload a .wav, .mp3, .zip, .tgz, or .tar.gz file"
+            if extension not in ['.wav', '.zip', '.mp3', '.gz', '.tgz', '.tar']:
+                form.note = "Please upload a .wav, .mp3, .zip, .tgz, or .tar file."
                 return render.formtest(form)
 
             else:
@@ -104,7 +104,8 @@ class upload:
 
                 filenames = []   #for use in speakers form
                 
-                if extension == '.zip': #extract zip contents
+                if extension == '.zip':  #TODO: try-except in case there's a problem with the file
+
                     z = zipfile.ZipFile(x.uploadfile.file)
 
                     total_size = 0.0
@@ -117,7 +118,7 @@ class upload:
                             continue
                         
                         if subextension not in ['.wav', '.mp3']:
-                            form.note = "Extension incorrect for file {0} in the zip folder {1}.zip. Make sure your folder only contains .wav or .mp3 files.".format(subfilename+subextension, filename)
+                            form.note = "Extension incorrect for file {0} in the folder {1}{2}. Make sure your folder only contains .wav or .mp3 files.".format(subfilename+subextension, filename, extension)
                             return render.formtest(form)
                         
                         else:
@@ -127,7 +128,31 @@ class upload:
                             
                             filenames.append(subfilename)
                             total_size += file_size
+                
+                elif extension in ['.tar', '.tgz', '.gz']:   #TODO: try-except
+                    t = tarfile.open(fileobj=x.uploadfile.file)
 
+                    total_size = 0.0
+                    
+                    for subname in t.getnames():
+                        subfilename, subextension = utilities.get_basename(subname)
+                        print subfilename, subextension
+                        
+                        if subfilename in ['', '__MACOSX', '.DS_Store', '._']:
+                            continue
+                        
+                        if subextension not in ['.wav', '.mp3']:
+                            form.note = "Extension incorrect for file {0} in the folder {1}{2}. Make sure your folder only contains .wav or .mp3 files.".format(subfilename+subextension, filename, extension)
+                            return render.formtest(form)
+                        
+                        else:
+                            samprate, file_size = utilities.process_audio(audiodir,
+                                                     subfilename, subextension,
+                                t.extractfile(subname).read())
+                            
+                            filenames.append(subfilename)
+                            total_size += file_size
+                            
                 else:  #will be mp3 or wav
                     samprate, total_size = utilities.process_audio(audiodir,
                                              filename, extension,
