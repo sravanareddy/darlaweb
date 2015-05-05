@@ -76,15 +76,15 @@ class upload:
 
         elif x.filelink!="": #TODO - work with youtube files
           #make taskname
-          # taskname, audiodir = utilities.make_task(self.datadir)
-          # self.taskname.value = taskname
+          taskname, audiodir = utilities.make_task(self.datadir)
+          self.taskname.value = taskname
 
-          # filename = utilities.youtube_wav(url, taskname)
-          # samprate = utilities.soxConversion(audiodir,
-          #                                    filename)
+          filename = utilities.youtube_wav(url, taskname)
+          samprate = utilities.soxConversion(audiodir,
+                                             filename)
 
-          # return "Success! your file {0} has a sampling rate of {1}. Your email: {2}".format(filename, samprate, form.email.value)
-          return "Youtube"
+          utilities.gen_argfiles(self.datadir, form.taskname.value, filename, samprate, form.lw.value, form.dialect.value, form.email.value)
+          return "Success! your file {0} has a sampling rate of {1}. Your email: {2}".format(filename, samprate, form.email.value)
           #return new form? 
         
         elif 'uploadfile' in x:  
@@ -113,7 +113,7 @@ class upload:
                             continue
                         
                         if subextension not in ['.wav', '.mp3']:
-                            form.note = "Extension incorrect for file {0} in the zip folder {1}.zip. Make sure your folder only contains .wav or .mp3 files.".format(subfilename+subextension, filename)
+                            form.note = "Extension incorrect for file {0} in the zip folder {1}.zip. Make sure your folder only contains .wav or .mp3 files.".format(subfilename+subextension, filename) #shows up at the top of the window 
                             return render.formtest(form)
                         
                         else:
@@ -135,8 +135,8 @@ class upload:
                 #generate ctl files
                 utilities.gen_argfiles(self.datadir, form.taskname.value, filename, samprate, form.lw.value, form.dialect.value, form.email.value)
                     
-                #TODO: show speaker form by adding fields to existing form and re-rendering (?)
-                return "Success!"
+                #TODO: show speaker form by adding fields to existing form and re-rendering
+                return render.formtest(form)
 
 if __name__=="__main__":
     web.internalerror = web.debugerror
