@@ -65,7 +65,7 @@ class upload:
 
         speaker_name = form.Textbox('name'+str(index),
                          form.notnull,
-                         pre="File Name:"+filename[index],
+                         pre="File Name:"+filenames[index],
                          description='Speaker ID')
         sex = form.Radio('sex'+str(index), 
                         [('M','Male'),('F','Female'),('C','Child')],
