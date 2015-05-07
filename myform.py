@@ -53,7 +53,7 @@ class ListToForm(web.form.Form):
                 self.valid = True
                 self.note = None
                 self.validators = kw.pop('validators', [])
-                
+
         def rendernote(self, note):
                 if note: 
                         return '<span class="error"> {0}</span>'.format(note)
@@ -82,6 +82,6 @@ class ListToForm(web.form.Form):
                         out.append(i.description+': ')
                         out.append(i.render())
                         out.append(self.rendernote(i.note))
-                        out.append('<br><span class="note">dis{0}</span>'.format(i.post))
+                        out.append('<span class="note">dis{0}</span>'.format(i.post))
                         out.append('</p>\n')
                 return ''.join(out)

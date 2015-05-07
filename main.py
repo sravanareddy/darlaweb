@@ -57,6 +57,12 @@ class upload:
       input_list = []
       for index in range(0, len(filenames)):
 
+        if index!=0:
+          checkBox = form.Checkbox(str(index),
+                      class_='copy',
+                      post='Check if speaker is same as above')
+          input_list.append(checkBox)
+
         speaker_name = form.Textbox('name'+str(index),
                          form.notnull,
                          description='Speaker ID')
@@ -64,11 +70,6 @@ class upload:
                         [('M','Male'),('F','Female'),('C','Child')],
                         description='Sex')
         input_list.extend([speaker_name,sex])
-        if index!=0:
-          checkBox = form.Checkbox(str(index),
-                      class_='copy',
-                      post='Check if ')
-          input_list.append(checkBox)
 
       speakers = myform.ListToForm(input_list) #can you pass in a list of things as the form? hopefully :( right now not working though 
       s = speakers() 
