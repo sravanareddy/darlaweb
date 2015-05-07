@@ -65,19 +65,21 @@ class upload:
 
         speaker_name = form.Textbox('name'+str(index),
                          form.notnull,
+                         pre="File Name:"+filename[index],
                          description='Speaker ID')
         sex = form.Radio('sex'+str(index), 
                         [('M','Male'),('F','Female'),('C','Child')],
                         description='Sex'
                         )
+
         input_list.extend([speaker_name,sex])
 
       speakers = myform.ListToForm(input_list)
       s = speakers() 
       
 
-      #TODO: render.speakers(completed_form, s) #send in disabled form
-      return render.formtest(completed_form,s)
+      return render.speakers(completed_form, s) #TODO: send in disabled form
+      # return render.formtest(completed_form,s)
 
     def GET(self):
         self.dialect.value = 'standard'
@@ -108,14 +110,15 @@ class upload:
           self.taskname.value = taskname
 
           filename = utilities.youtube_wav(x.filelink, audiodir, taskname)
-          samprate = utilities.soxConversion(filename,
+          samprate, file_size = utilities.soxConversion(filename,
                                              audiodir)
           filenames = [filename]
 
           utilities.gen_argfiles(self.datadir, form.taskname.value, filename, samprate, form.lw.value, form.dialect.value, form.email.value)
-          return "Success! your file {0} has a sampling rate of {1}. Your email: {2}".format(filename, samprate, form.email.value)
+          form.note = "Warning: Your files total only {0} minutes of speech. We recommend at least {1} minutes for best results.".format(file_size, self.MINDURATION)
+          # return "Success! your file {0} has a sampling rate of {1}. Your email: {2}".format(filename, samprate, form.email.value)
           #return new form? 
-          # return self.speaker_form(form, filenames)
+          return self.speaker_form(form, filenames)
 
         
         elif 'uploadfile' in x:  

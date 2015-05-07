@@ -1,4 +1,4 @@
-$def with (filenames, warnings)
+$def with (form, speakerform)
 
 <div class="left-col">
 
@@ -9,22 +9,20 @@ $def with (filenames, warnings)
 
 <a href="upload"><small>Click here at any time to cancel or start over.</small></a><p>
 
-<h3>Enter speaker information</h3>
-<span class="note">Does not affect the automatic transcription, but required for vowel extraction results.</span><p>
-
-	<form name="align" method="post">
-	$for file in filenames:
-		<div id="$filenames.index(file)">
-		<p>Sound file name: <tt>$file</tt></p>
-		Speaker ID:<input type ="textbox" name="name$filenames.index(file)" id="name$filenames.index(file)" required/>
-		Sex:
-		<input type="radio" id="msex$filenames.index(file)" name="sex$filenames.index(file)" value="M" required/>Male
-		<input type="radio" id="fsex$filenames.index(file)" name="sex$filenames.index(file)" value="F" required/>Female
-		<input type="radio" id="csex$filenames.index(file)" name="sex$filenames.index(file)" value="C" required/>Child
-		</div>
-	</form>
-
+<form name="upload" method="post" enctype="multipart/form-data"> 
+$if not form.valid: <p class="error">Correct the errors below.</p>
+$:form.render_disabled()
+<input type="submit" />
 </form>
+
+$if speakerform:
+	<h3>Enter speaker information</h3>
+	<span class="note">Does not affect the automatic transcription, but required for vowel extraction results.</span><p>
+	<form action="/align" name="align" method="post">
+	$if not speakerform.valid: <p class="error">Correct the errors below.</p>
+	$:speakerform.render()
+	<input type="submit" />
+	</form>
 
 </div>
 
