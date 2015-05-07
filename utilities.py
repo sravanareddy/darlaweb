@@ -118,7 +118,8 @@ def process_audio(audiodir, filename, extension, filecontent):
     return samprate
                         
 def youtube_wav(url,taskname):
-    tube = subprocess.Popen(shlex.split('youtube-dl '+url+' --extract-audio --audio-format wav --audio-quality 16k -o /home/sravana/data/webphonetics/'+taskname+'.audio/ytvideo.%(ext)s'), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    datadir = open('filepaths.txt').read().strip()
+    tube = subprocess.Popen(shlex.split('youtube-dl '+url+' --extract-audio --audio-format wav --audio-quality 16k -o '+os.path.join(datadir, taskname+'.audio/ytvideo.%(ext)s')), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     return "ytvideo.wav"
         
 def process_wav(filename, taskname, fileid):
