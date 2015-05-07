@@ -107,7 +107,7 @@ class upload:
         elif x.filelink!="": 
           #make taskname
           taskname, audiodir = utilities.make_task(self.datadir)
-          self.taskname.value = taskname
+          form.taskname.value = taskname
 
           filename = utilities.youtube_wav(x.filelink, audiodir, taskname)
           samprate, file_size = utilities.soxConversion(filename,
