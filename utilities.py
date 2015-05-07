@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""Creates intermediate script files based on user options and data
+"""Creates intermediate argument files, does basic audio processing and conversion.
 """
 
 import argparse
@@ -108,8 +108,8 @@ def process_audio(audiodir, filename, extension, filecontent):
     o.close()
 
     if extension == '.mp3':
-        print 'converting', os.path.join(audiodir, filename+extension)
-        os.system('lame --decode '+os.path.join(audiodir, filename+extension)+' '+os.path.join(audiodir, filename+'.wav'))  #TODO: use subprocess instead
+        print 'converting', os.path.join(audiodir, filename+extension)  #TODO: try and except here
+        os.system('lame --decode '+os.path.join(audiodir, filename+extension)+' '+os.path.join(audiodir, filename+'.wav'))  #TODO: use subprocess instead (it's getting stuck on lame for some reason)
         extension = '.wav'
         print "converted to", filename+extension
     
@@ -158,7 +158,8 @@ def soxConversion(filename, audiodir):
         if "Duration" in line:
             m = re.search("(=\s)(.*)(\ssamples)", line)
             file_size = float(m.group(2))
-            file_size = file_size / sample_rate #gets duration, in seconds of the file.                  
+            file_size = file_size / sample_rate #gets duration, in seconds of the file.
+            file_size /= 60.0
 
     retval = sox.wait()
 
@@ -175,40 +176,38 @@ def soxConversion(filename, audiodir):
         # return sample_rate, "sample rate not high enough"
         # raise CustomException("sample rate not high enough")
         return sample_rate, file_size, CustomException("sample rate not high enough")
-        #TODO: actually make it work instead of break.                                   
+        #TODO: actually make it work instead of break. Note: this is also a way to catch non-sound files that have been (maliciously?) uploaded using a .wav extension.
 
     #convert to 16-bit, signed, little endian as well as downsample                                       
     conv = subprocess.Popen(['sox', os.path.join(audiodir, filename), '-r', ratecode, '-b', '16', '-e', 'signed', '-L', os.path.join(audiodir, 'converted_'+filename), 'channels', '1'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     retval = conv.wait()
 
-    #split into 30sec chunks. TODO: split on silence                          
+    #split into 20sec chunks. TODO: split on silence                          
     if not os.path.isdir(os.path.join(audiodir, 'splits')):
         os.mkdir(os.path.join(audiodir, 'splits'))
     basename, _ = os.path.splitext(filename)
     conv = subprocess.Popen(['sox', os.path.join(audiodir, 'converted_'+filename), os.path.join(audiodir, 'splits', basename+'.split.wav'), 'trim', '0', '20', ':', 'newfile', ':', 'restart'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     retval = conv.wait()
 
-    #os.remove(os.path.join(audiodir, filename))
-    
-    return sample_rate
+    return sample_rate, file_size
 
-def gen_argfiles(taskname, filename, samprate, lw, dialect, email):
+def gen_argfiles(datadir, taskname, uploadfilename, samprate, lw, dialect, email):
     """create ctl files"""
     filelist = map(lambda filename: filename[:-4],
                           filter(lambda filename: filename.endswith('.wav'),
-                                 os.listdir(taskname+'.wav/splits/')))
+                                 os.listdir(os.path.join(datadir, taskname+'.audio', 'splits'))))
     numfiles = len(filelist)
     
     #numsplits = min(numfiles, 8)
     
     #for i in range(numsplits):
-    o = open(taskname+'.ctl', 'w')
+    o = open(os.path.join(datadir, taskname+'.ctl'), 'w')
     o.write('\n'.join(filelist))
     o.write('\n')
     o.close()
 
     """feature extraction"""
-    options = {'di': taskname+'.wav/splits/',
+    options = {'di': taskname+'.audio/splits/',
                'do': taskname+'.mfc',
                'ei': 'wav',
                'eo': 'mfc',
@@ -234,14 +233,14 @@ def gen_argfiles(taskname, filename, samprate, lw, dialect, email):
                        'upperf': '6800'})
 
     #for i in range(numsplits):
-    o = open(taskname+'.featurize_args', 'w')
+    o = open(os.path.join(datadir, taskname+'.featurize_args'), 'w')
     options['c'] = taskname+'.ctl'
     o.write('\n'.join(map(lambda (k, v): '-'+k+' '+v,
                           options.items())))
     o.close()
 
-    os.system('mkdir -p '+taskname+'.mfc')
-    os.system('chmod g+w '+taskname+'.mfc')
+    os.system('mkdir -p '+os.path.join(datadir, taskname)+'.mfc')
+    os.system('chmod g+w '+os.path.join(datadir, taskname)+'.mfc')
     
     """recognition"""
     options = {}
@@ -273,7 +272,7 @@ def gen_argfiles(taskname, filename, samprate, lw, dialect, email):
                     'cmninit': '40'})
     
     #for i in range(numsplits):
-    o = open(taskname+'.recognize_args', 'w')
+    o = open(os.path.join(datadir, taskname+'.recognize_args'), 'w')
     options.update({'ctl': taskname+'.ctl',
                     'hyp': taskname+'.hyp',
                     'hypseg': taskname+'.hypseg'})
@@ -281,12 +280,10 @@ def gen_argfiles(taskname, filename, samprate, lw, dialect, email):
                           options.items())))
     o.close()
 
-    os.system('mkdir -p '+taskname+'.lat')
-    
     """Align and extract"""
-    o = open(taskname+'.alext_args', 'w')
+    o = open(os.path.join(datadir, taskname+'.alext_args'), 'w')
     
-    o.write(filename+' ')
+    o.write(uploadfilename+' ')
     
     if samprate==8000:
             o.write('/home/sravana/acousticmodels/prosodylab-8.zip ')
