@@ -21,6 +21,7 @@ $if speakerform:
 	<form name="align" method="post">
 	$if not speakerform.valid: <p class="error">Correct the errors below.</p>
 	$:speakerform.render()
+	<input type="submit" />
 	</form>
 
 </div>

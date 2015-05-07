@@ -1,0 +1,30 @@
+$def with (filenames, warnings)
+
+<div class="left-col">
+
+<span class="breadcrumbs"><a href="http://darla.dartmouth.edu" target="_blank">About DARLA</a></span>
+<span class="breadcrumbs"><a href="http://darla.dartmouth.edu#cite" target="_blank">How to cite</a></span><p>
+
+<h2>Completely Automated Vowel Extraction</h2><p><p>
+
+<a href="upload"><small>Click here at any time to cancel or start over.</small></a><p>
+
+<h3>Enter speaker information</h3>
+<span class="note">Does not affect the automatic transcription, but required for vowel extraction results.</span><p>
+
+	<form name="align" method="post">
+	$for file in filenames:
+		<div id="$filenames.index(file)">
+		<p>Sound file name: <tt>$file</tt></p>
+		Speaker ID:<input type ="textbox" name="name$filenames.index(file)" id="name$filenames.index(file)" required/>
+		Sex:
+		<input type="radio" id="msex$filenames.index(file)" name="sex$filenames.index(file)" value="M" required/>Male
+		<input type="radio" id="fsex$filenames.index(file)" name="sex$filenames.index(file)" value="F" required/>Female
+		<input type="radio" id="csex$filenames.index(file)" name="sex$filenames.index(file)" value="C" required/>Child
+		</div>
+	</form>
+
+</form>
+
+</div>
+
