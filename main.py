@@ -53,7 +53,7 @@ class upload:
     
     datadir = open('filepaths.txt').read().strip()
     
-    def speaker_form(self, completed_form, filenames): #send in the form too
+    def speaker_form(self, completed_form, filenames): #send in the completed form too
       input_list = []
       for index in range(0, len(filenames)):
 
@@ -107,7 +107,7 @@ class upload:
           # self.taskname.value = taskname
 
           filename = "ytvideo"
-          filenames = [filename, filename]
+          filenames = [filename]
 
           # filename = utilities.youtube_wav(url, taskname)
           # samprate = utilities.soxConversion(audiodir,
@@ -197,7 +197,8 @@ class upload:
                 utilities.gen_argfiles(self.datadir, form.taskname.value, filename, samprate, form.lw.value, form.dialect.value, form.email.value)
                     
                 #TODO: show speaker form by adding fields to existing form and re-rendering
-                return render.formtest(form, "")
+                # return render.formtest(form, "")
+                return self.speaker_form(form, filenames)
 
 if __name__=="__main__":
     web.internalerror = web.debugerror
