@@ -117,34 +117,35 @@ def process_audio(audiodir, filename, extension, filecontent):
     samprate = soxConversion(filename+extension, audiodir)
     return samprate
                         
-def youtube_wav(url,taskname):
-    tube = subprocess.Popen(shlex.split('youtube-dl '+url+' --extract-audio --audio-format wav --audio-quality 16k -o /home/sravana/data/webphonetics/'+taskname+'.audio/ytvideo.%(ext)s'), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    return "ytvideo.wav"
+def youtube_wav(url,audiodir,taskname):
+    tube = subprocess.Popen(shlex.split('youtube-dl '+url+' --extract-audio --audio-format wav --audio-quality 16k -o '+audiodir+'/ytvideo.audio'), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    print tube.stdout.readlines()
+    return "ytvideo.audio"
         
-def process_wav(filename, taskname, fileid):
-    try:
-        samprate,filesize, r = soxConversion(filename+'.wav', taskname)
-        print "<div id=\""+fileid+"\">"
-        print "Sound file name: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<tt>", filename, "</tt><br>"
-        print "<input type=\"hidden\" name=\"filename"+fileid+"\" value=\""+filename+"\">"
+# def process_wav(filename, taskname, fileid):
+#     try:
+#         samprate,filesize, r = soxConversion(filename+'.wav', taskname)
+#         print "<div id=\""+fileid+"\">"
+#         print "Sound file name: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<tt>", filename, "</tt><br>"
+#         print "<input type=\"hidden\" name=\"filename"+fileid+"\" value=\""+filename+"\">"
         
-        if fileid!='0':
-            print "<input type=\"checkbox\" class=\"copy\" value=\""+fileid+"\" /> Check if speaker is same as above<br>"
+#         if fileid!='0':
+#             print "<input type=\"checkbox\" class=\"copy\" value=\""+fileid+"\" /> Check if speaker is same as above<br>"
         
-        print "Speaker ID: <input type =\"textbox\" name=\"name"+fileid+"\" id=\"name"+fileid+"\" required/>"
-        print "Sex:",
-        print "<input type=\"radio\" id=\"msex"+fileid+"\" name=\"sex"+fileid+"\" value=\"M\" required/>Male"
-        print "<input type=\"radio\" id=\"fsex"+fileid+"\" name=\"sex"+fileid+"\" value=\"F\" required/>Female"
-        print "<input type=\"radio\" id=\"csex"+fileid+"\" name=\"sex"+fileid+"\" value=\"F\" required/>Child"
-        print "<p>"
-        print "</div>"
+#         print "Speaker ID: <input type =\"textbox\" name=\"name"+fileid+"\" id=\"name"+fileid+"\" required/>"
+#         print "Sex:",
+#         print "<input type=\"radio\" id=\"msex"+fileid+"\" name=\"sex"+fileid+"\" value=\"M\" required/>Male"
+#         print "<input type=\"radio\" id=\"fsex"+fileid+"\" name=\"sex"+fileid+"\" value=\"F\" required/>Female"
+#         print "<input type=\"radio\" id=\"csex"+fileid+"\" name=\"sex"+fileid+"\" value=\"F\" required/>Child"
+#         print "<p>"
+#         print "</div>"
 
-        return samprate, filesize, r
+#         return samprate, filesize, r
         
-    except IOError:
-        print "Error reading file "+filename
-    except:
-        print "<span class=\"error\" id=\"error_msg\">ERROR: something went wrong while processing the file "+filename+"</span>"
+#     except IOError:
+#         print "Error reading file "+filename
+#     except:
+#         print "<span class=\"error\" id=\"error_msg\">ERROR: something went wrong while processing the file "+filename+"</span>"
 
 def soxConversion(filename, audiodir):
     sample_rate = 0
@@ -181,10 +182,13 @@ def soxConversion(filename, audiodir):
     #convert to 16-bit, signed, little endian as well as downsample                                       
     conv = subprocess.Popen(['sox', os.path.join(audiodir, filename), '-r', ratecode, '-b', '16', '-e', 'signed', '-L', os.path.join(audiodir, 'converted_'+filename), 'channels', '1'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     retval = conv.wait()
+    print "retval"
+    print retval
 
     #split into 20sec chunks. TODO: split on silence                          
-    if not os.path.isdir(os.path.join(audiodir, 'splits')):
-        os.mkdir(os.path.join(audiodir, 'splits'))
+    # if not os.path.isdir(os.path.join(audiodir, 'splits')): #don't need this? 
+    os.mkdir(os.path.join(audiodir, 'splits'))
+    
     basename, _ = os.path.splitext(filename)
     conv = subprocess.Popen(['sox', os.path.join(audiodir, 'converted_'+filename), os.path.join(audiodir, 'splits', basename+'.split.wav'), 'trim', '0', '20', ':', 'newfile', ':', 'restart'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     retval = conv.wait()

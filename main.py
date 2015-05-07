@@ -66,16 +66,17 @@ class upload:
         speaker_name = form.Textbox('name'+str(index),
                          form.notnull,
                          description='Speaker ID')
-        sex = form.Radio('sex', 
+        sex = form.Radio('sex'+str(index), 
                         [('M','Male'),('F','Female'),('C','Child')],
-                        description='Sex')
+                        description='Sex'
+                        )
         input_list.extend([speaker_name,sex])
 
-      speakers = myform.ListToForm(input_list) #can you pass in a list of things as the form? hopefully :( right now not working though 
+      speakers = myform.ListToForm(input_list)
       s = speakers() 
       
-      #if can use a lambda function, will use. speakers = myform.MyForm(input_list lambda), if not, code in html...
-      # return render.speakers(filenames, "") #coding in html currently
+
+      #TODO: render.speakers(completed_form, s) #send in disabled form
       return render.formtest(completed_form,s)
 
     def GET(self):
@@ -103,20 +104,18 @@ class upload:
 
         elif x.filelink!="": 
           #make taskname
-          # taskname, audiodir = utilities.make_task(self.datadir)
-          # self.taskname.value = taskname
+          taskname, audiodir = utilities.make_task(self.datadir)
+          self.taskname.value = taskname
 
-          filename = "ytvideo"
+          filename = utilities.youtube_wav(x.filelink, audiodir, taskname)
+          samprate = utilities.soxConversion(filename,
+                                             audiodir)
           filenames = [filename]
 
-          # filename = utilities.youtube_wav(url, taskname)
-          # samprate = utilities.soxConversion(audiodir,
-          #                                    filename)
-
-          # utilities.gen_argfiles(self.datadir, form.taskname.value, filename, samprate, form.lw.value, form.dialect.value, form.email.value)
-          # return "Success! your file {0} has a sampling rate of {1}. Your email: {2}".format(filename, samprate, form.email.value)
+          utilities.gen_argfiles(self.datadir, form.taskname.value, filename, samprate, form.lw.value, form.dialect.value, form.email.value)
+          return "Success! your file {0} has a sampling rate of {1}. Your email: {2}".format(filename, samprate, form.email.value)
           #return new form? 
-          return self.speaker_form(form, filenames)
+          # return self.speaker_form(form, filenames)
 
         
         elif 'uploadfile' in x:  
@@ -150,7 +149,7 @@ class upload:
 
                             form.note = "Extension incorrect for file {0} in the folder {1}{2}. Make sure your folder only contains .wav or .mp3 files.".format(subfilename+subextension, filename, extension)
 
-                            return render.formtest(form, "")
+                            return self.speaker_form(form, filenames)
                         
                         else:
                             samprate, file_size = utilities.process_audio(audiodir,
