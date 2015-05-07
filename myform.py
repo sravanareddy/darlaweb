@@ -45,3 +45,43 @@ class MyForm(web.form.Form):
                         out.append('<br><span class="note">dis{0}</span>'.format(i.post))
                         out.append('</p>\n')
                 return ''.join(out)
+
+class ListToForm(web.form.Form):
+        """override so a list of inputs can be sent in"""
+        def __init__(self, inputs, **kw): #inputs here is a list
+                self.inputs = inputs
+                self.valid = True
+                self.note = None
+                self.validators = kw.pop('validators', [])
+                
+        def rendernote(self, note):
+                if note: 
+                        return '<span class="error"> {0}</span>'.format(note)
+                else: 
+                        return ''
+
+        def render(self):
+                out = [] 
+                out.append(self.rendernote(self.note))
+                for i in self.inputs:
+                        if not i.is_hidden():
+                                out.append('<p>')
+                                out.append(i.description+' ')
+                        out.append(i.render())
+                        if not i.is_hidden():
+                                out.append(self.rendernote(i.note))
+                                out.append('<br><span class="note">{0}</span>'.format(i.post))
+                                out.append('</p>\n')
+                return ''.join(out) 
+
+        def render_disabled(self):
+                out = []
+                out.append(self.rendernote(self.note))
+                for i in self.inputs:
+                        out.append('<p>')
+                        out.append(i.description+': ')
+                        out.append(i.render())
+                        out.append(self.rendernote(i.note))
+                        out.append('<br><span class="note">dis{0}</span>'.format(i.post))
+                        out.append('</p>\n')
+                return ''.join(out)

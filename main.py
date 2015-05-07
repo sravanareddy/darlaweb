@@ -53,9 +53,9 @@ class upload:
     
     datadir = open('filepaths.txt').read().strip()
     
-    def speaker_form(self, filenames):
+    def speaker_form(self, completed_form, filenames): #send in the form too
       input_list = []
-      for index in filenames:
+      for index in range(0, len(filenames)):
 
         speaker_name = form.Textbox('name'+str(index),
                          form.notnull,
@@ -66,14 +66,16 @@ class upload:
         input_list.extend([speaker_name,sex])
         if index!=0:
           checkBox = form.Checkbox(str(index),
-                      class_='copy')
+                      class_='copy',
+                      post='Check if ')
           input_list.append(checkBox)
 
-      speakers = myform.MyForm(input_list[0]) #can you pass in a list of things as the form? hopefully :( right now not working though 
+      speakers = myform.ListToForm(input_list) #can you pass in a list of things as the form? hopefully :( right now not working though 
       s = speakers() 
       
       #if can use a lambda function, will use. speakers = myform.MyForm(input_list lambda), if not, code in html...
-      return render.speakers(filenames, "") #coding in html currently
+      # return render.speakers(filenames, "") #coding in html currently
+      return render.formtest(completed_form,s)
 
     def GET(self):
         self.dialect.value = 'standard'
@@ -104,7 +106,7 @@ class upload:
           # self.taskname.value = taskname
 
           filename = "ytvideo"
-          filenames = [filename]
+          filenames = [filename, filename]
 
           # filename = utilities.youtube_wav(url, taskname)
           # samprate = utilities.soxConversion(audiodir,
@@ -113,7 +115,7 @@ class upload:
           # utilities.gen_argfiles(self.datadir, form.taskname.value, filename, samprate, form.lw.value, form.dialect.value, form.email.value)
           # return "Success! your file {0} has a sampling rate of {1}. Your email: {2}".format(filename, samprate, form.email.value)
           #return new form? 
-          return self.speaker_form(filenames)
+          return self.speaker_form(form, filenames)
 
         
         elif 'uploadfile' in x:  
