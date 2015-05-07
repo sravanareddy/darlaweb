@@ -11,6 +11,8 @@ urls = {
 
 class align:
 	def GET(self):
-		return "TESTING "
+		return "TESTING"
+	def POST(self):
+		return "GOT IT!"
 
 app_align = web.application(urls, locals())

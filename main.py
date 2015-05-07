@@ -7,11 +7,11 @@ import myform
 import utilities
 import zipfile
 import tarfile
-from align import app_align
+import align
 
 render = web.template.render('templates/', base='layout')
 
-urls = ('/', 'index', '/upload', 'upload', '/align', 'app_align')
+urls = ('/', 'index', '/upload', 'upload', '/align', align.app_align)
 app = web.application(urls, globals())
 web.config.debug = True
         
