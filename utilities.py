@@ -157,15 +157,11 @@ def soxConversion(filename, audiodir):
     # print sox.stdout.readlines()
     retval = sox.wait()
     for line in sox.stdout.readlines():
-        print line
         if "Sample Rate" in line:
             line = line.split(':')
-            print "YAY"
             sample_rate = int(line[1].strip())
-        else:
-            print "nooooo"
+
         if "Duration" in line:
-            print "whoo"
             m = re.search("(=\s)(.*)(\ssamples)", line)
             file_size = float(m.group(2))
             file_size = file_size / sample_rate #gets duration, in seconds of the file.
