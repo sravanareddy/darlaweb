@@ -120,6 +120,7 @@ def process_audio(audiodir, filename, extension, filecontent):
 def youtube_wav(url,audiodir,taskname):
     tube = subprocess.Popen(shlex.split('youtube-dl '+url+' --extract-audio --audio-format wav --audio-quality 16k -o '+audiodir+'/ytvideo.audio'), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     print tube.stdout.readlines()
+    os.rename(os.path.join(audiodir,'ytvideo.wav'), os.path.join(audiodir,'ytvideo.audio'))
     return "ytvideo.audio"
         
 # def process_wav(filename, taskname, fileid):
@@ -152,28 +153,40 @@ def soxConversion(filename, audiodir):
     file_size = 0.0
     args = "sox --i "+os.path.join(audiodir, filename)
     sox = subprocess.Popen(shlex.split(args), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    # print "I AM HERE"
+    # print sox.stdout.readlines()
+    retval = sox.wait()
     for line in sox.stdout.readlines():
+        print line
         if "Sample Rate" in line:
             line = line.split(':')
+            print "YAY"
             sample_rate = int(line[1].strip())
+        else:
+            print "nooooo"
         if "Duration" in line:
+            print "whoo"
             m = re.search("(=\s)(.*)(\ssamples)", line)
             file_size = float(m.group(2))
             file_size = file_size / sample_rate #gets duration, in seconds of the file.
             file_size /= 60.0
 
-    retval = sox.wait()
+    print sample_rate
+    print file_size
 
-    #converts wav file to 16000kHz sampling rate if sampling rate is more than                            
+    #converts wav file to 16000kHz sampling rate if sampling rate is more than
     if sample_rate >= 16000:
         ratecode = '16k'
         sample_rate = 16000
+        print "I AM HERE"                            
 
     elif sample_rate >= 8000:
         ratecode = '8k'
         sample_rate = 8000
+        print "OR AM I HERE?"
 
-    else: 
+    else:
+        print "OR HERE?"
         # return sample_rate, "sample rate not high enough"
         # raise CustomException("sample rate not high enough")
         return sample_rate, file_size, CustomException("sample rate not high enough")
@@ -188,7 +201,7 @@ def soxConversion(filename, audiodir):
     #split into 20sec chunks. TODO: split on silence                          
     # if not os.path.isdir(os.path.join(audiodir, 'splits')): #don't need this? 
     os.mkdir(os.path.join(audiodir, 'splits'))
-    
+
     basename, _ = os.path.splitext(filename)
     conv = subprocess.Popen(['sox', os.path.join(audiodir, 'converted_'+filename), os.path.join(audiodir, 'splits', basename+'.split.wav'), 'trim', '0', '20', ':', 'newfile', ':', 'restart'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     retval = conv.wait()
