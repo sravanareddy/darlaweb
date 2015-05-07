@@ -19,8 +19,8 @@ $if speakerform:
 	<h3>Enter speaker information</h3>
 	<span class="note">Does not affect the automatic transcription, but required for vowel extraction results.</span><p>
 	<form name="align" method="post">
-	$if not form.valid: <p class="error">Correct the errors below.</p>
-	$:form.render()
+	$if not speakerform.valid: <p class="error">Correct the errors below.</p>
+	$:speakerform.render()
 	</form>
 
 </div>
