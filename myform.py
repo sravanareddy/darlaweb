@@ -1,5 +1,16 @@
 import web
 
+class MyRadio(web.form.Radio):
+	"""get_type not implemented in original"""
+	def get_type(self):
+		return 'radio'
+
+class MyButton(web.form.Button):
+	"""get_type not implemented in original"""
+	
+	def get_type(self):
+		return 'button'
+	
 class MyFile(web.form.File):
 	"""Rendering for files should not try to display contents"""
 	def render(self):
@@ -11,10 +22,10 @@ class MyFile(web.form.File):
 			attrs['value'] = self.value
 		attrs['name'] = self.name
 		return '<input %s/>' % attrs
-		
+
 class MyForm(web.form.Form):
         """Modify default rendering behavior"""
-        def rendernote(self, note):
+        def rendernote(self, note, disabled = False):
                 if note: 
                         return '<span class="error"> {0}</span>'.format(note)
                 else: 
@@ -38,12 +49,17 @@ class MyForm(web.form.Form):
                 out = []
                 out.append(self.rendernote(self.note))
                 for i in self.inputs:
-                        out.append('<p>')
-                        out.append(i.description+': ')
+			if i.name=='submit':  #don't show submit button here
+				continue
+                        if not i.is_hidden():
+				out.append('<p class="dis">')
+				out.append(i.description+' ')
+			i.attrs['disabled'] = True
                         out.append(i.render())
-                        out.append(self.rendernote(i.note))
-                        out.append('<br><span class="note">dis{0}</span>'.format(i.post))
-                        out.append('</p>\n')
+                        if not i.is_hidden():
+				out.append(self.rendernote(i.note))
+				out.append('<br><span class="disnote">{0}</span>'.format(i.post))
+				out.append('</p>\n')
                 return ''.join(out)
 
 class ListToForm(web.form.Form):

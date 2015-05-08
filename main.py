@@ -23,7 +23,7 @@ class upload:
     MINDURATION = 30 #in minutes
     uploadfile = myform.MyFile('uploadfile',
                            post='Longer recordings (of at least {0} minutes) are recommended. Your uploaded files are stored temporarily on the Dartmouth servers in order to process your job, and deleted after.'.format(MINDURATION),
-                           description='Upload a .wav or .mp3 file. You may also upload a .zip or tar.gz/.tgz archive with multiple recordings.')
+                           description='Upload a .wav or .mp3 file. You may also upload a .zip or tar archive with multiple recordings.')
     filelink = form.Textbox('filelink',
                             form.regexp(r'^$|https\://www\.youtube\.com/watch\?v\=\S+', 'Check your link. It should start with https://www.youtube.com/watch?v='),
                               post='Long, single-speaker videos with no music work best.',
@@ -47,6 +47,7 @@ class upload:
                          post='We will not store or distribute your address.',
                          description='Your e-mail address:')
     taskname = form.Hidden('taskname')
+    submit = form.Button('submit', type='submit', description='Submit')
     
     soundvalid = [form.Validator('Please upload a file or enter a video link (but not both).',
                                  lambda x: (x.filelink!='' or x.uploadfile) and not (x.uploadfile and x.filelink!=''))]
@@ -75,8 +76,7 @@ class upload:
         input_list.extend([speaker_name,sex])
 
       speakers = myform.ListToForm(input_list)
-      s = speakers() 
-      
+      s = speakers()
 
       return render.speakers(completed_form, s) #TODO: send in disabled form
       # return render.formtest(completed_form,s)
@@ -87,22 +87,22 @@ class upload:
         uploadsound = myform.MyForm(self.uploadfile, 
                                     self.filelink, 
                                     self.dialect, 
-                                    self.lw, self.email, self.taskname)
+                                    self.lw, self.email, self.taskname, self.submit)
         form = uploadsound()
-        return render.formtest(form, "")
+        return render.uploadsound(form, "")
 
     def POST(self):
         uploadsound = myform.MyForm(self.uploadfile, 
                                     self.filelink, 
                                     self.dialect, 
-                                    self.lw, self.email, self.taskname,
+                                    self.lw, self.email, self.taskname, self.submit,
                                     validators = self.soundvalid)
         form = uploadsound()
         x = web.input(uploadfile={})
         filenames = [] # for use in speaker form
         
         if not form.validates(): #not validated
-            return render.formtest(form, "")
+            return render.uploadsound(form, "")
 
         elif x.filelink!="": 
           #make taskname
@@ -115,7 +115,7 @@ class upload:
           filenames = [filename]
 
           utilities.gen_argfiles(self.datadir, form.taskname.value, filename, samprate, form.lw.value, form.dialect.value, form.email.value)
-          form.note = "Warning: Your files total only {0} minutes of speech. We recommend at least {1} minutes for best results.".format(file_size, self.MINDURATION)
+          form.note = "Warning: Your files total only {:.2f} minutes of speech. We recommend at least {:.2f} minutes for best results.".format(file_size, self.MINDURATION)
           # return "Success! your file {0} has a sampling rate of {1}. Your email: {2}".format(filename, samprate, form.email.value)
           #return new form? 
           return self.speaker_form(form, filenames)
@@ -128,22 +128,30 @@ class upload:
 
             if extension not in ['.wav', '.zip', '.mp3', '.gz', '.tgz', '.tar']:
                 form.note = "Please upload a .wav, .mp3, .zip, .tgz, or .tar file."
-                return render.formtest(form, "")
+                return render.uploadsound(form, "")
 
             else:
                 #create new task                                                               
                 taskname, audiodir = utilities.make_task(self.datadir)
                 form.taskname.value = taskname
                 
-                if extension == '.zip':  #TODO: try-except in case there's a problem with the file
-
-                    z = zipfile.ZipFile(x.uploadfile.file)
+                if extension in ['.zip', '.tar', '.tgz', '.gz']:
+                    #TODO: try-except in case there's a problem with the file or a mismatch of the type with the extension
+                    if extension == '.zip':
+                        z = zipfile.ZipFile(x.uploadfile.file)
+                    else:
+                        z = tarfile.open(fileobj=x.uploadfile.file)
 
                     total_size = 0.0
-                    
-                    for subname in z.namelist():
+
+                    namelist = []
+                    if extension == '.zip':
+                        namelist = z.namelist()
+                    else:
+                        namelist = z.getnames()
+                        
+                    for subname in namelist:
                         subfilename, subextension = utilities.get_basename(subname)
-                        print subfilename, subextension
                         
                         if subfilename in ['', '__MACOSX', '.DS_Store', '._']:
                             continue
@@ -155,37 +163,18 @@ class upload:
                             return self.speaker_form(form, filenames)
                         
                         else:
-                            samprate, file_size = utilities.process_audio(audiodir,
+                            if extension == '.zip':
+                                samprate, file_size = utilities.process_audio(audiodir,
                                                      subfilename, subextension,
-                                z.open(subname).read())
+                                    z.open(subname).read())
+                            else:
+                                samprate, file_size = utilities.process_audio(audiodir,
+                                                     subfilename, subextension,
+                                    z.extractfile(subname).read())
                             
                             filenames.append(subfilename)
                             total_size += file_size
-                
-                elif extension in ['.tar', '.tgz', '.gz']:   #TODO: try-except
-                    t = tarfile.open(fileobj=x.uploadfile.file)
-
-                    total_size = 0.0
-                    
-                    for subname in t.getnames():
-                        subfilename, subextension = utilities.get_basename(subname)
-                        print subfilename, subextension
-                        
-                        if subfilename in ['', '__MACOSX', '.DS_Store', '._']:
-                            continue
-                        
-                        if subextension not in ['.wav', '.mp3']:
-                            form.note = "Extension incorrect for file {0} in the folder {1}{2}. Make sure your folder only contains .wav or .mp3 files.".format(subfilename+subextension, filename, extension)
-                            return render.formtest(form, "")
-                        
-                        else:
-                            samprate, file_size = utilities.process_audio(audiodir,
-                                                     subfilename, subextension,
-                                t.extractfile(subname).read())
-                            
-                            filenames.append(subfilename)
-                            total_size += file_size
-                            
+                                            
                 else:  #will be mp3 or wav
                     samprate, total_size = utilities.process_audio(audiodir,
                                              filename, extension,
@@ -193,13 +182,12 @@ class upload:
                     filenames.append(filename)
                 
                 if total_size < self.MINDURATION:  #TODO: ensure that this re-renders (perhaps with speakers)
-                        form.note = "Warning: Your files total only {0} minutes of speech. We recommend at least {1} minutes for best results.".format(total_size, self.MINDURATION)
+                        form.note = "Warning: Your files total only {:.0f} minutes of speech. We recommend at least {:.0f} minutes for best results.".format(total_size, self.MINDURATION)
                     
                 #generate argument files
                 utilities.gen_argfiles(self.datadir, form.taskname.value, filename, samprate, form.lw.value, form.dialect.value, form.email.value)
                     
-                #TODO: show speaker form by adding fields to existing form and re-rendering
-                # return render.formtest(form, "")
+                #show speaker form by adding fields to existing form and re-rendering
                 return self.speaker_form(form, filenames)
 
 if __name__=="__main__":

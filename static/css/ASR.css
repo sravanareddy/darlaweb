@@ -11,6 +11,17 @@ th{font-weight: normal; text-align: left;}
     font-size: 0.9em;
 }
 
+.disnote{
+    font-family: "Times New Roman", "Times", serif;
+    color: #294629;
+    line-height: 1.5em;
+    font-size: 0.9em;
+}
+
+.dis{
+    color: #888888;
+}
+
 #shield{
     height: 60px;
     position:absolute; top: 20px; right: 8px;
