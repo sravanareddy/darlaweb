@@ -11,7 +11,7 @@ import align
 
 render = web.template.render('templates/', base='layout')
 
-urls = ('/', 'index', '/upload', 'upload', '/align', align.app_align)
+urls = ('/', 'index', '/upload', 'upload', '/UploadWavTG', 'UploadWavTG', '/align', align.app_align)
 app = web.application(urls, globals())
 web.config.debug = True
         
@@ -194,3 +194,44 @@ if __name__=="__main__":
     web.internalerror = web.debugerror
     app.run()
 
+class UploadWavTG:
+    uploadfile = myform.MyFile('uploadfile',
+                           post='',
+                           description='Your .wav or .mp3 file')
+    filelink = form.Textbox('filelink',
+                            form.regexp(r'^$|https\://www\.youtube\.com/watch\?v\=\S+', 'Check your link. It should start with https://www.youtube.com/watch?v='),
+                              post='',
+                              description='or copy and paste a link to a YouTube video:')
+    uploadTGfile = myform.MyFile('uploadTGfile',
+                           post = '',
+                           description='Corrected .TextGrid file')
+    email = form.Textbox('email',
+                         form.notnull,
+                         form.regexp(r'^[\w.+-]+@[\w.+-]+\.[\w.+-]+$',
+                                     'Please enter a valid email address'),
+                                     post='',
+                                     description='Your e-mail address:')
+    taskname = form.Hidden('taskname')
+    submit = form.Button('submit', type='submit', description='Submit')
+
+    soundvalid = [form.Validator('Please upload a file or enter a video link (but not both).',
+                                 lambda x: (x.filelink!='' or x.uploadfile) and not (x.uploadfile and x.filelink!=''))]
+        
+
+    def GET(self):
+        uploadsound = myform.MyForm(self.uploadfile,
+                                    self.filelink, 
+                                    self.uploadTGfile,  
+                                    self.email, self.taskname, self.submit)
+        form = uploadsound()
+        return render.uploadTG(form, "")
+
+    # def POST(self):
+    #     uploadTG = myform.MyForm(self.uploadfile,
+    #                                 self.filelink, 
+    #                                 self.uploadTGfile,  
+    #                                 self.email, self.taskname, self.submit,
+    #                                 validators = self.soundvalid)
+    #     form = uploadTG()        
+    #     return uploadTG.render(form, "")
+        
