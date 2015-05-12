@@ -11,7 +11,7 @@ import align
 
 render = web.template.render('templates/', base='layout')
 
-urls = ('/', 'index', '/upload', 'upload', '/UploadWavTG', 'UploadWavTG', '/align', align.app_align)
+urls = ('/', 'index', '/upload', 'upload', '/uploadtrans', 'uploadtrans', '/align', align.app_align)
 app = web.application(urls, globals())
 web.config.debug = True
         
@@ -194,7 +194,7 @@ if __name__=="__main__":
     web.internalerror = web.debugerror
     app.run()
 
-class UploadWavTG:
+class uploadtrans:
     uploadfile = myform.MyFile('uploadfile',
                            post='',
                            description='Your .wav or .mp3 file')
