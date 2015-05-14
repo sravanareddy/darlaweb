@@ -1,0 +1,21 @@
+$def with (form, speakerform)
+
+<div class="left-col">
+
+<span class="breadcrumbs"><a href="http://darla.dartmouth.edu" target="_blank">About DARLA</a></span>
+<span class="breadcrumbs"><a href="http://darla.dartmouth.edu#cite" target="_blank">How to cite</a></span><p>
+
+<h2>Automated Vowel Extraction with Revised Transcriptions</h2><p><p>
+
+<span class=\"note\">Upload your audio files with the corrected TextGrid to run formant extraction using FAVE-extract. (The word tier is ignored; you only need to correct the phone tier.)</span><p>
+
+
+<a href="upload"><small>Click here at any time to cancel or start over.</small></a><p>
+
+<form name="uploadWavTG" method="post" enctype="multipart/form-data"> 
+$if not form.valid: <p class="error">Correct the errors below.</p>
+$:form.render()
+</form>
+
+</div>
+

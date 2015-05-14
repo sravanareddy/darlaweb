@@ -195,8 +195,8 @@ def soxConversion(filename, audiodir):
     print retval
 
     #split into 20sec chunks. TODO: split on silence                          
-    # if not os.path.isdir(os.path.join(audiodir, 'splits')): #don't need this? 
-    os.mkdir(os.path.join(audiodir, 'splits'))
+    if not os.path.isdir(os.path.join(audiodir, 'splits')):  #need this for multiple files
+        os.mkdir(os.path.join(audiodir, 'splits'))
 
     basename, _ = os.path.splitext(filename)
     conv = subprocess.Popen(['sox', os.path.join(audiodir, 'converted_'+filename), os.path.join(audiodir, 'splits', basename+'.split.wav'), 'trim', '0', '20', ':', 'newfile', ':', 'restart'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
