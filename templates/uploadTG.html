@@ -10,9 +10,9 @@ $def with (form, speakerform)
 <span class=\"note\">Upload your audio files with the corrected TextGrid to run formant extraction using FAVE-extract. (The word tier is ignored; you only need to correct the phone tier.)</span><p>
 
 
-<a href="upload"><small>Click here at any time to cancel or start over.</small></a><p>
+<a href="uploadtrans"><small>Click here at any time to cancel or start over.</small></a><p>
 
-<form name="uploadWavTG" method="post" enctype="multipart/form-data"> 
+<form name="uploadtrans" method="post" enctype="multipart/form-data"> 
 $if not form.valid: <p class="error">Correct the errors below.</p>
 $:form.render()
 </form>
