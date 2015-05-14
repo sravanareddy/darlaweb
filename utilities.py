@@ -117,11 +117,10 @@ def process_audio(audiodir, filename, extension, filecontent):
     samprate = soxConversion(filename+extension, audiodir)
     return samprate
                         
-def youtube_wav(url,audiodir,taskname):
-    tube = subprocess.Popen(shlex.split('youtube-dl '+url+' --extract-audio --audio-format wav --audio-quality 16k -o '+audiodir+'/ytvideo.audio'), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+def youtube_wav(url,audiodir, taskname):
+    tube = subprocess.Popen(shlex.split('youtube-dl '+url+' --extract-audio --audio-format wav --audio-quality 16k -o '+os.path.join(audiodir, 'ytvideo.%(ext)s')), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     print tube.stdout.readlines()
-    os.rename(os.path.join(audiodir,'ytvideo.wav'), os.path.join(audiodir,'ytvideo.audio'))
-    return "ytvideo.audio"
+    return "ytvideo.wav"
         
 # def process_wav(filename, taskname, fileid):
 #     try:
@@ -157,6 +156,7 @@ def soxConversion(filename, audiodir):
     # print sox.stdout.readlines()
     retval = sox.wait()
     for line in sox.stdout.readlines():
+        print line
         if "Sample Rate" in line:
             line = line.split(':')
             sample_rate = int(line[1].strip())

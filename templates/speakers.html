@@ -12,7 +12,6 @@ $def with (form, speakerform)
 <form name="upload" method="post" enctype="multipart/form-data"> 
 $if not form.valid: <p class="error">Correct the errors below.</p>
 $:form.render_disabled()
-<input type="submit" />
 </form>
 
 $if speakerform:

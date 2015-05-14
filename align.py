@@ -13,6 +13,6 @@ class align:
 	def GET(self):
 		return "TESTING"
 	def POST(self):
-		return "GOT IT!"
+		return "GOT IT!"+web.data()
 
 app_align = web.application(urls, locals())
