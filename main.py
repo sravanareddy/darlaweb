@@ -79,8 +79,7 @@ class upload:
       s = speakers()
 
       return render.speakers(completed_form, s) #TODO: send in disabled form
-      # return render.formtest(completed_form,s)
-
+  
     def GET(self):
         self.dialect.value = 'standard'
         self.lw.value = '7' #defaults
@@ -203,6 +202,7 @@ class uploadtrans:
                               post='',
                               description='or copy and paste a link to a YouTube video:')
     uploadTGfile = myform.MyFile('uploadTGfile',
+                                 form.notnull,
                            post = '',
                            description='Corrected .TextGrid file')
     email = form.Textbox('email',
@@ -216,7 +216,8 @@ class uploadtrans:
 
     soundvalid = [form.Validator('Please upload a file or enter a video link (but not both).',
                                  lambda x: (x.filelink!='' or x.uploadfile) and not (x.uploadfile and x.filelink!=''))]
-        
+
+    datadir = open('filepaths.txt').read().strip()
 
     def GET(self):
         uploadsound = myform.MyForm(self.uploadfile,
@@ -233,56 +234,49 @@ class uploadtrans:
                                  self.email, self.taskname, self.submit,
                                  validators = self.soundvalid)
         form = uploadTG()      
-        x = web.input(uploadfile={})  
+        x = web.input(uploadfile={}, uploadTGfile={})  
 
         if not form.validates(): #not validated
-            return render.uploadsound(form, "")
+            return render.uploadTG(form, "")
 
-        if self.uploadTGfile in x:
+        tgfilename, tgextension = utilities.get_basename(x.uploadTGfile.filename)
+        
+        if tgextension != '.textgrid':
+            form.note = 'Upload a file with a .TextGrid extension.'
+            return render.uploadTG(form, "")
+
+        if 'uploadfile' in x:   
             #sanitize filename
-            TGfilename, TGextension = utilities.get_basename(x.uploadTGfile.filename)
-
-
-            if TGextension!='.TextGrid':
-                form.note = "Please upload a .TextGrid file."
+            filename, extension = utilities.get_basename(x.uploadfile.filename)
+            
+            if extension not in ['.wav', '.mp3']:
+                form.note = "Please upload a .wav or .mp3 file."
                 return render.uploadTG(form, "")
 
-            elif x.filelink!='':
-
-                #make taskname
+            else:
+                #create new task                                                               
                 taskname, audiodir = utilities.make_task(self.datadir)
                 form.taskname.value = taskname
-
-                filename = utilities.youtube_wav(x.filelink, audiodir, taskname)
-                samprate, file_size = utilities.soxConversion(filename, audiodir)
-
+                
+                samprate, total_size = utilities.process_audio(audiodir,
+                                             filename, extension,
+                    x.uploadfile.file.read())
+                
+                #generate argument files
                 utilities.gen_argfiles(self.datadir, form.taskname.value, filename, samprate, '', '', form.email.value)
                 form.note = "Success! your file {0} has a sampling rate of {1}. Your email: {2}".format(filename, samprate, form.email.value)
-                #return new form? 
 
-            elif 'uploadfile' in x:
+        elif x.filelink!='':
 
-                #sanitize filename
-                filename, extension = utilities.get_basename(x.uploadfile.filename)
+            #make taskname
+            taskname, audiodir = utilities.make_task(self.datadir)
+            form.taskname.value = taskname
 
+            filename = utilities.youtube_wav(x.filelink, audiodir, taskname)
+            samprate, file_size = utilities.soxConversion(filename, audiodir)
 
-                if extension not in ['.wav', '.mp3']:
-                    form.note = "Please upload a .wav or .mp3"
-                    return render.uploadTG(form, "")
-
-                else:
-                    samprate, total_size = utilities.process_audio(audiodir,
-                                             filename, extension,
-                        x.uploadfile.file.read())
-                
-                    #generate argument files
-                    utilities.gen_argfiles(self.datadir, form.taskname.value, filename, samprate, '', '', form.email.value)
-                    form.note = "Success! your file {0} has a sampling rate of {1}. Your email: {2}".format(filename, samprate, form.email.value)
-        else:
-            if 'uploadfile' in x or x.filelink!='':
-                form.note = "Please upload a .TextGrid file."
-                return render.uploadTG(form, "")
-
+            utilities.gen_argfiles(self.datadir, form.taskname.value, filename, samprate, '', '', form.email.value)
+            form.note = "Success! your file {0} has a sampling rate of {1}. Your email: {2}".format(filename, samprate, form.email.value)
 
 
 
