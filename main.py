@@ -78,7 +78,7 @@ class upload:
       speakers = myform.ListToForm(input_list)
       s = speakers()
 
-      return render.speakers(completed_form, s) #TODO: send in disabled form
+      return render.speakers(completed_form, s) 
   
     def GET(self):
         self.dialect.value = 'standard'
@@ -165,11 +165,13 @@ class upload:
                             if extension == '.zip':
                                 samprate, file_size = utilities.process_audio(audiodir,
                                                      subfilename, subextension,
-                                    z.open(subname).read())
+                                    z.open(subname).read(),
+                                    dochunk=True)
                             else:
                                 samprate, file_size = utilities.process_audio(audiodir,
                                                      subfilename, subextension,
-                                    z.extractfile(subname).read())
+                                    z.extractfile(subname).read(),
+                                    dochunk=True)
                             
                             filenames.append(subfilename)
                             total_size += file_size
@@ -177,10 +179,11 @@ class upload:
                 else:  #will be mp3 or wav
                     samprate, total_size = utilities.process_audio(audiodir,
                                              filename, extension,
-                        x.uploadfile.file.read())
+                        x.uploadfile.file.read(),
+                        dochunk=True)
                     filenames.append(filename)
                 
-                if total_size < self.MINDURATION:  #TODO: ensure that this re-renders (perhaps with speakers)
+                if total_size < self.MINDURATION:  
                         form.note = "Warning: Your files total only {:.0f} minutes of speech. We recommend at least {:.0f} minutes for best results.".format(total_size, self.MINDURATION)
                     
                 #generate argument files
@@ -260,11 +263,8 @@ class uploadtrans:
                 
                 samprate, total_size = utilities.process_audio(audiodir,
                                              filename, extension,
-                    x.uploadfile.file.read())
-                
-                #generate argument files
-                utilities.gen_argfiles(self.datadir, form.taskname.value, filename, samprate, '', '', form.email.value)
-                form.note = "Success! your file {0} has a sampling rate of {1}. Your email: {2}".format(filename, samprate, form.email.value)
+                    x.uploadfile.file.read(),
+                    dochunk=False)
 
         elif x.filelink!='':
 
@@ -273,10 +273,13 @@ class uploadtrans:
             form.taskname.value = taskname
 
             filename = utilities.youtube_wav(x.filelink, audiodir, taskname)
-            samprate, file_size = utilities.soxConversion(filename, audiodir)
+            samprate, file_size = utilities.soxConversion(filename, audiodir, dochunk=True)
 
-            utilities.gen_argfiles(self.datadir, form.taskname.value, filename, samprate, '', '', form.email.value)
-            form.note = "Success! your file {0} has a sampling rate of {1}. Your email: {2}".format(filename, samprate, form.email.value)
+        utilities.write_textgrid(self.datadir, form.taskname.value, x.uploadTGfile.file.read()) 
+
+        utilities.gen_tgargfile(self.datadir, form.taskname.value, filename, samprate, form.email.value)
+        #celery processing here
+        return "Success! your file {0} has a sampling rate of {1}. Your email: {2}".format(filename, samprate, form.email.value)
 
 
 
