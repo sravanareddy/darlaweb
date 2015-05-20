@@ -58,6 +58,7 @@ class upload:
       input_list = []
       for index in range(0, len(filenames)):
 
+        #filenames = form.Hidden()
         if index!=0:
           checkBox = form.Checkbox(str(index),
                       class_='copy',
@@ -112,7 +113,7 @@ class upload:
           filename = utilities.youtube_wav(x.filelink, audiodir, taskname)
           samprate, file_size = utilities.soxConversion(filename,
                                              audiodir)
-          filenames = [filename]
+          filenames = [filename, filename]
 
           utilities.gen_argfiles(self.datadir, form.taskname.value, filename, samprate, form.lw.value, form.dialect.value, form.email.value)
           form.note = "Warning: Your files total only {:.2f} minutes of speech. We recommend at least {:.2f} minutes for best results.".format(file_size, self.MINDURATION)
