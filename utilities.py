@@ -101,7 +101,13 @@ def make_task(datadir):
         os.mkdir(audiodir)
         return taskname, audiodir
 
-def process_audio(audiodir, filename, extension, filecontent):
+def write_textgrid(datadir, taskname, tgfilecontent):
+    #TODO: validate TextGrid
+    o = open(os.path.join(datadir, taskname+'.TextGrid'), 'w')
+    o.write(tgfilecontent)
+    o.close()
+
+def process_audio(audiodir, filename, extension, filecontent, dochunk):
     #write contents of file
     o = open(os.path.join(audiodir, filename+extension), 'w')
     o.write(filecontent)
@@ -114,7 +120,7 @@ def process_audio(audiodir, filename, extension, filecontent):
         print "converted to", filename+extension
     
     #split and convert frequency
-    samprate = soxConversion(filename+extension, audiodir)
+    samprate = soxConversion(filename+extension, audiodir, dochunk)
     return samprate
                         
 def youtube_wav(url,audiodir, taskname):
@@ -147,7 +153,7 @@ def youtube_wav(url,audiodir, taskname):
 #     except:
 #         print "<span class=\"error\" id=\"error_msg\">ERROR: something went wrong while processing the file "+filename+"</span>"
 
-def soxConversion(filename, audiodir):
+def soxConversion(filename, audiodir, dochunk):
     sample_rate = 0
     file_size = 0.0
     args = "sox --i "+os.path.join(audiodir, filename)
@@ -194,13 +200,14 @@ def soxConversion(filename, audiodir):
     print "retval"
     print retval
 
-    #split into 20sec chunks. TODO: split on silence                          
-    if not os.path.isdir(os.path.join(audiodir, 'splits')):  #need this for multiple files
-        os.mkdir(os.path.join(audiodir, 'splits'))
+    #split into 20sec chunks. TODO: split on silence
+    if dochunk:
+        if not os.path.isdir(os.path.join(audiodir, 'splits')):  #need this for multiple files
+            os.mkdir(os.path.join(audiodir, 'splits'))
 
-    basename, _ = os.path.splitext(filename)
-    conv = subprocess.Popen(['sox', os.path.join(audiodir, 'converted_'+filename), os.path.join(audiodir, 'splits', basename+'.split.wav'), 'trim', '0', '20', ':', 'newfile', ':', 'restart'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    retval = conv.wait()
+        basename, _ = os.path.splitext(filename)
+        conv = subprocess.Popen(['sox', os.path.join(audiodir, 'converted_'+filename), os.path.join(audiodir, 'splits', basename+'.split.wav'), 'trim', '0', '20', ':', 'newfile', ':', 'restart'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        retval = conv.wait()
 
     return sample_rate, file_size
 
@@ -309,8 +316,27 @@ def gen_argfiles(datadir, taskname, uploadfilename, samprate, lw, dialect, email
     o.write('\n')
     o.close()
 
-    return 
+    return
 
+def gen_tgargfile(datadir, taskname, uploadfilename, samprate, email):
+    """Generate alext_args file for uploadtrans task"""
+    o = open(os.path.join(datadir, taskname+'.ext_args'), 'w')
+    
+    o.write(uploadfilename+' ')
+    
+    if samprate==8000:
+            o.write('/home/sravana/acousticmodels/prosodylab-8.zip ')
+    else:
+            o.write('/home/sravana/acousticmodels/prosodylab-16.zip ')
+
+    if email=="":
+        email="none"
+    o.write(email)
+    o.write('\n')
+    o.close()
+
+    return
+    
 if __name__=='__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-taskname', type=str, help='used to name the files and directories', required=True) #for web app, randomly gen. hash
