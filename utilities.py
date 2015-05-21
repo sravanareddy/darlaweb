@@ -18,6 +18,9 @@ from email.mime.text import MIMEText
 from email.utils import COMMASPACE, formatdate
 from email import encoders
 
+
+
+
 class CustomException(Exception):
     pass 
 
@@ -130,7 +133,8 @@ def process_audio(audiodir, filename, extension, filecontent, dochunk):
 
         if retval != 0: 
             print "Error converting from .mp3 to .wav "
-            raise CustomException('Could not convert from .mp3 to .wav ')
+            errorMessage = 'Could not convert from .mps to .wav'
+            raise CustomException(errorMessage)
             
         #os.system('lame --decode '+os.path.join(audiodir, filename+extension)+' '+os.path.join(audiodir, filename+'.wav'))  #TODO: use subprocess instead (it's getting stuck on lame for some reason)
         extension = '.wav'
