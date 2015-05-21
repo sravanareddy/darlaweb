@@ -92,6 +92,7 @@ def get_basename(filename):
     basename, extension = os.path.splitext(basename)
     return basename, extension.lower()
 
+
 def randomname(fnamelen):
     fname = ''
     for _ in range(fnamelen):
@@ -121,10 +122,20 @@ def process_audio(audiodir, filename, extension, filecontent, dochunk):
 
     if extension == '.mp3':
         print 'converting', os.path.join(audiodir, filename+extension)  #TODO: try and except here
+        #audio = subprocess.Popen(shlex.split("mpg123 "+"-w "+os.path.join(audiodir, filename+extension)+' '+os.path.join(audiodir, filename+'.wav')), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        #print audio.stdout.readlines()
+        #retval = audio.wait()
+
+        #if retval != 0: 
+         #   raise ValueError
+          #  print 'Could not convert from .mp3 to .wav '
+            
         os.system('lame --decode '+os.path.join(audiodir, filename+extension)+' '+os.path.join(audiodir, filename+'.wav'))  #TODO: use subprocess instead (it's getting stuck on lame for some reason)
         extension = '.wav'
         print "converted to", filename+extension
-    
+        
+
+            
     #split and convert frequency
     samprate = soxConversion(filename+extension, audiodir, dochunk)
     return samprate
@@ -133,6 +144,7 @@ def youtube_wav(url,audiodir, taskname):
     tube = subprocess.Popen(shlex.split('youtube-dl '+url+' --extract-audio --audio-format wav --audio-quality 16k -o '+os.path.join(audiodir, 'ytvideo.%(ext)s')), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     print tube.stdout.readlines()
     return "ytvideo.wav"
+
         
 # def process_wav(filename, taskname, fileid):
 #     try:
@@ -167,6 +179,12 @@ def soxConversion(filename, audiodir, dochunk):
     # print "I AM HERE"
     # print sox.stdout.readlines()
     retval = sox.wait()
+
+    if retval != 0: 
+        raise ValueError
+        print 'Could not call subprocess '
+
+
     for line in sox.stdout.readlines():
         print line
         if "Sample Rate" in line:
@@ -203,6 +221,12 @@ def soxConversion(filename, audiodir, dochunk):
     #convert to 16-bit, signed, little endian as well as downsample                                       
     conv = subprocess.Popen(['sox', os.path.join(audiodir, filename), '-r', ratecode, '-b', '16', '-e', 'signed', '-L', os.path.join(audiodir, 'converted_'+filename), 'channels', '1'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     retval = conv.wait()
+
+    if retval != 0:
+        raise ValueError
+        print 'Could not call subprocess '
+
+
     print "retval"
     print retval
 
@@ -214,6 +238,10 @@ def soxConversion(filename, audiodir, dochunk):
         basename, _ = os.path.splitext(filename)
         conv = subprocess.Popen(['sox', os.path.join(audiodir, 'converted_'+filename), os.path.join(audiodir, 'splits', basename+'.split.wav'), 'trim', '0', '20', ':', 'newfile', ':', 'restart'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         retval = conv.wait()
+
+        if retval != 0:
+            raise ValueError
+            print 'Could not call subprocess '
 
     return sample_rate, file_size
 
