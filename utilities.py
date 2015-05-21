@@ -66,12 +66,12 @@ def send_email(receiver, filename, taskname):
         message.attach(MIMEText(body, 'plain'))
         for nicename, filename in [('formants.csv', taskname+'.aggvowels_formants.csv'), ('formants.fornorm.tsv', taskname+'.fornorm.tsv'), ('plot.pdf', taskname+'.plot.pdf'), ('alignments.zip', taskname+'.alignments.zip')]:
                 part = MIMEBase('application', "octet-stream")
-                with open(filename("rb") as result:
+                with open(filename("rb")) as result:
 
-                part.set_payload( open(filename,"rb").read() ) #fornorm.tsv? no file 
-                encoders.encode_base64(part)
-                part.add_header('Content-Disposition', 'attachment; filename='+nicename)
-                message.attach(part)
+                    part.set_payload( open(filename,"rb").read() ) #fornorm.tsv? no file 
+                    encoders.encode_base64(part)
+                    part.add_header('Content-Disposition', 'attachment; filename='+nicename)
+                    message.attach(part)
             
         try:
                 server = smtplib.SMTP('smtp.gmail.com', 587)
