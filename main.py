@@ -54,17 +54,19 @@ class upload:
     
     datadir = open('filepaths.txt').read().strip()
     
-    def speaker_form(self, completed_form, filenames): #send in the completed form too
+    def speaker_form(self, completed_form, filenames, taskname): #send in the completed form too
       input_list = []
+      numfiles = form.Hidden(name="numfiles",value=len(filenames))
+      taskname = form.Hidden(name="taskname",value=taskname)
+      input_list.extend([numfiles,taskname])
       for index in range(0, len(filenames)):
 
-        #filenames = form.Hidden()
         if index!=0:
           checkBox = form.Checkbox(str(index),
                       class_='copy',
                       post='Check if speaker is same as above')
           input_list.append(checkBox)
-
+        filename = form.Hidden(value=filenames[index],name='filename'+str(index))
         speaker_name = form.Textbox('name'+str(index),
                          form.notnull,
                          pre="File Name:"+filenames[index],
@@ -74,10 +76,12 @@ class upload:
                         description='Sex'
                         )
 
-        input_list.extend([speaker_name,sex])
+        input_list.extend([speaker_name,sex,filename])
 
       speakers = myform.ListToForm(input_list)
       s = speakers()
+      # s.taskname.value = completed_form.taskname.value
+      # s.filenames.value = len(filenames)
 
       return render.speakers(completed_form, s) 
   
@@ -111,14 +115,15 @@ class upload:
 
           filename = utilities.youtube_wav(x.filelink, audiodir, taskname)
           samprate, file_size = utilities.soxConversion(filename,
-                                             audiodir)
-          filenames = [filename, filename]
+                                             audiodir, dochunk=True)
+          # filenames = [filename, filename] #for javascript testing
+          filenames = [filename]
 
           utilities.gen_argfiles(self.datadir, form.taskname.value, filename, samprate, form.lw.value, form.dialect.value, form.email.value)
           form.note = "Warning: Your files total only {:.2f} minutes of speech. We recommend at least {:.2f} minutes for best results.".format(file_size, self.MINDURATION)
           # return "Success! your file {0} has a sampling rate of {1}. Your email: {2}".format(filename, samprate, form.email.value)
           #return new form? 
-          return self.speaker_form(form, filenames)
+          return self.speaker_form(form, filenames, taskname)
 
         
         elif 'uploadfile' in x:  
@@ -160,7 +165,7 @@ class upload:
 
                             form.note = "Extension incorrect for file {0} in the folder {1}{2}. Make sure your folder only contains .wav or .mp3 files.".format(subfilename+subextension, filename, extension)
 
-                            return self.speaker_form(form, filenames)
+                            return self.speaker_form(form, filenames, taskname)
                         
                         else:
                             if extension == '.zip':
@@ -191,7 +196,7 @@ class upload:
                 utilities.gen_argfiles(self.datadir, form.taskname.value, filename, samprate, form.lw.value, form.dialect.value, form.email.value)
                     
                 #show speaker form by adding fields to existing form and re-rendering
-                return self.speaker_form(form, filenames)
+                return self.speaker_form(form, filenames, taskname)
 
 if __name__=="__main__":
     web.internalerror = web.debugerror
