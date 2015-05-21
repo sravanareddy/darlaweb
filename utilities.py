@@ -66,7 +66,9 @@ def send_email(receiver, filename, taskname):
         message.attach(MIMEText(body, 'plain'))
         for nicename, filename in [('formants.csv', taskname+'.aggvowels_formants.csv'), ('formants.fornorm.tsv', taskname+'.fornorm.tsv'), ('plot.pdf', taskname+'.plot.pdf'), ('alignments.zip', taskname+'.alignments.zip')]:
                 part = MIMEBase('application', "octet-stream")
-                part.set_payload( open(filename,"rb").read() )
+                with open(filename("rb") as result:
+
+                part.set_payload( open(filename,"rb").read() ) #fornorm.tsv? no file 
                 encoders.encode_base64(part)
                 part.add_header('Content-Disposition', 'attachment; filename='+nicename)
                 message.attach(part)
@@ -80,6 +82,10 @@ def send_email(receiver, filename, taskname):
                 
         except smtplib.SMTPException:
                 print 'Unable to send e-mail '
+
+def send_error_email(receiver, filename):
+    #TODO: send an email telling the user something went wrong.
+    return "there was something wrong "
 
 def get_basename(filename):
     basename = ntpath.basename(filename.replace('\\','/').replace(' ', '_'))
@@ -317,6 +323,8 @@ def gen_argfiles(datadir, taskname, uploadfilename, samprate, lw, dialect, email
     o.close()
 
     return
+
+
 
 def gen_tgargfile(datadir, taskname, uploadfilename, samprate, email):
     """Generate alext_args file for uploadtrans task"""
