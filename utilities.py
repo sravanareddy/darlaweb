@@ -21,6 +21,8 @@ from email import encoders
 class CustomException(Exception):
     pass 
 
+
+
 def send_init_email(receiver, filename):
         username = 'darla.dartmouth'
         password = open('/home/sravana/applications/email/info.txt').read().strip()
@@ -66,12 +68,12 @@ def send_email(receiver, filename, taskname):
         message.attach(MIMEText(body, 'plain'))
         for nicename, filename in [('formants.csv', taskname+'.aggvowels_formants.csv'), ('formants.fornorm.tsv', taskname+'.fornorm.tsv'), ('plot.pdf', taskname+'.plot.pdf'), ('alignments.zip', taskname+'.alignments.zip')]:
                 part = MIMEBase('application', "octet-stream")
-                with open(filename("rb") as result:
+                with open(filename("rb")) as result:
 
-                part.set_payload( open(filename,"rb").read() ) #fornorm.tsv? no file 
-                encoders.encode_base64(part)
-                part.add_header('Content-Disposition', 'attachment; filename='+nicename)
-                message.attach(part)
+                    part.set_payload( open(filename,"rb").read() ) #fornorm.tsv? no file 
+                    encoders.encode_base64(part)
+                    part.add_header('Content-Disposition', 'attachment; filename='+nicename)
+                    message.attach(part)
             
         try:
                 server = smtplib.SMTP('smtp.gmail.com', 587)
@@ -122,15 +124,15 @@ def process_audio(audiodir, filename, extension, filecontent, dochunk):
 
     if extension == '.mp3':
         print 'converting', os.path.join(audiodir, filename+extension)  #TODO: try and except here
-        #audio = subprocess.Popen(shlex.split("mpg123 "+"-w "+os.path.join(audiodir, filename+extension)+' '+os.path.join(audiodir, filename+'.wav')), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        #print audio.stdout.readlines()
-        #retval = audio.wait()
+        audio = subprocess.Popen(shlex.split("mpg123 "+"-w "+os.path.join(audiodir, filename+extension)+' '+os.path.join(audiodir, filename+'.wav')), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+        print audio.stdout.readlines()
+        retval = audio.wait()
 
-        #if retval != 0: 
-         #   raise ValueError
-          #  print 'Could not convert from .mp3 to .wav '
+        if retval != 0: 
+            print "Error converting from .mp3 to .wav "
+            raise CustomException('Could not convert from .mp3 to .wav ')
             
-        os.system('lame --decode '+os.path.join(audiodir, filename+extension)+' '+os.path.join(audiodir, filename+'.wav'))  #TODO: use subprocess instead (it's getting stuck on lame for some reason)
+        #os.system('lame --decode '+os.path.join(audiodir, filename+extension)+' '+os.path.join(audiodir, filename+'.wav'))  #TODO: use subprocess instead (it's getting stuck on lame for some reason)
         extension = '.wav'
         print "converted to", filename+extension
         
@@ -181,7 +183,7 @@ def soxConversion(filename, audiodir, dochunk):
     retval = sox.wait()
 
     if retval != 0: 
-        raise ValueError
+        raise EnvironmentError
         print 'Could not call subprocess '
 
 
@@ -223,8 +225,8 @@ def soxConversion(filename, audiodir, dochunk):
     retval = conv.wait()
 
     if retval != 0:
-        raise ValueError
-        print 'Could not call subprocess '
+        raise EnvironmentError
+        print 'Could not downsample file '
 
 
     print "retval"
@@ -240,8 +242,8 @@ def soxConversion(filename, audiodir, dochunk):
         retval = conv.wait()
 
         if retval != 0:
-            raise ValueError
-            print 'Could not call subprocess '
+            raise EnvironmentError
+            print 'Could not split audio file into chunks '
 
     return sample_rate, file_size
 
