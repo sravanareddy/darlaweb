@@ -71,8 +71,8 @@ class upload:
                          form.notnull,
                          pre="File Name:"+filenames[index],
                          description='Speaker ID')
-        sex = form.Radio('sex'+str(index), 
-                        [('M','Male'),('F','Female'),('C','Child')],
+        sex = myform.MyRadio('sex'+str(index),
+                        [('M','Male', 'M'+str(index)),('F','Female', 'F'+str(index)),('C','Child', 'C'+str(index))],
                         description='Sex'
                         )
 
@@ -116,8 +116,8 @@ class upload:
           filename = utilities.youtube_wav(x.filelink, audiodir, taskname)
           samprate, file_size = utilities.soxConversion(filename,
                                              audiodir, dochunk=True)
-          # filenames = [filename, filename] #for javascript testing
-          filenames = [filename]
+          filenames = [filename, filename] #for javascript testing
+          # filenames = [filename]
 
           utilities.gen_argfiles(self.datadir, form.taskname.value, filename, samprate, form.lw.value, form.dialect.value, form.email.value)
           form.note = "Warning: Your files total only {:.2f} minutes of speech. We recommend at least {:.2f} minutes for best results.".format(file_size, self.MINDURATION)
