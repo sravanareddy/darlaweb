@@ -5,11 +5,13 @@ from web import form
 import myform
 import utilities
 import os
-# import sys
+import sys
+script = open('scripts_directory.txt').read().strip()
+sys.path.append(script)
 # sys.path.append('/home/sravana/applications/scripts/')
-# from featrec import featurize_recognize, align_extract
+from featrec import featurize_recognize, align_extract
 # from celery import group
-#move somewhere else? 
+#move somewhere else possibly to utilities?
 
 
 urls = {
@@ -68,6 +70,8 @@ class align:
 		# result = featurize_recognize.delay(taskname)
 		# while not result.ready():
 		#         pass
+		result = featurize_recognize(taskname)
+		
 
 		# #jobs = group(featurize_recognize.s(taskname, i) for i in range(numsplits))
 		# #results = jobs.apply_async()
