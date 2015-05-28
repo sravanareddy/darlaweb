@@ -65,9 +65,6 @@ class align:
 			except IOError:
 				return "error creating "+filename+" for analysis."
 
-		filename, receiver = open(taskname+'.ext_args').read().split()
-		send_init_email(receiver, filename)
-
 		result = featurize_recognize.delay(taskname)
 		while not result.ready():
 		        pass
@@ -80,6 +77,9 @@ class align:
 		result = align_extract.delay(taskname)
 		while not result.ready():
 		        pass
+
+		filename, receiver = open(taskname+'.ext_args').read().split()
+		send_init_email(receiver, filename)
 
 
 		return "You may now close this window and we will email you the results. Thank you!"
