@@ -71,7 +71,11 @@ def send_email(receiver, filename, taskname):
         message.attach(MIMEText(body, 'plain'))
         for nicename, filename in [('formants.csv', taskname+'.aggvowels_formants.csv'), ('formants.fornorm.tsv', taskname+'.fornorm.tsv'), ('plot.pdf', taskname+'.plot.pdf'), ('alignments.zip', taskname+'.alignments.zip')]:
                 part = MIMEBase('application', "octet-stream")
-                with open(filename("rb")) as result:
+                try:
+                    f = open(filename)
+                except IOError:
+                    print('error')
+                with open(filename, "rb") as result:
 
                     part.set_payload( open(filename,"rb").read() ) #fornorm.tsv? no file 
                     encoders.encode_base64(part)
@@ -90,7 +94,29 @@ def send_email(receiver, filename, taskname):
 
 def send_error_email(receiver, filename):
     #TODO: send an email telling the user something went wrong.
-    return "there was something wrong "
+        username = 'darla.dartmouth'
+        password = open('/home/sravana/applications/email/info.txt').read().strip()
+        sender = username+'@gmail.com'
+        subject = 'Vowel Analysis Results for '+filename
+
+        body = 'We are sorry - something went wrong in our analysis of your data.'
+        body += 'Thank you for using DARLA. Please e-mail us with any questions.\n'
+        message = MIMEMultipart()
+        message['From'] = 'DARLA <'+sender+'>'
+        message['To'] = receiver
+        message['Subject']=subject
+        message['Date'] = formatdate(localtime = True)
+        
+        message.attach(MIMEText(body, 'plain'))
+        try:
+                server = smtplib.SMTP('smtp.gmail.com', 587)
+                server.starttls()
+                server.login(username, password)
+                server.sendmail(sender, receiver, message.as_string())
+                server.quit()
+                
+        except smtplib.SMTPException:
+                print 'Unable to send e-mail '
 
 def get_basename(filename):
     basename = ntpath.basename(filename.replace('\\','/').replace(' ', '_'))
