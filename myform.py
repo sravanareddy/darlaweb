@@ -4,6 +4,23 @@ class MyRadio(web.form.Radio):
 	"""get_type not implemented in original"""
 	def get_type(self):
 		return 'radio'
+        def render(self):
+                x = '<span>'
+                for arg in self.args:
+                    if isinstance(arg, (tuple, list)):
+                        value, desc, id= arg 
+                    else:
+                        value, desc, id= arg, arg, arg
+                    attrs = self.attrs.copy()
+                    attrs['name'] = self.name
+                    attrs['type'] = 'radio'
+                    attrs['value'] = value
+                    attrs['id'] = id #add id
+                    if self.value == value:
+                        attrs['checked'] = 'checked'
+                    x += '<input %s/> %s' % (attrs, desc)
+                x += '</span>'
+                return x
 
 class MyButton(web.form.Button):
 	"""get_type not implemented in original"""

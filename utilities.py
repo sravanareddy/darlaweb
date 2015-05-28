@@ -18,8 +18,13 @@ from email.mime.text import MIMEText
 from email.utils import COMMASPACE, formatdate
 from email import encoders
 
+
+
+
 class CustomException(Exception):
     pass 
+
+
 
 def send_init_email(receiver, filename):
         username = 'darla.dartmouth'
@@ -66,10 +71,12 @@ def send_email(receiver, filename, taskname):
         message.attach(MIMEText(body, 'plain'))
         for nicename, filename in [('formants.csv', taskname+'.aggvowels_formants.csv'), ('formants.fornorm.tsv', taskname+'.fornorm.tsv'), ('plot.pdf', taskname+'.plot.pdf'), ('alignments.zip', taskname+'.alignments.zip')]:
                 part = MIMEBase('application', "octet-stream")
-                part.set_payload( open(filename,"rb").read() )
-                encoders.encode_base64(part)
-                part.add_header('Content-Disposition', 'attachment; filename='+nicename)
-                message.attach(part)
+                with open(filename("rb")) as result:
+
+                    part.set_payload( open(filename,"rb").read() ) #fornorm.tsv? no file 
+                    encoders.encode_base64(part)
+                    part.add_header('Content-Disposition', 'attachment; filename='+nicename)
+                    message.attach(part)
             
         try:
                 server = smtplib.SMTP('smtp.gmail.com', 587)
@@ -81,10 +88,15 @@ def send_email(receiver, filename, taskname):
         except smtplib.SMTPException:
                 print 'Unable to send e-mail '
 
+def send_error_email(receiver, filename):
+    #TODO: send an email telling the user something went wrong.
+    return "there was something wrong "
+
 def get_basename(filename):
     basename = ntpath.basename(filename.replace('\\','/').replace(' ', '_'))
     basename, extension = os.path.splitext(basename)
     return basename, extension.lower()
+
 
 def randomname(fnamelen):
     fname = ''
@@ -115,10 +127,21 @@ def process_audio(audiodir, filename, extension, filecontent, dochunk):
 
     if extension == '.mp3':
         print 'converting', os.path.join(audiodir, filename+extension)  #TODO: try and except here
-        os.system('lame --decode '+os.path.join(audiodir, filename+extension)+' '+os.path.join(audiodir, filename+'.wav'))  #TODO: use subprocess instead (it's getting stuck on lame for some reason)
+        audio = subprocess.Popen(shlex.split("mpg123 "+"-w "+os.path.join(audiodir, filename+extension)+' '+os.path.join(audiodir, filename+'.wav')), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+        print audio.stdout.readlines()
+        retval = audio.wait()
+
+        if retval != 0: 
+            print "Error converting from .mp3 to .wav "
+            errorMessage = 'Could not convert from .mps to .wav'
+            raise CustomException(errorMessage)
+            
+        #os.system('lame --decode '+os.path.join(audiodir, filename+extension)+' '+os.path.join(audiodir, filename+'.wav'))  #TODO: use subprocess instead (it's getting stuck on lame for some reason)
         extension = '.wav'
         print "converted to", filename+extension
-    
+        
+
+            
     #split and convert frequency
     samprate = soxConversion(filename+extension, audiodir, dochunk)
     return samprate
@@ -127,6 +150,7 @@ def youtube_wav(url,audiodir, taskname):
     tube = subprocess.Popen(shlex.split('youtube-dl '+url+' --extract-audio --audio-format wav --audio-quality 16k -o '+os.path.join(audiodir, 'ytvideo.%(ext)s')), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     print tube.stdout.readlines()
     return "ytvideo.wav"
+
         
 # def process_wav(filename, taskname, fileid):
 #     try:
@@ -161,6 +185,12 @@ def soxConversion(filename, audiodir, dochunk):
     # print "I AM HERE"
     # print sox.stdout.readlines()
     retval = sox.wait()
+
+    if retval != 0: 
+        raise EnvironmentError
+        print 'Could not call subprocess '
+
+
     for line in sox.stdout.readlines():
         print line
         if "Sample Rate" in line:
@@ -197,6 +227,12 @@ def soxConversion(filename, audiodir, dochunk):
     #convert to 16-bit, signed, little endian as well as downsample                                       
     conv = subprocess.Popen(['sox', os.path.join(audiodir, filename), '-r', ratecode, '-b', '16', '-e', 'signed', '-L', os.path.join(audiodir, 'converted_'+filename), 'channels', '1'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     retval = conv.wait()
+
+    if retval != 0:
+        raise EnvironmentError
+        print 'Could not downsample file '
+
+
     print "retval"
     print retval
 
@@ -208,6 +244,10 @@ def soxConversion(filename, audiodir, dochunk):
         basename, _ = os.path.splitext(filename)
         conv = subprocess.Popen(['sox', os.path.join(audiodir, 'converted_'+filename), os.path.join(audiodir, 'splits', basename+'.split.wav'), 'trim', '0', '20', ':', 'newfile', ':', 'restart'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         retval = conv.wait()
+
+        if retval != 0:
+            raise EnvironmentError
+            print 'Could not split audio file into chunks '
 
     return sample_rate, file_size
 
@@ -317,6 +357,8 @@ def gen_argfiles(datadir, taskname, uploadfilename, samprate, lw, dialect, email
     o.close()
 
     return
+
+
 
 def gen_tgargfile(datadir, taskname, uploadfilename, samprate, email):
     """Generate alext_args file for uploadtrans task"""
