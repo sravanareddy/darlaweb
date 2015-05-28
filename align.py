@@ -67,22 +67,30 @@ class align:
 			except IOError:
 				return "error creating "+filename+" for analysis."
 
+<<<<<<< HEAD
 		# result = featurize_recognize.delay(taskname)
 		# while not result.ready():
 		#         pass
 		result = featurize_recognize(taskname)
 		
+=======
+		result = featurize_recognize.delay(taskname)
+		while not result.ready():
+		        pass
+>>>>>>> 60ade9ad63b57b8e962b36192e8c6f0c2d783238
 
 		# #jobs = group(featurize_recognize.s(taskname, i) for i in range(numsplits))
 		# #results = jobs.apply_async()
 		# #while False in filter(lambda result: result.ready(), results):
 		# #        pass
 
-		# result = align_extract.delay(taskname)
-		# while not result.ready():
-		#         pass
+		result = align_extract.delay(taskname)
+		while not result.ready():
+		        pass
+
 		filename, receiver = open(taskname+'.ext_args').read().split()
 		send_init_email(receiver, filename)
+
 
 		return "You may now close this window and we will email you the results. Thank you!"
 
