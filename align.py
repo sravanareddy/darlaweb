@@ -5,11 +5,11 @@ from web import form
 import myform
 import utilities
 import os
-# import sys
-# sys.path.append('/home/sravana/applications/scripts/')
-# from featrec import featurize_recognize, align_extract
-# from celery import group
-#move somewhere else? 
+import sys
+sys.path.append('/home/sravana/applications/scripts/')
+from featrec import featurize_recognize, align_extract
+from celery import group
+#call from somewhere else? to keep clean - maybe move all in utilities and then utilities can call feat_rec and align_ext
 
 
 urls = {
@@ -65,18 +65,18 @@ class align:
 			except IOError:
 				return "error creating "+filename+" for analysis."
 
-		# result = featurize_recognize.delay(taskname)
-		# while not result.ready():
-		#         pass
+		result = featurize_recognize.delay(taskname)
+		while not result.ready():
+		        pass
 
 		# #jobs = group(featurize_recognize.s(taskname, i) for i in range(numsplits))
 		# #results = jobs.apply_async()
 		# #while False in filter(lambda result: result.ready(), results):
 		# #        pass
 
-		# result = align_extract.delay(taskname)
-		# while not result.ready():
-		#         pass
+		result = align_extract.delay(taskname)
+		while not result.ready():
+		        pass
 
 		return "You may now close this window and we will email you the results. Thank you!"
 
