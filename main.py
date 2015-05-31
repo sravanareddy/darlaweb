@@ -83,7 +83,16 @@ class upload:
       # s.taskname.value = completed_form.taskname.value
       # s.filenames.value = len(filenames)
 
+
       return render.speakers(completed_form, s) 
+
+    def error_form(self, completed_form, error_message, taskname):
+      taskname = form.Hidden(name="taskname",value=taskname)
+
+      error = myform.MyForm()
+      e = error(error_message)
+      return render.error(error_message)
+
   
     def GET(self):
         self.dialect.value = 'standard'
@@ -110,12 +119,22 @@ class upload:
 
         elif x.filelink!="": 
           #make taskname
-          taskname, audiodir = utilities.make_task(self.datadir)
+          taskname, audiodir, error_message = utilities.make_task(self.datadir)
+          if error_message != '':
+              utilities.send_error_email(self.email, self.filelink, error_message)
+
           form.taskname.value = taskname
 
-          filename = utilities.youtube_wav(x.filelink, audiodir, taskname)
-          samprate, file_size = utilities.soxConversion(filename,
+          filename, error_message = utilities.youtube_wav(x.filelink, audiodir, taskname)
+          if error_message != '':
+              return self.error_form(form, error_message, taskname)
+
+          samprate, file_size, error_message = utilities.soxConversion(filename,
                                              audiodir, dochunk=True)
+          if error_message != '':
+              return self.error_form(form, error_message, taskname)
+
+
           filenames = [filename, filename] #for javascript testing
           # filenames = [filename]
 
@@ -137,56 +156,65 @@ class upload:
 
             else:
                 #create new task                                                               
-                taskname, audiodir = utilities.make_task(self.datadir)
+                taskname, audiodir, error_message = utilities.make_task(self.datadir)
+                if error_message != '':
+                    utilities.send_error_email(self.email, self.filelink, error_message)
+
                 form.taskname.value = taskname
                 
                 if extension in ['.zip', '.tar', '.tgz', '.gz']:
-                    #TODO: try-except in case there's a problem with the file or a mismatch of the type with the extension
-                    if extension == '.zip':
-                        z = zipfile.ZipFile(x.uploadfile.file)
-                    else:
-                        z = tarfile.open(fileobj=x.uploadfile.file)
+                    try:
+                      #TODO: try-except in case there's a problem with the file or a mismatch of the type with the extension
+                      if extension == '.zip':
+                          z = zipfile.ZipFile(x.uploadfile.file)
+                      else:
+                          z = tarfile.open(fileobj=x.uploadfile.file)
 
-                    total_size = 0.0
+                      total_size = 0.0
 
-                    namelist = []
-                    if extension == '.zip':
-                        namelist = z.namelist()
-                    else:
-                        namelist = z.getnames()
+                      namelist = []
+                      if extension == '.zip':
+                          namelist = z.namelist()
+                      else:
+                          namelist = z.getnames()
                         
-                    for subname in namelist:
-                        subfilename, subextension = utilities.get_basename(subname)
+                      for subname in namelist:
+                          subfilename, subextension = utilities.get_basename(subname)
                         
-                        if subfilename in ['', '__MACOSX', '.DS_Store', '._']:
-                            continue
+                          if subfilename in ['', '__MACOSX', '.DS_Store', '._']:
+                              continue
                         
-                        if subextension not in ['.wav', '.mp3']:
+                          if subextension not in ['.wav', '.mp3']:
 
-                            form.note = "Extension incorrect for file {0} in the folder {1}{2}. Make sure your folder only contains .wav or .mp3 files.".format(subfilename+subextension, filename, extension)
+                              form.note = "Extension incorrect for file {0} in the folder {1}{2}. Make sure your folder only contains .wav or .mp3 files.".format(subfilename+subextension, filename, extension)
 
-                            return self.speaker_form(form, filenames, taskname)
+                              return self.speaker_form(form, filenames, taskname)
                         
-                        else:
-                            if extension == '.zip':
-                                samprate, file_size = utilities.process_audio(audiodir,
-                                                     subfilename, subextension,
-                                    z.open(subname).read(),
-                                    dochunk=True)
-                            else:
-                                samprate, file_size = utilities.process_audio(audiodir,
-                                                     subfilename, subextension,
-                                    z.extractfile(subname).read(),
-                                    dochunk=True)
+                          else:
+                              if extension == '.zip':
+                                  samprate, file_size = utilities.process_audio(audiodir,
+                                                       subfilename, subextension,
+                                      z.open(subname).read(),
+                                      dochunk=True)
+                              else:
+                                  samprate, file_size = utilities.process_audio(audiodir,
+                                                       subfilename, subextension,
+                                      z.extractfile(subname).read(),
+                                      dochunk=True)
                             
-                            filenames.append(subfilename)
-                            total_size += file_size
-                                            
+                              filenames.append(subfilename)
+                              total_size += file_size
+                    except:
+                        return self.error_form(form, "Could not read the zip file", taskname)
+                  
                 else:  #will be mp3 or wav
-                    samprate, total_size = utilities.process_audio(audiodir,
+                    samprate, error_message = utilities.process_audio(audiodir,
                                              filename, extension,
                         x.uploadfile.file.read(),
                         dochunk=True)
+                    #, total_size 
+                    if error_message != '':
+                        return self.error_form(form, error_message, taskname)
                     filenames.append(filename)
                 
                 if total_size < self.MINDURATION:  

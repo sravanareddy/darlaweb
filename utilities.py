@@ -88,9 +88,31 @@ def send_email(receiver, filename, taskname):
         except smtplib.SMTPException:
                 print 'Unable to send e-mail '
 
-def send_error_email(receiver, filename):
-    #TODO: send an email telling the user something went wrong.
-    return "there was something wrong "
+def send_error_email(receiver, filename, message):
+    username = 'darla.dartmouth'
+    password = open('/home/sravana/applications/email/info.txt').read().strip()
+    sender = username+'@gmail.com'
+    subject = 'Error trying to open '+filename
+        
+    body = 'Unfornutaely, there was an error trying to start a file for '+filename + ". We could not "+message
+
+    message = MIMEMultipart()
+    message['From'] = 'DARLA <'+sender+'>'
+    message['To'] = receiver
+    message['Subject']=subject
+    message['Date'] = formatdate(localtime = True)
+
+    message.attach(MIMEText(body, 'plain'))
+
+    try:
+            server = smtplib.SMTP('smtp.gmail.com', 587)
+            server.starttls()
+            server.login(username, password)
+            server.sendmail(sender, receiver, message.as_string())
+            server.quit()
+
+    except smtplib.SMTPException:
+            print 'Unable to send e-mail '
 
 def get_basename(filename):
     basename = ntpath.basename(filename.replace('\\','/').replace(' ', '_'))
@@ -105,13 +127,17 @@ def randomname(fnamelen):
     return fname
 
 def make_task(datadir):
-    taskname = randomname(30)
-    audiodir = os.path.join(datadir, taskname+'.audio')
-    if os.path.exists(audiodir): #check if taskname exists
-        make_task(datadir) #make a new taskname
-    else:
-        os.mkdir(audiodir)
-        return taskname, audiodir
+    try:
+        taskname = randomname(30)
+        audiodir = os.path.join(datadir, taskname+'.audio')
+        if os.path.exists(audiodir): #check if taskname exists
+            make_task(datadir) #make a new taskname
+        else:
+            os.mkdir(audiodir)
+            return taskname, audiodir, ""
+    except OSError:
+            error_message = "Could not make a taskname for the file."
+            return taskname, audiodir, error_message
 
 def write_textgrid(datadir, taskname, tgfilecontent):
     #TODO: validate TextGrid
@@ -133,8 +159,8 @@ def process_audio(audiodir, filename, extension, filecontent, dochunk):
 
         if retval != 0: 
             print "Error converting from .mp3 to .wav "
-            errorMessage = 'Could not convert from .mps to .wav'
-            raise CustomException(errorMessage)
+            error_message = 'Could not convert from .mp3 to .wav'
+            return 0, error_message
             
         #os.system('lame --decode '+os.path.join(audiodir, filename+extension)+' '+os.path.join(audiodir, filename+'.wav'))  #TODO: use subprocess instead (it's getting stuck on lame for some reason)
         extension = '.wav'
@@ -144,13 +170,15 @@ def process_audio(audiodir, filename, extension, filecontent, dochunk):
             
     #split and convert frequency
     samprate = soxConversion(filename+extension, audiodir, dochunk)
-    return samprate
+    return samprate, ''
                         
 def youtube_wav(url,audiodir, taskname):
-    tube = subprocess.Popen(shlex.split('youtube-dl '+url+' --extract-audio --audio-format wav --audio-quality 16k -o '+os.path.join(audiodir, 'ytvideo.%(ext)s')), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    print tube.stdout.readlines()
-    return "ytvideo.wav"
-
+    try:
+        tube = subprocess.Popen(shlex.split('youtube-dl '+url+' --extract-audio --audio-format wav --audio-quality 16k -o '+os.path.join(audiodir, 'ytvideo.%(ext)s')), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        print tube.stdout.readlines()
+        return "ytvideo.wav", ""
+    except:
+        return "ytvideo.wav", "Could not convert youtube video to a .wav file."
         
 # def process_wav(filename, taskname, fileid):
 #     try:
@@ -187,8 +215,9 @@ def soxConversion(filename, audiodir, dochunk):
     retval = sox.wait()
 
     if retval != 0: 
-        raise EnvironmentError
+        error_message = 'Could not call subprocess '
         print 'Could not call subprocess '
+        return sample_rate, file_size, error_message
 
 
     for line in sox.stdout.readlines():
@@ -219,9 +248,10 @@ def soxConversion(filename, audiodir, dochunk):
 
     else:
         print "OR HERE?"
+        error_message = "Sample rate not high enough"
         # return sample_rate, "sample rate not high enough"
         # raise CustomException("sample rate not high enough")
-        return sample_rate, file_size, CustomException("sample rate not high enough")
+        return sample_rate, file_size, error_message
         #TODO: actually make it work instead of break. Note: this is also a way to catch non-sound files that have been (maliciously?) uploaded using a .wav extension.
 
     #convert to 16-bit, signed, little endian as well as downsample                                       
@@ -229,8 +259,9 @@ def soxConversion(filename, audiodir, dochunk):
     retval = conv.wait()
 
     if retval != 0:
-        raise EnvironmentError
-        print 'Could not downsample file '
+        error_message = 'Could not downsample file'
+        print error_message
+        return sample_rate, file_size, error_message
 
 
     print "retval"
@@ -246,10 +277,11 @@ def soxConversion(filename, audiodir, dochunk):
         retval = conv.wait()
 
         if retval != 0:
-            raise EnvironmentError
-            print 'Could not split audio file into chunks '
+            error_message = 'Could not split audio file into chunks'
+            print error_message
+            return sample_rate, file_size, error_message
 
-    return sample_rate, file_size
+    return sample_rate, file_size, ""
 
 def gen_argfiles(datadir, taskname, uploadfilename, samprate, lw, dialect, email):
     """create ctl files"""
