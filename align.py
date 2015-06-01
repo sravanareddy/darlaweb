@@ -8,8 +8,8 @@ import myform
 import utilities
 import os
 import sys
-#script = open('scripts_directory.txt').read().strip()
-#sys.path.append(script)
+script = open('scripts_directory.txt').read().strip()
+sys.path.append(script)
 # sys.path.append('/home/sravana/applications/scripts/')
 from featrec import featurize_recognize, align_extract
 

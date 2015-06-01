@@ -54,7 +54,7 @@ class MyForm(web.form.Form):
                 for i in self.inputs:
                         if not i.is_hidden():
 				out.append('<p>')
-                                out.append(i.description+' '+i.post)
+                                out.append(i.description)
                         out.append(i.render())
                         if not i.is_hidden():
 				out.append(self.rendernote(i.note))
