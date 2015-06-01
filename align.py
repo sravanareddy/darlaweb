@@ -1,5 +1,7 @@
 """class that calls alignment things """
 
+celeryon = True  #whether or not to use celery
+
 import web
 from web import form
 import myform
@@ -10,7 +12,10 @@ import sys
 #sys.path.append(script)
 # sys.path.append('/home/sravana/applications/scripts/')
 from featrec import featurize_recognize, align_extract
-from celery import group
+
+if celeryon:
+	from celery import group
+
 #move somewhere else possibly to utilities?
 
 
@@ -68,9 +73,12 @@ class align:
 				return "error creating "+filename+" for analysis."
 
 		#uncelery
-		result = featurize_recognize.delay(taskname)
-		while not result.ready():
-		        pass
+		if celeryon:
+			result = featurize_recognize.delay(taskname)
+			while not result.ready():
+				pass
+		else:
+			featurize_recognize(taskname)
 
 		# #jobs = group(featurize_recognize.s(taskname, i) for i in range(numsplits))
 		# #results = jobs.apply_async()
@@ -78,9 +86,12 @@ class align:
 		# #        pass
 
 		#uncelery
-		result = align_extract.delay(taskname)
-		while not result.ready():
-		        pass
+		if celeryon:
+			result = align_extract.delay(taskname)
+			while not result.ready():
+				pass
+		else:
+			align_extract(taskname)
 
 
 		return "You may now close this window and we will email you the results. Thank you!" 
