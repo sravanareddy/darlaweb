@@ -18,13 +18,8 @@ from email.mime.text import MIMEText
 from email.utils import COMMASPACE, formatdate
 from email import encoders
 
-
-
-
 class CustomException(Exception):
     pass 
-
-
 
 def send_init_email(receiver, filename):
         username = 'darla.dartmouth'
@@ -137,6 +132,7 @@ def make_task(datadir):
             make_task(datadir) #make a new taskname
         else:
             os.mkdir(audiodir)
+            os.system('chown sravana:www-data '+audiodir)
             return taskname, audiodir, ""
     except OSError:
             error_message = "Could not make a taskname for the file."
@@ -156,14 +152,15 @@ def process_audio(audiodir, filename, extension, filecontent, dochunk):
 
     if extension == '.mp3':
         print 'converting', os.path.join(audiodir, filename+extension)  #TODO: try and except here
-        audio = subprocess.Popen(shlex.split("mpg123 "+"-w "+os.path.join(audiodir, filename+extension)+' '+os.path.join(audiodir, filename+'.wav')), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
-        print audio.stdout.readlines()
-        retval = audio.wait()
+        os.system("mpg123 "+"-w "+os.path.join(audiodir, filename+'.wav')+' '+os.path.join(audiodir, filename+extension))
+        #audio = subprocess.Popen(shlex.split("mpg123 "+"-w "+os.path.join(audiodir, filename+'.wav')+' '+os.path.join(audiodir, filename+extension)), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+        #print audio.stdout.readlines()
+        #retval = audio.wait()
 
-        if retval != 0: 
-            print "Error converting from .mp3 to .wav "
-            error_message = 'Could not convert from .mp3 to .wav'
-            return 0, 0, error_message
+        #if retval != 0: 
+        #    print "Error converting from .mp3 to .wav "
+        #    error_message = 'Could not convert from .mp3 to .wav'
+        #    return 0, 0, error_message
             
         #os.system('lame --decode '+os.path.join(audiodir, filename+extension)+' '+os.path.join(audiodir, filename+'.wav'))  #TODO: use subprocess instead (it's getting stuck on lame for some reason)
         extension = '.wav'
