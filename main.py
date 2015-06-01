@@ -192,12 +192,12 @@ class upload:
                         
                           else:
                               if extension == '.zip':
-                                  samprate, file_size = utilities.process_audio(audiodir,
+                                  samprate, file_size, error = utilities.process_audio(audiodir,
                                                        subfilename, subextension,
                                       z.open(subname).read(),
                                       dochunk=True)
                               else:
-                                  samprate, file_size = utilities.process_audio(audiodir,
+                                  samprate, file_size, error = utilities.process_audio(audiodir,
                                                        subfilename, subextension,
                                       z.extractfile(subname).read(),
                                       dochunk=True)
@@ -208,14 +208,17 @@ class upload:
                         return self.error_form(form, "Could not read the zip file", taskname)
                   
                 else:  #will be mp3 or wav
-                    samprate, error_message = utilities.process_audio(audiodir,
+                    samprate, file_size, error_message = utilities.process_audio(audiodir,
                                              filename, extension,
                         x.uploadfile.file.read(),
                         dochunk=True)
-                    #, total_size 
+                    
                     if error_message != '':
                         return self.error_form(form, error_message, taskname)
                     filenames.append(filename)
+
+                    else:
+                        total_size = file_size
                 
                 if total_size < self.MINDURATION:  
                         form.note = "Warning: Your files total only {:.0f} minutes of speech. We recommend at least {:.0f} minutes for best results.".format(total_size, self.MINDURATION)
@@ -295,7 +298,7 @@ class uploadtrans:
                 taskname, audiodir = utilities.make_task(self.datadir)
                 form.taskname.value = taskname
                 
-                samprate, total_size = utilities.process_audio(audiodir,
+                samprate, total_size, error = utilities.process_audio(audiodir,
                                              filename, extension,
                     x.uploadfile.file.read(),
                     dochunk=False)

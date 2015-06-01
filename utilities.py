@@ -97,7 +97,7 @@ def send_error_email(receiver, filename, message):
     sender = username+'@gmail.com'
     subject = 'Error trying to open '+filename
         
-    body = 'Unfornutaely, there was an error trying to start a file for '+filename + ". We could not "+message
+    body = 'Unfortunately, there was an error trying to start a file for '+filename + ". We could not "+message
 
     message = MIMEMultipart()
     message['From'] = 'DARLA <'+sender+'>'
@@ -163,7 +163,7 @@ def process_audio(audiodir, filename, extension, filecontent, dochunk):
         if retval != 0: 
             print "Error converting from .mp3 to .wav "
             error_message = 'Could not convert from .mp3 to .wav'
-            return 0, error_message
+            return 0, 0, error_message
             
         #os.system('lame --decode '+os.path.join(audiodir, filename+extension)+' '+os.path.join(audiodir, filename+'.wav'))  #TODO: use subprocess instead (it's getting stuck on lame for some reason)
         extension = '.wav'
@@ -172,8 +172,8 @@ def process_audio(audiodir, filename, extension, filecontent, dochunk):
 
             
     #split and convert frequency
-    samprate = soxConversion(filename+extension, audiodir, dochunk)
-    return samprate, ''
+    samprate, filesize, soxerror = soxConversion(filename+extension, audiodir, dochunk)
+    return samprate, filesize, soxerror
                         
 def youtube_wav(url,audiodir, taskname):
     try:
