@@ -215,10 +215,9 @@ class upload:
                     
                     if error_message != '':
                         return self.error_form(form, error_message, taskname)
+                    
                     filenames.append(filename)
-
-                    else:
-                        total_size = file_size
+                    total_size = file_size
                 
                 if total_size < self.MINDURATION:  
                         form.note = "Warning: Your files total only {:.0f} minutes of speech. We recommend at least {:.0f} minutes for best results.".format(total_size, self.MINDURATION)
