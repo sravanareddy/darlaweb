@@ -64,12 +64,12 @@ class upload:
         if index!=0:
           checkBox = form.Checkbox(str(index),
                       class_='copy',
-                      post='Check if speaker is same as above')
+                      post='Check if speaker below is same as above')
           input_list.append(checkBox)
         filename = form.Hidden(value=filenames[index],name='filename'+str(index))
         speaker_name = form.Textbox('name'+str(index),
                          form.notnull,
-                         pre="File Name:"+filenames[index],
+                         pre="File Name: "+filenames[index],
                          description='Speaker ID')
         sex = myform.MyRadio('sex'+str(index),
                         [('M','Male', 'M'+str(index)),('F','Female', 'F'+str(index)),('C','Child', 'C'+str(index))],
