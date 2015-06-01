@@ -1,8 +1,10 @@
 #from __future__ import absolute_import
-from celery.task import task
+#from celery.task import task
 
 #app = Celery('featrec', backend="amqp", broker='amqp://')
 #app.config_from_object('celeryconfig')
+
+celeryon = False
 
 import os
 from utilities import send_email, send_init_email, send_error_email
