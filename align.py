@@ -10,7 +10,7 @@ script = open('scripts_directory.txt').read().strip()
 sys.path.append(script)
 # sys.path.append('/home/sravana/applications/scripts/')
 from featrec import featurize_recognize, align_extract
-# from celery import group
+from celery import group
 #move somewhere else possibly to utilities?
 
 
@@ -67,31 +67,22 @@ class align:
 			except IOError:
 				return "error creating "+filename+" for analysis."
 
-<<<<<<< HEAD
-		# result = featurize_recognize.delay(taskname)
-		# while not result.ready():
-		#         pass
-		result = featurize_recognize(taskname)
-		
-=======
+		#uncelery
 		result = featurize_recognize.delay(taskname)
 		while not result.ready():
 		        pass
->>>>>>> 60ade9ad63b57b8e962b36192e8c6f0c2d783238
 
 		# #jobs = group(featurize_recognize.s(taskname, i) for i in range(numsplits))
 		# #results = jobs.apply_async()
 		# #while False in filter(lambda result: result.ready(), results):
 		# #        pass
 
+		#uncelery
 		result = align_extract.delay(taskname)
 		while not result.ready():
 		        pass
 
-		filename, receiver = open(taskname+'.ext_args').read().split()
-		send_init_email(receiver, filename)
 
-
-		return "You may now close this window and we will email you the results. Thank you!"
+		return "You may now close this window and we will email you the results. Thank you!" 
 
 app_align = web.application(urls, locals())
