@@ -219,17 +219,13 @@ class upload:
                     total_size = file_size
                 
                 if total_size < self.MINDURATION:  
-                        form.note = "Warning: Your files total only {:.0f} minutes of speech. We recommend at least {:.0f} minutes for best results.".format(total_size, self.MINDURATION)
+                        form.note = "Warning: Your files total only {:.2f} minutes of speech. We recommend at least {:.0f} minutes for best results.".format(total_size, self.MINDURATION)
                     
                 #generate argument files
                 utilities.gen_argfiles(self.datadir, form.taskname.value, filename, samprate, form.lw.value, form.dialect.value, form.email.value)
                     
                 #show speaker form by adding fields to existing form and re-rendering
                 return self.speaker_form(form, filenames, taskname)
-
-if __name__=="__main__":
-    web.internalerror = web.debugerror
-    app.run()
 
 class uploadtrans:
     uploadfile = myform.MyFile('uploadfile',
@@ -316,5 +312,6 @@ class uploadtrans:
         #celery processing here
         return "Success! your file {0} has a sampling rate of {1}. Your email: {2}".format(filename, samprate, form.email.value)
 
-
-
+if __name__=="__main__":
+    web.internalerror = web.debugerror
+    app.run()
