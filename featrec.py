@@ -47,7 +47,7 @@ def align_extract(taskname):
         return
 
 @task(serializer='json')
-def extract(taskname):
+def just_extract(taskname):
         filename, receiver = open(taskname+'.ext_args').read().split()
         args = "/home/sravana/webpy_sandbox/just_extract.sh "+taskname
         os.system(args)

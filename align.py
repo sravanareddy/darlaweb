@@ -8,16 +8,10 @@ import myform
 import utilities
 import os
 import sys
-#script = open('scripts_directory.txt').read().strip()
-#sys.path.append(script)
-# sys.path.append('/home/sravana/applications/scripts/')
 from featrec import featurize_recognize, align_extract
 
 if celeryon:
 	from celery import group
-
-#move somewhere else possibly to utilities?
-
 
 urls = {
 	 '/?', 'align'
@@ -37,49 +31,33 @@ class align:
 			value = split[1]
 			dictionary[name] = value
 
-		os.chdir(datadir)
+		#os.chdir(datadir)
 		taskname = dictionary["taskname"]
 		numfiles = int(dictionary["numfiles"])
 		print "TASKNAME " + taskname
-		if not (os.path.isdir(taskname+".speakers")):
-			os.mkdir(taskname+".speakers")
-			os.system('chmod g+w '+(taskname+".speakers"))
+		if not (os.path.isdir(os.path.join(datadir, taskname+".speakers"))):
+			os.mkdir(os.path.join(datadir, taskname+".speakers"))
+			os.system('chmod g+w '+os.path.join(datadir, taskname+".speakers"))
 
-		# print "numfiles:"+str(numfiles)
 		for i in range(0, numfiles):
 			i = str(i)
-			# print "value in loop: "+i
 			filename = dictionary["filename"+i]
-			# print "file for "+i+": "+filename
 			try: 
-				o = open(taskname+'.speakers/converted_'+filename+'.speaker', 'w')
+				o = open(os.path.join(datadir, taskname+'.speakers/converted_'+filename+'.speaker'), 'w')
 				name = dictionary["name"+i]
 				sex = dictionary["sex"+i]
-				# location = "U"
-				# age ="U"
-				# ethnicity = "U"
-				# years_of_schooling = "U"
-				# year = "U"
-				# if "location" in form: location = dictionary["location"+i]
-				# if "age" in form: age = dictionary["age"+i]
-				# if "ethnicity" in form: ethnicity = dictionary["ethnicity"+i]
-				# if "years_of_schooling" in form: years_of_schooling = dictionary["years_of_schooling"+i]
-				# if "location" in form: location = dictionary["location"+i]
-				# if "year" in form: year = dictionary["year"+i]
 				o.write('--name='+name+'\n--sex='+sex+'\n')
-				# o.write('--name='+name+'\n--sex='+sex+'\n--location='+location+'\n--age='+age+'\n--ethnicity='+ethnicity+'\n--years_of_schooling='+years_of_schooling+'\n--year='+year)
-				o.close()
+                                o.close()
 			except IOError:
 				return "error creating "+filename+" for analysis."
-
                 
 		#uncelery
 		if celeryon:
-			result = featurize_recognize.delay(taskname)
+			result = featurize_recognize.delay(os.path.join(datadir, taskname))
 			while not result.ready():
 				pass
 		else:
-			featurize_recognize(taskname)
+			featurize_recognize(os.path.join(datadir, taskname))
 
 		# #jobs = group(featurize_recognize.s(taskname, i) for i in range(numsplits))
 		# #results = jobs.apply_async()
@@ -88,13 +66,12 @@ class align:
 
 		#uncelery
 		if celeryon:
-			result = align_extract.delay(taskname)
+			result = align_extract.delay(os.path.join(datadir, taskname))
 			while not result.ready():
 				pass
 		else:
-			align_extract(taskname)
-
-
+			align_extract(os.path.join(datadir, taskname))
+                
 		return "You may now close this window and we will email you the results. Thank you!" 
 
 app_align = web.application(urls, locals())

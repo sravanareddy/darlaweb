@@ -5,7 +5,6 @@ taskname=$1
 scriptdir='/home/sravana/webpy_sandbox'
 favedir='/home/sravana/applications/FAVE/FAVE-extract'
 
-#zip for email compatibility
 zip -j $taskname.alignments.zip $taskname.mergedtg/*.TextGrid
 
 #run FAVE-extract
@@ -17,7 +16,7 @@ for filename in $(ls $taskname.mergedtg); do
  --covariances=$favedir/covs.txt\
  --phoneset=$favedir/cmu_phoneset.txt\
  --speaker=$taskname.speakers/converted_$filename.speaker\
- $taskname.wav/converted_$filename.wav $taskname.mergedtg/$filename.TextGrid $taskname.vowels/$filename &> $taskname.errors;
+ $taskname.audio/converted_$filename.wav $taskname.mergedtg/$filename.TextGrid $taskname.vowels/$filename &> $taskname.errors;
 done
 
 #aggregate all the vowel files together

@@ -4,6 +4,7 @@ $def with (form, speakerform)
 
 <span class="breadcrumbs"><a href="http://darla.dartmouth.edu" target="_blank">About DARLA</a></span>
 <span class="breadcrumbs"><a href="http://darla.dartmouth.edu#cite" target="_blank">How to cite</a></span><p>
+<script src="/static/js/speakerInfo.js"></script>
 
 <h2>Automated Vowel Extraction with Revised Transcriptions</h2><p><p>
 
@@ -11,10 +12,19 @@ $def with (form, speakerform)
 
 <a href="uploadtrans"><small>Click here at any time to cancel or start over.</small></a><p>
 
-<form name="/uploadtrans" method="post" enctype="multipart/form-data">
+<form name="uploadTG" method="post" enctype="multipart/form-data"> 
 $if not form.valid: <p class="error">Correct the errors below.</p>
-$:form.render()
+$:form.render_disabled()
 </form>
+
+$if speakerform:
+	<h3>Enter speaker information</h3>
+	<span class="note">Does not affect the automatic transcription, but required for vowel extraction results.</span><p>
+	<form action="/extract" name="extract" method="post">
+	$if not speakerform.valid: <p class="error">Correct the errors below.</p>
+	$:speakerform.render()
+	<input type="submit" />
+	</form>
 
 </div>
 

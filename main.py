@@ -8,10 +8,11 @@ import utilities
 import zipfile
 import tarfile
 import align
+import extract
 
 render = web.template.render('templates/', base='layout')
 
-urls = ('/', 'index', '/upload', 'upload', '/uploadtrans', 'uploadtrans', '/align', align.app_align)
+urls = ('/', 'index', '/upload', 'upload', '/uploadtrans', 'uploadtrans', '/align', align.app_align, '/extract', extract.app_extract)
 app = web.application(urls, globals())
 web.config.debug = True
         
@@ -92,8 +93,7 @@ class upload:
       error = myform.MyForm()
       e = error(error_message)
       return render.error(error_message)
-
-  
+      
     def GET(self):
         self.dialect.value = 'standard'
         self.lw.value = '7' #defaults
@@ -126,8 +126,9 @@ class upload:
           form.taskname.value = taskname
 
           filename, error_message = utilities.youtube_wav(x.filelink, audiodir, taskname)
-          if error_message != '':
-              return self.error_form(form, error_message, taskname)
+          
+          #if error_message != '':
+          #    return self.error_form(form, error_message, taskname)
 
           samprate, file_size, error_message = utilities.soxConversion(filename,
                                              audiodir, dochunk=True)
@@ -138,7 +139,8 @@ class upload:
           filenames = [(filename, x.filelink)]   #passed filename, display filename
 
           utilities.gen_argfiles(self.datadir, form.taskname.value, filename, samprate, form.lw.value, form.dialect.value, form.email.value)
-          form.note = "Warning: Your files total only {:.2f} minutes of speech. We recommend at least {:.2f} minutes for best results.".format(file_size, self.MINDURATION)
+          if file_size<self.MINDURATION:
+              form.note = "Warning: Your files total only {:.2f} minutes of speech. We recommend at least {:.2f} minutes for best results.".format(file_size, self.MINDURATION)
           # return "Success! your file {0} has a sampling rate of {1}. Your email: {2}".format(filename, samprate, form.email.value)
           #return new form? 
           return self.speaker_form(form, filenames, taskname)
@@ -252,7 +254,32 @@ class uploadtrans:
                                  lambda x: (x.filelink!='' or x.uploadfile) and not (x.uploadfile and x.filelink!=''))]
 
     datadir = open('filepaths.txt').read().strip()
+    
+    def speaker_form(self, completed_form, filenames, taskname): #send in the completed form too           
+        input_list = []
+        taskname = form.Hidden(name="taskname",value=taskname)
+        numfiles = form.Hidden(name="numfiles",value=len(filenames))
+        input_list.extend([taskname, numfiles])
 
+        #TODO: no need to generalize to multiple speakers                                                  
+        index = 0
+        filename = form.Hidden(value=filenames[index][0],name='filename'+str(index))
+        speaker_name = form.Textbox('name'+str(index),
+                         form.notnull,
+                         pre="File Name: "+filenames[index][1],
+                         description='Speaker ID')
+        sex = myform.MyRadio('sex'+str(index),
+                        [('M','Male', 'M'+str(index)),('F','Female', 'F'+str(index)),('C','Child', 'C'+str(index))],
+                        description='Sex'
+                        )
+
+        input_list.extend([speaker_name,sex,filename])
+
+        speakers = myform.ListToForm(input_list)
+        s = speakers()
+
+        return render.speakersTG(completed_form, s)
+    
     def GET(self):
         uploadsound = myform.MyForm(self.uploadfile,
                                     self.filelink, 
@@ -273,6 +300,7 @@ class uploadtrans:
         if not form.validates(): #not validated
             return render.uploadTG(form, "")
 
+        filenames = []
         tgfilename, tgextension = utilities.get_basename(x.uploadTGfile.filename)
         
         if tgextension != '.textgrid':
@@ -289,7 +317,7 @@ class uploadtrans:
 
             else:
                 #create new task                                                               
-                taskname, audiodir = utilities.make_task(self.datadir)
+                taskname, audiodir, error_message = utilities.make_task(self.datadir)
                 form.taskname.value = taskname
                 
                 samprate, total_size, error = utilities.process_audio(audiodir,
@@ -297,20 +325,24 @@ class uploadtrans:
                     x.uploadfile.file.read(),
                     dochunk=False)
 
+                filenames.append((filename, filename))
+        
         elif x.filelink!='':
 
             #make taskname
-            taskname, audiodir = utilities.make_task(self.datadir)
+            taskname, audiodir, error_message = utilities.make_task(self.datadir)
             form.taskname.value = taskname
 
             filename = utilities.youtube_wav(x.filelink, audiodir, taskname)
             samprate, file_size = utilities.soxConversion(filename, audiodir, dochunk=True)
 
-        utilities.write_textgrid(self.datadir, form.taskname.value, x.uploadTGfile.file.read()) 
+            filenames = [(filename, x.filelink)]
+        
+        utilities.write_textgrid(self.datadir, form.taskname.value, filename, x.uploadTGfile.file.read()) 
 
-        utilities.gen_tgargfile(self.datadir, form.taskname.value, filename, samprate, form.email.value)
-        #celery processing here
-        return "Success! your file {0} has a sampling rate of {1}. Your email: {2}".format(filename, samprate, form.email.value)
+        utilities.gen_tgargfile(self.datadir, form.taskname.value, filename, form.email.value)
+        
+        return self.speaker_form(form, filenames, taskname)
 
 if __name__=="__main__":
     web.internalerror = web.debugerror

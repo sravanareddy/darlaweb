@@ -18,12 +18,12 @@ do
   basename=${f##*/}
   basename=${basename%.lab}
   echo $basename
-  ln -sf /home/sravana/data/webphonetics/$taskname.audio/splits/$basename.wav $taskname.wavlab/
+  ln -sf $taskname.audio/splits/$basename.wav $taskname.wavlab/
 done
 
 export PYTHONPATH=/home/sravana/applications/Prosodylab-Aligner
-/usr/bin/python3 -m aligner -r $hmm -d $stressdict -a $taskname.wavlab/ 
-pwd > tmp
+/usr/bin/python3 -m aligner -r $hmm -d $stressdict -a $taskname.wavlab &> tmp
+pwd >> tmp
 echo $hmm >> tmp
 echo $stressdict >> tmp
 echo $taskname.wavlab >> tmp

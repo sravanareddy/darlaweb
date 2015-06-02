@@ -48,7 +48,7 @@ def send_init_email(receiver, filename):
                 print 'Unable to send e-mail '
 
 def send_email(receiver, filename, taskname):
-        os.chdir('/home/sravana/data/webphonetics/')
+        
         username = 'darla.dartmouth'
         password = open('/home/sravana/applications/email/info.txt').read().strip()
         sender = username+'@gmail.com'
@@ -138,9 +138,10 @@ def make_task(datadir):
             error_message = "Could not make a taskname for the file."
             return taskname, audiodir, error_message
 
-def write_textgrid(datadir, taskname, tgfilecontent):
+def write_textgrid(datadir, taskname, filename, tgfilecontent):
     #TODO: validate TextGrid
-    o = open(os.path.join(datadir, taskname+'.TextGrid'), 'w')
+    os.system('mkdir -p '+os.path.join(datadir, taskname+'.mergedtg'))
+    o = open(os.path.join(datadir, taskname+'.mergedtg', filename+'.TextGrid'), 'w')
     o.write(tgfilecontent)
     o.close()
 
@@ -297,8 +298,8 @@ def gen_argfiles(datadir, taskname, uploadfilename, samprate, lw, dialect, email
     o.close()
 
     """feature extraction"""
-    options = {'di': taskname+'.audio/splits/',
-               'do': taskname+'.mfc',
+    options = {'di': os.path.join(datadir, taskname+'.audio/splits/'),
+               'do': os.path.join(datadir, taskname+'.mfc'),
                'ei': 'wav',
                'eo': 'mfc',
                'mswav': 'yes', 
@@ -324,7 +325,7 @@ def gen_argfiles(datadir, taskname, uploadfilename, samprate, lw, dialect, email
 
     #for i in range(numsplits):
     o = open(os.path.join(datadir, taskname+'.featurize_args'), 'w')
-    options['c'] = taskname+'.ctl'
+    options['c'] = os.path.join(datadir, taskname+'.ctl')
     o.write('\n'.join(map(lambda (k, v): '-'+k+' '+v,
                           options.items())))
     o.close()
@@ -343,7 +344,7 @@ def gen_argfiles(datadir, taskname, uploadfilename, samprate, lw, dialect, email
             options.update({'nfilt': '25',
                             'upperf': '6800'})
     
-    options.update({'cepdir': taskname+'.mfc',
+    options.update({'cepdir': os.path.join(datadir, taskname+'.mfc'),
                     'cepext': '.mfc',
                     'dict': '/home/sravana/prdicts/cmudict.nostress.txt',
                     'fdict': os.path.join(hmm, 'noisedict'),
@@ -363,9 +364,9 @@ def gen_argfiles(datadir, taskname, uploadfilename, samprate, lw, dialect, email
     
     #for i in range(numsplits):
     o = open(os.path.join(datadir, taskname+'.recognize_args'), 'w')
-    options.update({'ctl': taskname+'.ctl',
-                    'hyp': taskname+'.hyp',
-                    'hypseg': taskname+'.hypseg'})
+    options.update({'ctl': os.path.join(datadir, taskname+'.ctl'),
+                    'hyp': os.path.join(datadir, taskname+'.hyp'),
+                    'hypseg': os.path.join(datadir, taskname+'.hypseg')})
     o.write('\n'.join(map(lambda (k, v): '-'+k+' '+v,
                           options.items())))
     o.close()
@@ -390,17 +391,12 @@ def gen_argfiles(datadir, taskname, uploadfilename, samprate, lw, dialect, email
 
 
 
-def gen_tgargfile(datadir, taskname, uploadfilename, samprate, email):
-    """Generate alext_args file for uploadtrans task"""
+def gen_tgargfile(datadir, taskname, uploadfilename, email):
+    """Generate ext_args file for uploadtrans task"""
     o = open(os.path.join(datadir, taskname+'.ext_args'), 'w')
     
     o.write(uploadfilename+' ')
     
-    if samprate==8000:
-            o.write('/home/sravana/acousticmodels/prosodylab-8.zip ')
-    else:
-            o.write('/home/sravana/acousticmodels/prosodylab-16.zip ')
-
     if email=="":
         email="none"
     o.write(email)
