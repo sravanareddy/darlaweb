@@ -165,8 +165,6 @@ def process_audio(audiodir, filename, extension, filecontent, dochunk):
         #os.system('lame --decode '+os.path.join(audiodir, filename+extension)+' '+os.path.join(audiodir, filename+'.wav'))  #TODO: use subprocess instead (it's getting stuck on lame for some reason)
         extension = '.wav'
         print "converted to", filename+extension
-        
-
             
     #split and convert frequency
     samprate, filesize, soxerror = soxConversion(filename+extension, audiodir, dochunk)
