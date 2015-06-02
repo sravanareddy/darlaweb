@@ -13,7 +13,7 @@ import shlex
 def featurize_recognize(taskname):
         
         filename, _, receiver = open(taskname+'.alext_args').read().split()
-        send_init_email(receiver, filename)
+        send_init_email("Completely Automated Vowel Extraction", receiver, filename)
         
         args = "/usr/local/bin/sphinx_fe -argfile "+taskname+".featurize_args"
         audio = subprocess.Popen(shlex.split(args), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -37,11 +37,10 @@ def align_extract(taskname):
         align = subprocess.Popen(shlex.split(args), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         retval = align.wait()
 
-        if retval != 0 and receiver!='none':
+        if retval != 0:
                 send_error_email(receiver, "", "align_extract shell script")
 
-
-        elif receiver!='none':
+        else:
                 send_email(receiver, filename, taskname)
         
         return
@@ -49,9 +48,17 @@ def align_extract(taskname):
 @task(serializer='json')
 def just_extract(taskname):
         filename, receiver = open(taskname+'.ext_args').read().split()
-        args = "/home/sravana/webpy_sandbox/just_extract.sh "+taskname
-        os.system(args)
+        send_init_email("Extract-Only", receiver, filename)
 
+        args = "/home/sravana/webpy_sandbox/just_extract.sh "+taskname
+        extract = subprocess.Popen(shlex.split(args), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        retval = extract.wait()
+
+        if retval != 0:
+                send_error_email(receiver, "", "just_extract shell script")
+        else:
+                send_email(receiver, filename, taskname)
+        
         if receiver!='none':
                 send_email(receiver, filename, taskname)
 

@@ -21,11 +21,11 @@ from email import encoders
 class CustomException(Exception):
     pass 
 
-def send_init_email(receiver, filename):
+def send_init_email(tasktype, receiver, filename):
         username = 'darla.dartmouth'
         password = open('/home/sravana/applications/email/info.txt').read().strip()
         sender = username+'@gmail.com'
-        subject = 'Task started for '+filename
+        subject = tasktype+' Task started for '+filename
         
         body = 'This is a confirmation to let you know that your job has been submitted. You will receive the results shortly.'
 
@@ -55,7 +55,7 @@ def send_email(receiver, filename, taskname):
         subject = 'Vowel Analysis Results for '+filename
 
         body = 'The formant extraction results for your data are attached. (1) formants.csv contains detailed information on bandwidths, phonetic environments, and probabilities, (2) formants.fornorm.tsv can be uploaded to the NORM online tool (http://ncslaap.lib.ncsu.edu/tools/norm/) for additional normalization and plotting options, (3) plot.pdf shows the F1/F2 vowel space of your speakers, and (4) alignments.zip contains the TextGrids of the ASR transcriptions aligned with the audio.\n\n'
-        body += 'If you manually correct the transcriptions, you may re-upload your data with the new TextGrids to http://darla.dartmouth.edu:3000/uploadtrans and receive revised formant measurements and plots.\n\n'
+        body += 'If you manually correct the transcriptions, you may re-upload your data with the new TextGrids to http://darla.dartmouth.edu/uploadtrans and receive revised formant measurements and plots.\n\n'
         body += 'Thank you for using DARLA. Please e-mail us with questions or suggestions.\n'
         message = MIMEMultipart()
         message['From'] = 'DARLA <'+sender+'>'

@@ -8,9 +8,6 @@ import myform
 import utilities
 import os
 import sys
-#script = open('scripts_directory.txt').read().strip()
-#sys.path.append(script)
-# sys.path.append('/home/sravana/applications/scripts/')
 from featrec import just_extract
 
 if celeryon:
@@ -34,21 +31,22 @@ class extract:
 			value = split[1]
 			dictionary[name] = value
 
-		os.chdir(datadir)
-		taskname = dictionary["taskname"]
+                taskname = dictionary["taskname"]
                 print "TASKNAME " + taskname
                 numfiles = int(dictionary["numfiles"])
                 
-                if not (os.path.isdir(taskname+".speakers")):
-                        os.mkdir(taskname+".speakers")
-                        os.system('chmod g+w '+(taskname+".speakers"))
+                if not (os.path.isdir(os.path.join(datadir, taskname+".speakers"))):
+                        os.mkdir(os.path.join(datadir, taskname+".speakers"))
+                        os.system('chmod g+w '+os.path.join(datadir, taskname+".speakers"))
 
                 for i in range(0, numfiles):
                         i = str(i)
                         
-                        filename = dictionary["filename"+i] 
+                        filename = dictionary["filename"+i]
+                        if filename=='ytvideo.wav':
+                                filename='ytvideo'
                         try:
-                                o = open(taskname+'.speakers/converted_'+filename+'.speaker', 'w')
+                                o = open(os.path.join(datadir, taskname+'.speakers/converted_'+filename+'.speaker'), 'w')
                                 name = dictionary["name"+i]
                                 sex = dictionary["sex"+i]
                                 o.write('--name='+name+'\n--sex='+sex+'\n')
@@ -58,11 +56,11 @@ class extract:
                 
                 #uncelery
 		if celeryon:
-			result = just_extract.delay(taskname)
+			result = just_extract.delay(os.path.join(datadir, taskname))
 			while not result.ready():
 				pass
 		else:
-			just_extract(taskname)
+			just_extract(os.path.join(datadir, taskname))
 
 
 		return "You may now close this window and we will email you the results. Thank you!" 

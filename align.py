@@ -42,6 +42,8 @@ class align:
 		for i in range(0, numfiles):
 			i = str(i)
 			filename = dictionary["filename"+i]
+                        if filename=='ytvideo.wav':
+                                filename = 'ytvideo'
 			try: 
 				o = open(os.path.join(datadir, taskname+'.speakers/converted_'+filename+'.speaker'), 'w')
 				name = dictionary["name"+i]
