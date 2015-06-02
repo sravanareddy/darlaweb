@@ -66,10 +66,10 @@ class upload:
                       class_='copy',
                       post='Check if speaker below is same as above')
           input_list.append(checkBox)
-        filename = form.Hidden(value=filenames[index],name='filename'+str(index))
+        filename = form.Hidden(value=filenames[index][0],name='filename'+str(index))
         speaker_name = form.Textbox('name'+str(index),
                          form.notnull,
-                         pre="File Name: "+filenames[index],
+                         pre="File Name: "+filenames[index][1],
                          description='Speaker ID')
         sex = myform.MyRadio('sex'+str(index),
                         [('M','Male', 'M'+str(index)),('F','Female', 'F'+str(index)),('C','Child', 'C'+str(index))],
@@ -135,7 +135,7 @@ class upload:
               return self.error_form(form, error_message, taskname)
 
 
-          filenames = [filename]
+          filenames = [(filename, x.filelink)]   #passed filename, display filename
 
           utilities.gen_argfiles(self.datadir, form.taskname.value, filename, samprate, form.lw.value, form.dialect.value, form.email.value)
           form.note = "Warning: Your files total only {:.2f} minutes of speech. We recommend at least {:.2f} minutes for best results.".format(file_size, self.MINDURATION)
@@ -201,7 +201,7 @@ class upload:
                                       z.extractfile(subname).read(),
                                       dochunk=True)
                             
-                              filenames.append(subfilename)
+                              filenames.append((subfilename, subfilename))
                               total_size += file_size
                     except:
                         return self.error_form(form, "Could not read the zip file", taskname)
@@ -215,7 +215,7 @@ class upload:
                     if error_message != '':
                         return self.error_form(form, error_message, taskname)
                     
-                    filenames.append(filename)
+                    filenames.append((filename, filename))
                     total_size = file_size
                 
                 if total_size < self.MINDURATION:  
