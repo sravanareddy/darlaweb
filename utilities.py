@@ -55,7 +55,7 @@ def send_email(receiver, filename, taskname):
         subject = 'Vowel Analysis Results for '+filename
 
         body = 'The formant extraction results for your data are attached. (1) formants.csv contains detailed information on bandwidths, phonetic environments, and probabilities, (2) formants.fornorm.tsv can be uploaded to the NORM online tool (http://ncslaap.lib.ncsu.edu/tools/norm/) for additional normalization and plotting options, (3) plot.pdf shows the F1/F2 vowel space of your speakers, and (4) alignments.zip contains the TextGrids of the ASR transcriptions aligned with the audio.\n\n'
-        body += 'If you manually correct the transcriptions, you may re-upload your data with the new TextGrids to http://darla.dartmouth.edu/uploadtrans and receive revised formant measurements and plots.\n\n'
+        body += 'If you manually correct the transcriptions, you may re-upload your data with the new TextGrids to http://darla.dartmouth.edu:3000/uploadtextrgid and receive revised formant measurements and plots. Alternately, you may upload plaintext transcriptions to http://darla.dartmouth.edu:3000/uploadtrans\n\n'
         body += 'Thank you for using DARLA. Please e-mail us with questions or suggestions.\n'
         message = MIMEMultipart()
         message['From'] = 'DARLA <'+sender+'>'
@@ -137,6 +137,13 @@ def make_task(datadir):
     except OSError:
             error_message = "Could not make a taskname for the file."
             return taskname, audiodir, error_message
+
+def write_hyp(datadir, taskname, filename, txtfilecontent):
+    os.system('mkdir -p '+os.path.join(datadir, taskname+'.wavlab'))
+    o = open(os.path.join(datadir, taskname+'.wavlab', filename+'.lab'), 'w')
+    o.write(txtfilecontent.strip().replace("'", "\\'"))
+    o.close()
+
 
 def write_textgrid(datadir, taskname, filename, tgfilecontent):
     #TODO: validate TextGrid
@@ -389,10 +396,27 @@ def gen_argfiles(datadir, taskname, uploadfilename, samprate, lw, dialect, email
 
     return
 
+def gen_txtargfile(datadir, taskname, uploadfilename, samprate, email):
+    """Generate alext_args file from uploadtrans task"""
+    o = open(os.path.join(datadir, taskname+'.alext_args'), 'w')
 
+    o.write(uploadfilename+' ')
+
+    if samprate==8000:
+            o.write('/home/sravana/acousticmodels/prosodylab-8.zip ')
+    else:
+            o.write('/home/sravana/acousticmodels/prosodylab-16.zip ')
+
+    if email=="":
+        email="none"
+    o.write(email)
+    o.write('\n')
+    o.close()
+
+    return
 
 def gen_tgargfile(datadir, taskname, uploadfilename, email):
-    """Generate ext_args file for uploadtrans task"""
+    """Generate ext_args file for uploadtextgrid task"""
     o = open(os.path.join(datadir, taskname+'.ext_args'), 'w')
     
     o.write(uploadfilename+' ')

@@ -7,12 +7,13 @@ import myform
 import utilities
 import zipfile
 import tarfile
-import align
+import allpipeline
 import extract
+import alignextract
 
 render = web.template.render('templates/', base='layout')
 
-urls = ('/', 'index', '/uploadsound', 'uploadsound', '/uploadtrans', 'uploadtrans', '/uploadtextgrid', 'uploadtextgrid', '/align', align.app_align, '/extract', extract.app_extract)
+urls = ('/', 'index', '/uploadsound', 'uploadsound', '/uploadtrans', 'uploadtrans', '/uploadtextgrid', 'uploadtextgrid', '/allpipeline', allpipeline.app_allpipeline, '/extract', extract.app_extract, '/alignextract', alignextract.app_alignextract)
 app = web.application(urls, globals())
 web.config.debug = True
         
@@ -303,7 +304,7 @@ class uploadtrans:
         filenames = []
         txtfilename, txtextension = utilities.get_basename(x.uploadtxtfile.filename)
         
-        if tgextension != '.txt':
+        if txtextension != '.txt':
             form.note = 'Upload a plaintext file with a .txt extension.'
             return render.uploadtxt(form, "")
 
@@ -313,7 +314,7 @@ class uploadtrans:
             
             if extension not in ['.wav', '.mp3']:
                 form.note = "Please upload a .wav or .mp3 file."
-                return render.uploadTG(form, "")
+                return render.uploadtxt(form, "")
 
             else:
                 #create new task                                                               
@@ -334,13 +335,13 @@ class uploadtrans:
             form.taskname.value = taskname
 
             filename = utilities.youtube_wav(x.filelink, audiodir, taskname)
-            samprate, file_size = utilities.soxConversion(filename, audiodir, dochunk=True)
+            samprate, file_size = utilities.soxConversion(filename, audiodir, dochunk=False)
 
             filenames = [(filename, x.filelink)]
         
-        utilities.write_textgrid(self.datadir, form.taskname.value, filename, x.uploadTGfile.file.read()) 
+        utilities.write_hyp(self.datadir, form.taskname.value, filename, x.uploadtxtfile.file.read()) 
 
-        utilities.gen_txtargfile(self.datadir, form.taskname.value, filename, form.email.value)
+        utilities.gen_txtargfile(self.datadir, form.taskname.value, filename, samprate, form.email.value)
         
         return self.speaker_form(form, filenames, taskname)
 
@@ -449,7 +450,7 @@ class uploadtextgrid:
             form.taskname.value = taskname
 
             filename = utilities.youtube_wav(x.filelink, audiodir, taskname)
-            samprate, file_size = utilities.soxConversion(filename, audiodir, dochunk=True)
+            samprate, file_size = utilities.soxConversion(filename, audiodir, dochunk=False)
 
             filenames = [(filename, x.filelink)]
         

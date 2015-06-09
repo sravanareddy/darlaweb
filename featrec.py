@@ -46,6 +46,25 @@ def align_extract(taskname):
         return
 
 @task(serializer='json')
+def just_align_extract(taskname):
+        filename, _, receiver = open(taskname+'.alext_args').read().split()
+        send_init_email("Alignment and Extraction", receiver, filename)
+
+        args = "/home/sravana/webpy_sandbox/just_align_extract.sh "+taskname
+        alignextract = subprocess.Popen(shlex.split(args), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        retval = alignextract.wait()
+
+        if retval != 0:
+                send_error_email(receiver, "", "just_align_extract shell script")
+        else:
+                send_email(receiver, filename, taskname)
+
+        if receiver!='none':
+                send_email(receiver, filename, taskname)
+
+        return
+
+@task(serializer='json')
 def just_extract(taskname):
         filename, receiver = open(taskname+'.ext_args').read().split()
         send_init_email("Extract-Only", receiver, filename)

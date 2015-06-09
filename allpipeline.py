@@ -14,10 +14,10 @@ if celeryon:
 	from celery import group
 
 urls = {
-	 '/?', 'align'
+	 '/?', 'allpipeline'
 	 }
 
-class align:
+class allpipeline:
 	def GET(self):
 		return "TESTING"
 	def POST(self):
@@ -76,4 +76,4 @@ class align:
                 
 		return "You may now close this window and we will email you the results. Thank you!" 
 
-app_align = web.application(urls, locals())
+app_allpipeline = web.application(urls, locals())
