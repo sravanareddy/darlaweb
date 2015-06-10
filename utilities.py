@@ -141,9 +141,11 @@ def make_task(datadir):
 def write_hyp(datadir, taskname, filename, txtfilecontent):
     os.system('mkdir -p '+os.path.join(datadir, taskname+'.wavlab'))
     o = open(os.path.join(datadir, taskname+'.wavlab', filename+'.lab'), 'w')
-    o.write(txtfilecontent.strip().replace("'", "\\'"))
+    words = txtfilecontent.lower().split()
+    words = map(lambda word: word.strip(string.punctuation), words)
+    words = ' '.join(words).replace("'", "\\'")
+    o.write(words+'\n')
     o.close()
-
 
 def write_textgrid(datadir, taskname, filename, tgfilecontent):
     #TODO: validate TextGrid

@@ -47,10 +47,10 @@ def align_extract(taskname):
 
 @task(serializer='json')
 def just_align_extract(taskname):
-        filename, _, receiver = open(taskname+'.alext_args').read().split()
+        filename, hmm, receiver = open(taskname+'.alext_args').read().split()
         send_init_email("Alignment and Extraction", receiver, filename)
 
-        args = "/home/sravana/webpy_sandbox/just_align_extract.sh "+taskname
+        args = "/home/sravana/webpy_sandbox/just_align_extract.sh "+taskname+' '+hmm
         alignextract = subprocess.Popen(shlex.split(args), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         retval = alignextract.wait()
 
