@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import web
 import shutil
@@ -339,7 +340,7 @@ class uploadtrans:
 
             filenames = [(filename, x.filelink)]
         
-        utilities.write_hyp(self.datadir, form.taskname.value, filename, x.uploadtxtfile.file.read()) 
+        utilities.write_hyp(self.datadir, form.taskname.value, filename, x.uploadtxtfile.file.read().replace("’", "'"))  #stylized apostrophes 
 
         utilities.gen_txtargfile(self.datadir, form.taskname.value, filename, samprate, form.email.value)
         
