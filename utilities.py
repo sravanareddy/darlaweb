@@ -91,14 +91,15 @@ def send_email(receiver, filename, taskname):
         except smtplib.SMTPException:
                 print 'Unable to send e-mail '
 
-def send_error_email(receiver, filename):
+def send_error_email(receiver, error):
     #TODO: send an email telling the user something went wrong.
         username = 'darla.dartmouth'
         password = open('/home/sravana/applications/email/info.txt').read().strip()
         sender = username+'@gmail.com'
-        subject = 'Vowel Analysis Results for '+filename
+        subject = 'Error occured during Vowel Analysis'
 
         body = 'We are sorry - something went wrong in our analysis of your data.'
+        body += 'We have logged an error categorized as '+error+' and we will look into the problem shortly.'
         body += 'Thank you for using DARLA. Please e-mail us with any questions.\n'
         message = MIMEMultipart()
         message['From'] = 'DARLA <'+sender+'>'
