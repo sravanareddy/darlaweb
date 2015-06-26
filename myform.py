@@ -54,7 +54,7 @@ class MyForm(web.form.Form):
                 for i in self.inputs:
                         if not i.is_hidden():
 				out.append('<p>')
-				out.append(i.description+' ')
+                                out.append(i.description+' ')
                         out.append(i.render())
                         if not i.is_hidden():
 				out.append(self.rendernote(i.note))
@@ -62,20 +62,10 @@ class MyForm(web.form.Form):
 				out.append('</p>\n')
                 return ''.join(out) 
 
-        def render_disabled(self): #TODO: this does nothing. just adds a dis after the input. 
+        def render_disabled(self):  
                 out = []
                 out.append(self.rendernote(self.note))
                 for i in self.inputs:
-                        # out.append('<p>')
-                        # out.append(i.description+' ')
-                        # # print i.attrs # find out what type of form it is
-                        # # #to do: RIGHT HERE, i.addatts
-                        # i.attrs["disabled"] = True
-                        # out.append(i.render())
-                        # out.append(self.rendernote(i.note))
-                        # out.append('<br><span class="note">dis{0}</span>'.format(i.post))
-                        # out.append('</p>\n')
-
 			if i.name=='submit':  #don't show submit button here
 				continue
                         if not i.is_hidden():
@@ -110,11 +100,17 @@ class ListToForm(web.form.Form):
                         if not i.is_hidden():
                                 out.append('<p>')
                                 out.append(i.pre)
-                                out.append('<p>'+i.description+' ')
+                                out.append('<p>')
+                                if not i.post.startswith('Check if'): #don't show name for speaker checkbox
+                                        out.append(i.description+' ')
                         out.append(i.render())
                         if not i.is_hidden():
                                 out.append(self.rendernote(i.note))
-                                out.append('<br><span class="note">{0}</span>'.format(i.post))
+                                if not i.post.startswith('Check if'):
+                                        out.append('<br>')
+                                else:
+                                        out.append(' ')
+                                out.append('<span class="note">{0}</span>'.format(i.post))
                                 out.append('</p>\n')
 
                 return ''.join(out) 

@@ -6,11 +6,14 @@ $def with (form, speakerform)
 <span class="breadcrumbs"><a href="http://darla.dartmouth.edu#cite" target="_blank">How to cite</a></span><p>
 <script src="/static/js/speakerInfo.js"></script>
 
-<h2>Completely Automated Vowel Extraction</h2><p><p>
+<h2>Automated Vowel Extraction with Revised Transcriptions</h2><p><p>
 
-<a href="uploadsound"><small>Click here at any time to cancel or start over.</small></a><p>
+<span class="note">
+Upload your audio files with the corrected TextGrid to run formant extraction using FAVE-extract. (The word tier is ignored; you only need to correct the phone tier.)</span><p>
 
-<form name="uploadsound" method="post" enctype="multipart/form-data"> 
+<a href="uploadtextgrid"><small>Click here at any time to cancel or start over.</small></a><p>
+
+<form name="uploadtextgrid" method="post" enctype="multipart/form-data"> 
 $if not form.valid: <p class="error">Correct the errors below.</p>
 $:form.render_disabled()
 </form>
@@ -18,7 +21,7 @@ $:form.render_disabled()
 $if speakerform:
 	<h3>Enter speaker information</h3>
 	<span class="note">Does not affect the automatic transcription, but required for vowel extraction results.</span><p>
-	<form action="/allpipeline" name="allpipeline" method="post">
+	<form action="/extract" name="extract" method="post">
 	$if not speakerform.valid: <p class="error">Correct the errors below.</p>
 	$:speakerform.render()
 	<input type="submit" />

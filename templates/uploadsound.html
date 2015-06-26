@@ -7,9 +7,9 @@ $def with (form, speakerform)
 
 <h2>Completely Automated Vowel Extraction</h2><p><p>
 
-<a href="upload"><small>Click here at any time to cancel or start over.</small></a><p>
+<a href="uploadsound"><small>Click here at any time to cancel or start over.</small></a><p>
 
-<form name="upload" method="post" enctype="multipart/form-data"> 
+<form name="uploadsound" method="post" enctype="multipart/form-data"> 
 $if not form.valid: <p class="error">Correct the errors below.</p>
 $:form.render()
 </form>
