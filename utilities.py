@@ -112,11 +112,32 @@ def send_error_email(receiver, filename, message):
     except smtplib.SMTPException:
             print 'Unable to send e-mail '
 
+def read_prdict(dictfile):
+    spam = map(lambda line: line.split(), open(dictfile).readlines())
+    return dict(map(lambda line: (line[0], line[1:]), spam))
+    
+def g2p(transwords, cmudictfile):
+    """Predict pronunciations of words not in dictionary and add"""
+    cmudict = read_prdict(cmudictfile)
+    oov = filter(lambda word: word not in cmudict, transwords)
+    o = open('OOV.txt', 'w')
+    o.write('\n'.join(oov)+'\n')
+    o.close()
+    os.system('g2p.py --model /home/sravana/applications/g2p/model-6 --apply OOV.txt > OOVprons.txt')
+    for line in OOVprons:
+        line = line.split()
+        cmudict[line[0]] = line[1:]
+    words = sorted(map(lambda word: word.replace("\\'", "'"), words))
+    o = open(cmudictfile, 'w')
+    for word in words:
+        rword = word.replace("'", "\\'")
+        o.write(rword+'  '+' '.join(cmudict[rword])+'\n')
+    o.close()
+
 def get_basename(filename):
     basename = ntpath.basename(filename.replace('\\','/').replace(' ', '_'))
     basename, extension = os.path.splitext(basename)
     return basename, extension.lower()
-
 
 def randomname(fnamelen):
     fname = ''
@@ -138,14 +159,15 @@ def make_task(datadir):
             error_message = "Could not make a taskname for the file."
             return taskname, audiodir, error_message
 
-def write_hyp(datadir, taskname, filename, txtfilecontent):
+def write_hyp(datadir, taskname, filename, txtfilecontent, cmudictfile):
     os.system('mkdir -p '+os.path.join(datadir, taskname+'.wavlab'))
     o = open(os.path.join(datadir, taskname+'.wavlab', filename+'.lab'), 'w')
     words = txtfilecontent.lower().split()
     words = map(lambda word: word.strip(string.punctuation), words)
-    words = ' '.join(words).replace("'", "\\'")
-    o.write(words+'\n')
+    o.write(' '.join(words).replace("'", "\\'")+'\n')
     o.close()
+    #make dictionary for OOVs
+    g2p(words, cmudictfile)
 
 def write_textgrid(datadir, taskname, filename, tgfilecontent):
     #TODO: validate TextGrid

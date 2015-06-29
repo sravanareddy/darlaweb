@@ -340,8 +340,7 @@ class uploadtrans:
 
             filenames = [(filename, x.filelink)]
         
-        utilities.write_hyp(self.datadir, form.taskname.value, filename, x.uploadtxtfile.file.read().replace("’", "'"))  #stylized apostrophes 
-
+        utilities.write_hyp(self.datadir, form.taskname.value, filename, x.uploadtxtfile.file.read(), 'cmudict.forhtk.txt')  
         utilities.gen_txtargfile(self.datadir, form.taskname.value, filename, samprate, form.email.value)
         
         return self.speaker_form(form, filenames, taskname)

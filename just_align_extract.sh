@@ -4,7 +4,7 @@ taskname=$1
 hmm=$2
 
 favedir='/home/sravana/applications/FAVE/FAVE-extract'
-stressdict='/home/sravana/prdicts/cmudict.forhtk.txt'
+stressdict='cmudict.forhtk.txt'
 
 #get Viterbi phone alignment
 for f in $taskname.wavlab/*.lab;
