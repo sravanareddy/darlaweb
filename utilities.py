@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 """Creates intermediate argument files, does basic audio processing and conversion.
 """
@@ -123,11 +124,11 @@ def g2p(transwords, cmudictfile):
     o = open('OOV.txt', 'w')
     o.write('\n'.join(oov)+'\n')
     o.close()
-    os.system('g2p.py --model /home/sravana/applications/g2p/model-6 --apply OOV.txt > OOVprons.txt')
-    for line in OOVprons:
+    os.system('/usr/local/bin/g2p.py --model /home/sravana/applications/g2p/model-6 --apply OOV.txt > OOVprons.txt')
+    for line in open('OOVprons.txt'):
         line = line.split()
         cmudict[line[0]] = line[1:]
-    words = sorted(map(lambda word: word.replace("\\'", "'"), words))
+    words = sorted(map(lambda word: word.replace("\\'", "'"), cmudict.keys()))
     o = open(cmudictfile, 'w')
     for word in words:
         rword = word.replace("'", "\\'")
@@ -162,9 +163,9 @@ def make_task(datadir):
 def write_hyp(datadir, taskname, filename, txtfilecontent, cmudictfile):
     os.system('mkdir -p '+os.path.join(datadir, taskname+'.wavlab'))
     o = open(os.path.join(datadir, taskname+'.wavlab', filename+'.lab'), 'w')
-    words = txtfilecontent.lower().split()
-    words = map(lambda word: word.strip(string.punctuation), words)
-    o.write(' '.join(words).replace("'", "\\'")+'\n')
+    words = txtfilecontent.lower().replace("’", "'").split()
+    words = map(lambda word: word.strip(string.punctuation).replace("'", "\\'"), words)
+    o.write(' '.join(words)+'\n')
     o.close()
     #make dictionary for OOVs
     g2p(words, cmudictfile)
