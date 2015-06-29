@@ -3,7 +3,6 @@
 taskname=$1
 hmm=$2
 
-scriptdir='/home/sravana/webpy_sandbox'
 favedir='/home/sravana/applications/FAVE/FAVE-extract'
 
 stressdict='/home/sravana/prdicts/cmudict.forhtk.txt'
@@ -12,7 +11,7 @@ stressdict='/home/sravana/prdicts/cmudict.forhtk.txt'
 mkdir -p $taskname.wavlab
 chmod g+w $taskname.wavlab 
 chown sravana:www-data $taskname.wavlab
-python $scriptdir/hyp2lab.py $taskname.hyp $taskname.wavlab
+python hyp2lab.py $taskname.hyp $taskname.wavlab
 for f in $taskname.wavlab/*.lab;
 do
   basename=${f##*/}
@@ -33,7 +32,7 @@ chmod g+w $taskname.tg
 cp $taskname.wavlab/*.TextGrid $taskname.tg/
 
 #merge the textgrids                                                                       
-python $scriptdir/merge_grids.py $taskname.tg $taskname.mergedtg
+python merge_grids.py $taskname.tg $taskname.mergedtg
 zip -j $taskname.alignments.zip $taskname.mergedtg/*.TextGrid
 
 #run FAVE-extract
@@ -50,4 +49,4 @@ grep -v "name,sex" $taskname.aggvowels_formants.csv > $taskname.aggvowels_forman
 cat $taskname.aggvowels_formants.header $taskname.aggvowels_formants.body > $taskname.aggvowels_formants.csv
 rm $taskname.aggvowels_formants.header $taskname.aggvowels_formants.body
 
-Rscript $scriptdir/plot_vowels.r $taskname.aggvowels_formants.csv $taskname.fornorm.tsv $taskname.plot.pdf
+Rscript plot_vowels.r $taskname.aggvowels_formants.csv $taskname.fornorm.tsv $taskname.plot.pdf

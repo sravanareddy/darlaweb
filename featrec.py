@@ -33,7 +33,7 @@ def featurize_recognize(taskname):
 @task(serializer='json')
 def align_extract(taskname):
         filename, align_hmm, receiver = open(taskname+'.alext_args').read().split()
-        args = "/home/sravana/webpy_sandbox/align_extract.sh "+taskname+" "+align_hmm
+        args = "./align_extract.sh "+taskname+" "+align_hmm
         align = subprocess.Popen(shlex.split(args), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         retval = align.wait()
 
@@ -50,7 +50,7 @@ def just_align_extract(taskname):
         filename, hmm, receiver = open(taskname+'.alext_args').read().split()
         send_init_email("Alignment and Extraction", receiver, filename)
 
-        args = "/home/sravana/webpy_sandbox/just_align_extract.sh "+taskname+' '+hmm
+        args = "./just_align_extract.sh "+taskname+' '+hmm
         alignextract = subprocess.Popen(shlex.split(args), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         retval = alignextract.wait()
 
@@ -69,7 +69,7 @@ def just_extract(taskname):
         filename, receiver = open(taskname+'.ext_args').read().split()
         send_init_email("Extract-Only", receiver, filename)
 
-        args = "/home/sravana/webpy_sandbox/just_extract.sh "+taskname
+        args = "./just_extract.sh "+taskname
         extract = subprocess.Popen(shlex.split(args), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         retval = extract.wait()
 

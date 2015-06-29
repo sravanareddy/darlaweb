@@ -3,9 +3,7 @@
 taskname=$1
 hmm=$2
 
-scriptdir='/home/sravana/webpy_sandbox'
 favedir='/home/sravana/applications/FAVE/FAVE-extract'
-
 stressdict='/home/sravana/prdicts/cmudict.forhtk.txt'
 
 #get Viterbi phone alignment
@@ -17,13 +15,13 @@ do
   ln -sf $taskname.audio/converted_$basename.wav $taskname.wavlab/$basename.wav
 done
 
+pwd > $taskname.log
 export PYTHONPATH=/home/sravana/applications/Prosodylab-Aligner
-/usr/bin/python3 -m aligner -r $hmm -d $stressdict -a $taskname.wavlab &> tmp
-pwd >> tmp
-echo $hmm >> tmp
-echo $stressdict >> tmp
-echo $taskname.wavlab >> tmp
-echo $USER >> tmp
+/usr/bin/python3 -m aligner -r $hmm -d $stressdict -a $taskname.wavlab &>> $taskname.log
+echo $hmm >> $taskname.log
+echo $stressdict >> $taskname.log
+echo $taskname.wavlab >> $taskname.log
+echo $USER >> $taskname.log
 mkdir -p $taskname.mergedtg
 chmod g+w $taskname.mergedtg
 cp $taskname.wavlab/*.TextGrid $taskname.mergedtg/
@@ -44,4 +42,4 @@ grep -v "name,sex" $taskname.aggvowels_formants.csv > $taskname.aggvowels_forman
 cat $taskname.aggvowels_formants.header $taskname.aggvowels_formants.body > $taskname.aggvowels_formants.csv
 rm $taskname.aggvowels_formants.header $taskname.aggvowels_formants.body
 
-Rscript $scriptdir/plot_vowels.r $taskname.aggvowels_formants.csv $taskname.fornorm.tsv $taskname.plot.pdf
+Rscript plot_vowels.r $taskname.aggvowels_formants.csv $taskname.fornorm.tsv $taskname.plot.pdf

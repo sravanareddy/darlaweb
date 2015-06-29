@@ -2,7 +2,6 @@
 
 taskname=$1
 
-scriptdir='/home/sravana/webpy_sandbox'
 favedir='/home/sravana/applications/FAVE/FAVE-extract'
 
 zip -j $taskname.alignments.zip $taskname.mergedtg/*.TextGrid
@@ -26,4 +25,4 @@ grep -v "name,sex" $taskname.aggvowels_formants.csv > $taskname.aggvowels_forman
 cat $taskname.aggvowels_formants.header $taskname.aggvowels_formants.body > $taskname.aggvowels_formants.csv
 rm $taskname.aggvowels_formants.header $taskname.aggvowels_formants.body
 
-Rscript $scriptdir/plot_vowels.r $taskname.aggvowels_formants.csv $taskname.fornorm.tsv $taskname.plot.pdf
+Rscript plot_vowels.r $taskname.aggvowels_formants.csv $taskname.fornorm.tsv $taskname.plot.pdf
