@@ -125,15 +125,18 @@ def g2p(transwords, cmudictfile):
     o.write('\n'.join(oov)+'\n')
     o.close()
     os.system('/usr/local/bin/g2p.py --model /home/sravana/applications/g2p/model-6 --apply OOV.txt > OOVprons.txt')
+    newdict = {}
     for line in open('OOVprons.txt'):
         line = line.split()
-        cmudict[line[0]] = line[1:]
-    words = sorted(map(lambda word: word.replace("\\'", "'"), cmudict.keys()))
-    o = open(cmudictfile, 'w')
-    for word in words:
-        rword = word.replace("'", "\\'")
-        o.write(rword+'  '+' '.join(cmudict[rword])+'\n')
-    o.close()
+        newdict[line[0]] = line[1:]
+    if newdict!={}:
+        cmudict.update(newdict)
+        words = sorted(map(lambda word: word.replace("\\'", "'"), cmudict.keys()))
+        o = open(cmudictfile, 'w')
+        for word in words:
+            rword = word.replace("'", "\\'")
+            o.write(rword+'  '+' '.join(cmudict[rword])+'\n')
+        o.close()
 
 def get_basename(filename):
     basename = ntpath.basename(filename.replace('\\','/').replace(' ', '_'))
