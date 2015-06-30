@@ -16,16 +16,13 @@ def featurize_recognize(taskname):
         send_init_email("Completely Automated Vowel Extraction", receiver, filename)
         
         args = "/usr/local/bin/sphinx_fe -argfile "+taskname+".featurize_args"
-        audio = subprocess.Popen(shlex.split(args), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        retval = audio.wait()
-
-        if retval != 0 and receiver!='none':
+        audio = os.system(args)
+        if audio != 0 and receiver!='none':
                 send_error_email(receiver, "", "sphinx_fe processing")
                 #return - only one email, or a value to show that an error occured
         args = "/usr/local/bin/pocketsphinx_batch -argfile "+taskname+".recognize_args"
-        audio = subprocess.Popen(shlex.split(args), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        retval = audio.wait()
-        if retval != 0 and receiver!='none':
+        audio = os.system(args)
+        if audio != 0 and receiver!='none':
                 send_error_email(receiver, "", "pocketsphinx_batch processing")
                 #return - only one email                
         return

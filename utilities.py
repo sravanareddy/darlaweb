@@ -164,7 +164,8 @@ def write_hyp(datadir, taskname, filename, txtfilecontent, cmudictfile):
     os.system('mkdir -p '+os.path.join(datadir, taskname+'.wavlab'))
     o = open(os.path.join(datadir, taskname+'.wavlab', filename+'.lab'), 'w')
     words = txtfilecontent.lower().replace("’", "'").split()
-    words = map(lambda word: word.strip(string.punctuation).replace("'", "\\'"), words)
+    words = map(lambda word: word.strip(string.punctuation).strip(string.digits).replace("'", "\\'"), 
+                words)
     o.write(' '.join(words)+'\n')
     o.close()
     #make dictionary for OOVs
