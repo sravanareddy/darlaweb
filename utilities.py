@@ -129,6 +129,7 @@ def g2p(transwords, cmudictfile):
     for line in open('OOVprons.txt'):
         line = line.split()
         newdict[line[0]] = line[1:]
+    os.system('rm OOV.txt OOVprons.txt')
     if newdict!={}:
         cmudict.update(newdict)
         words = sorted(map(lambda word: word.replace("\\'", "'"), cmudict.keys()))
