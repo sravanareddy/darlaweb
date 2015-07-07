@@ -121,6 +121,8 @@ def g2p(transwords, cmudictfile):
     """Predict pronunciations of words not in dictionary and add"""
     cmudict = read_prdict(cmudictfile)
     oov = filter(lambda word: word not in cmudict, transwords)
+    if len(oov)==0:
+        return
     o = open('OOV.txt', 'w')
     o.write('\n'.join(oov)+'\n')
     o.close()
@@ -138,6 +140,7 @@ def g2p(transwords, cmudictfile):
             rword = word.replace("'", "\\'")
             o.write(rword+'  '+' '.join(cmudict[rword])+'\n')
         o.close()
+    return
 
 def get_basename(filename):
     basename = ntpath.basename(filename.replace('\\','/').replace(' ', '_'))
