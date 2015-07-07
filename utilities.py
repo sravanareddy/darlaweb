@@ -56,7 +56,7 @@ def send_email(receiver, filename, taskname):
         subject = 'Vowel Analysis Results for '+filename
 
         body = 'The formant extraction results for your data are attached. (1) formants.csv contains detailed information on bandwidths, phonetic environments, and probabilities, (2) formants.fornorm.tsv can be uploaded to the NORM online tool (http://lvc.uoregon.edu/norm/index.php) for additional normalization and plotting options, (3) plot.pdf shows the F1/F2 vowel space of your speakers, and (4) alignments.zip contains the TextGrids of the ASR transcriptions aligned with the audio.\n\n'
-        body += 'If you manually correct the transcriptions, you may re-upload your data with the new TextGrids to http://darla.dartmouth.edu:3000/uploadtextgrid and receive revised formant measurements and plots. Alternately, you may upload plaintext transcriptions to http://darla.dartmouth.edu:3000/uploadtrans\n\n'
+        body += 'If you manually correct the transcriptions, you may re-upload your data with the new TextGrids to http://darla.dartmouth.edu/uploadtextgrid and receive revised formant measurements and plots. Alternately, you may upload plaintext transcriptions to http://darla.dartmouth.edu/uploadtrans\n\n'
         body += 'Thank you for using DARLA. Please e-mail us with questions or suggestions.\n'
         message = MIMEMultipart()
         message['From'] = 'DARLA <'+sender+'>'
