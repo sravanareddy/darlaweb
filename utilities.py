@@ -229,32 +229,7 @@ def youtube_wav(url,audiodir, taskname):
         print tube.stdout.readlines()
         return "ytvideo.wav", ""
     except:
-        return "ytvideo.wav", "Could not convert youtube video to a .wav file."
-        
-# def process_wav(filename, taskname, fileid):
-#     try:
-#         samprate,filesize, r = soxConversion(filename+'.wav', taskname)
-#         print "<div id=\""+fileid+"\">"
-#         print "Sound file name: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<tt>", filename, "</tt><br>"
-#         print "<input type=\"hidden\" name=\"filename"+fileid+"\" value=\""+filename+"\">"
-        
-#         if fileid!='0':
-#             print "<input type=\"checkbox\" class=\"copy\" value=\""+fileid+"\" /> Check if speaker is same as above<br>"
-        
-#         print "Speaker ID: <input type =\"textbox\" name=\"name"+fileid+"\" id=\"name"+fileid+"\" required/>"
-#         print "Sex:",
-#         print "<input type=\"radio\" id=\"msex"+fileid+"\" name=\"sex"+fileid+"\" value=\"M\" required/>Male"
-#         print "<input type=\"radio\" id=\"fsex"+fileid+"\" name=\"sex"+fileid+"\" value=\"F\" required/>Female"
-#         print "<input type=\"radio\" id=\"csex"+fileid+"\" name=\"sex"+fileid+"\" value=\"F\" required/>Child"
-#         print "<p>"
-#         print "</div>"
-
-#         return samprate, filesize, r
-        
-#     except IOError:
-#         print "Error reading file "+filename
-#     except:
-#         print "<span class=\"error\" id=\"error_msg\">ERROR: something went wrong while processing the file "+filename+"</span>"
+        return "ytvideo.wav", "Could not convert youtube video to a .wav file."        
 
 def soxConversion(filename, audiodir, dochunk):
     sample_rate = 0
