@@ -19,6 +19,8 @@ from email.mime.text import MIMEText
 from email.utils import COMMASPACE, formatdate
 from email import encoders
 
+ERROR = 0
+
 class CustomException(Exception):
     pass 
 
@@ -89,29 +91,34 @@ def send_email(receiver, filename, taskname):
 
 
 def send_error_email(receiver, filename, message):
-    username = 'darla.dartmouth'
-    password = open('/home/sravana/applications/email/info.txt').read().strip()
-    sender = username+'@gmail.com'
-    subject = 'Error trying to open '+filename        
-    body = 'Unfortunately, there was an error trying to start a file for '+filename + ". We could not "+message
+    if ERROR==0:
 
-    message = MIMEMultipart()
-    message['From'] = 'DARLA <'+sender+'>'
-    message['To'] = receiver
-    message['Subject']=subject
-    message['Date'] = formatdate(localtime = True)
+        username = 'darla.dartmouth'
+        password = open('/home/sravana/applications/email/info.txt').read().strip()
+        sender = username+'@gmail.com'
+        subject = 'Error trying to open '+filename        
+        body = 'Unfortunately, there was an error trying to start a file for '+filename + ". We could not "+message
 
-    message.attach(MIMEText(body, 'plain'))
+        message = MIMEMultipart()
+        message['From'] = 'DARLA <'+sender+'>'
+        message['To'] = receiver
+        message['Subject']=subject
+        message['Date'] = formatdate(localtime = True)
 
-    try:
-            server = smtplib.SMTP('smtp.gmail.com', 587)
-            server.starttls()
-            server.login(username, password)
-            server.sendmail(sender, receiver, message.as_string())
-            server.quit()
+        message.attach(MIMEText(body, 'plain'))
 
-    except smtplib.SMTPException:
-            print 'Unable to send e-mail '
+        try:
+                server = smtplib.SMTP('smtp.gmail.com', 587)
+                server.starttls()
+                server.login(username, password)
+                server.sendmail(sender, receiver, message.as_string())
+                server.quit()
+                ERROR=1
+
+        except smtplib.SMTPException:
+                print 'Unable to send e-mail '
+    else:
+        print 'Error email already sent.'
 
 def read_prdict(dictfile):
     spam = map(lambda line: line.split(), open(dictfile).readlines())
