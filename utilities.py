@@ -120,11 +120,11 @@ def read_prdict(dictfile):
 def g2p(transwords, cmudictfile):
     """Predict pronunciations of words not in dictionary and add"""
     cmudict = read_prdict(cmudictfile)
-    oov = filter(lambda word: word not in cmudict, transwords)
+    oov = filter(lambda word: word not in cmudict, set(transwords))
     if len(oov)==0:
         return
     o = open('OOV.txt', 'w')
-    o.write('\n'.join(oov)+'\n')
+    o.write('\n'.join(map(lambda word:word.replace("\\'", "'"), oov))+'\n')
     o.close()
     os.system('/usr/local/bin/g2p.py --model /home/sravana/applications/g2p/model-6 --apply OOV.txt > OOVprons.txt')
     newdict = {}
@@ -133,13 +133,19 @@ def g2p(transwords, cmudictfile):
         newdict[line[0]] = line[1:]
     os.system('rm OOV.txt OOVprons.txt')
     if newdict!={}:
-        cmudict.update(newdict)
+        for word in newdict:
+            cmudict[word.replace("'", "\\'")] = newdict[word]
+            
+        #need to replace \ again for sorting order... argh!
         words = sorted(map(lambda word: word.replace("\\'", "'"), cmudict.keys()))
-        o = open(cmudictfile, 'w')
+        
+        o = open(cmudictfile+'.tmp', 'w')
         for word in words:
             rword = word.replace("'", "\\'")
             o.write(rword+'  '+' '.join(cmudict[rword])+'\n')
         o.close()
+        
+    os.system('mv '+cmudictfile+'.tmp '+cmudictfile)
     return
 
 def get_basename(filename):
@@ -170,9 +176,8 @@ def make_task(datadir):
 def write_hyp(datadir, taskname, filename, txtfilecontent, cmudictfile):
     os.system('mkdir -p '+os.path.join(datadir, taskname+'.wavlab'))
     o = open(os.path.join(datadir, taskname+'.wavlab', filename+'.lab'), 'w')
-    words = txtfilecontent.lower().replace("’", "'").split()
-    words = map(lambda word: word.strip(string.punctuation).strip(string.digits).replace("'", "\\'"), 
-                words)
+    words = txtfilecontent.lower().replace("’", "'").replace("\xd5", "'").strip(string.punctuation).strip(string.digits).split()   #stylized apostrophes and non-letters
+    words = map(lambda word: word.replace("'", "\\'"), words)
     o.write(' '.join(words)+'\n')
     o.close()
     #make dictionary for OOVs
