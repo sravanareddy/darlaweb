@@ -19,6 +19,8 @@ from email.mime.text import MIMEText
 from email.utils import COMMASPACE, formatdate
 from email import encoders
 
+ERROR = 0
+
 class CustomException(Exception):
     pass 
 
@@ -89,29 +91,34 @@ def send_email(receiver, filename, taskname):
 
 
 def send_error_email(receiver, filename, message):
-    username = 'darla.dartmouth'
-    password = open('/home/sravana/applications/email/info.txt').read().strip()
-    sender = username+'@gmail.com'
-    subject = 'Error trying to open '+filename        
-    body = 'Unfortunately, there was an error trying to start a file for '+filename + ". We could not "+message
+    if ERROR==0:
 
-    message = MIMEMultipart()
-    message['From'] = 'DARLA <'+sender+'>'
-    message['To'] = receiver
-    message['Subject']=subject
-    message['Date'] = formatdate(localtime = True)
+        username = 'darla.dartmouth'
+        password = open('/home/sravana/applications/email/info.txt').read().strip()
+        sender = username+'@gmail.com'
+        subject = 'Error trying to open '+filename        
+        body = 'Unfortunately, there was an error trying to start a file for '+filename + ". We could not "+message
 
-    message.attach(MIMEText(body, 'plain'))
+        message = MIMEMultipart()
+        message['From'] = 'DARLA <'+sender+'>'
+        message['To'] = receiver
+        message['Subject']=subject
+        message['Date'] = formatdate(localtime = True)
 
-    try:
-            server = smtplib.SMTP('smtp.gmail.com', 587)
-            server.starttls()
-            server.login(username, password)
-            server.sendmail(sender, receiver, message.as_string())
-            server.quit()
+        message.attach(MIMEText(body, 'plain'))
 
-    except smtplib.SMTPException:
-            print 'Unable to send e-mail '
+        try:
+                server = smtplib.SMTP('smtp.gmail.com', 587)
+                server.starttls()
+                server.login(username, password)
+                server.sendmail(sender, receiver, message.as_string())
+                server.quit()
+                ERROR=1
+
+        except smtplib.SMTPException:
+                print 'Unable to send e-mail '
+    else:
+        print 'Error email already sent.'
 
 def read_prdict(dictfile):
     spam = map(lambda line: line.split(), open(dictfile).readlines())
@@ -178,7 +185,9 @@ def make_task(datadir):
 def write_hyp(datadir, taskname, filename, txtfilecontent, cmudictfile):
     os.system('mkdir -p '+os.path.join(datadir, taskname+'.wavlab'))
     o = open(os.path.join(datadir, taskname+'.wavlab', filename+'.lab'), 'w')
+    
     words = txtfilecontent.lower().replace("’", "'").replace("\xd5", "'").replace("\xe2\x80\x93", "-").replace("–", "-").strip(string.punctuation).strip(string.digits).split()   #stylized apostrophes and non-letters
+
     words = map(lambda word: word.replace("'", "\\'"), words)
     o.write(' '.join(words)+'\n')
     o.close()
@@ -224,32 +233,7 @@ def youtube_wav(url,audiodir, taskname):
         print tube.stdout.readlines()
         return "ytvideo.wav", ""
     except:
-        return "ytvideo.wav", "Could not convert youtube video to a .wav file."
-        
-# def process_wav(filename, taskname, fileid):
-#     try:
-#         samprate,filesize, r = soxConversion(filename+'.wav', taskname)
-#         print "<div id=\""+fileid+"\">"
-#         print "Sound file name: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<tt>", filename, "</tt><br>"
-#         print "<input type=\"hidden\" name=\"filename"+fileid+"\" value=\""+filename+"\">"
-        
-#         if fileid!='0':
-#             print "<input type=\"checkbox\" class=\"copy\" value=\""+fileid+"\" /> Check if speaker is same as above<br>"
-        
-#         print "Speaker ID: <input type =\"textbox\" name=\"name"+fileid+"\" id=\"name"+fileid+"\" required/>"
-#         print "Sex:",
-#         print "<input type=\"radio\" id=\"msex"+fileid+"\" name=\"sex"+fileid+"\" value=\"M\" required/>Male"
-#         print "<input type=\"radio\" id=\"fsex"+fileid+"\" name=\"sex"+fileid+"\" value=\"F\" required/>Female"
-#         print "<input type=\"radio\" id=\"csex"+fileid+"\" name=\"sex"+fileid+"\" value=\"F\" required/>Child"
-#         print "<p>"
-#         print "</div>"
-
-#         return samprate, filesize, r
-        
-#     except IOError:
-#         print "Error reading file "+filename
-#     except:
-#         print "<span class=\"error\" id=\"error_msg\">ERROR: something went wrong while processing the file "+filename+"</span>"
+        return "ytvideo.wav", "Could not convert youtube video to a .wav file."        
 
 def soxConversion(filename, audiodir, dochunk):
     sample_rate = 0
