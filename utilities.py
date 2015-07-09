@@ -186,8 +186,8 @@ def write_hyp(datadir, taskname, filename, txtfilecontent, cmudictfile):
     os.system('mkdir -p '+os.path.join(datadir, taskname+'.wavlab'))
     o = open(os.path.join(datadir, taskname+'.wavlab', filename+'.lab'), 'w')
     
-    words = txtfilecontent.lower().replace("’", "'").replace("\xd5", "'").replace("\xe2\x80\x93", "-").replace("–", "-").strip(string.punctuation).strip(string.digits).split()   #stylized apostrophes and non-letters
-
+    words = txtfilecontent.lower().replace("’", "'").replace("\xd5", "'").replace("\xe2\x80\x93", " - ").replace("–", " - ").split()
+    words = map(lambda word: word.strip(string.punctuation).strip(string.digits), words)   #stylized apostrophes and non-letters
     words = map(lambda word: word.replace("'", "\\'"), words)
     o.write(' '.join(words)+'\n')
     o.close()
