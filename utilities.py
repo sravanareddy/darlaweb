@@ -19,7 +19,7 @@ from email.mime.text import MIMEText
 from email.utils import COMMASPACE, formatdate
 from email import encoders
 
-ERROR = 0
+# ERROR = 0
 
 class CustomException(Exception):
     pass 
@@ -91,34 +91,34 @@ def send_email(receiver, filename, taskname):
 
 
 def send_error_email(receiver, filename, message):
-    if ERROR==0:
+    # if ERROR==0:
 
-        username = 'darla.dartmouth'
-        password = open('/home/sravana/applications/email/info.txt').read().strip()
-        sender = username+'@gmail.com'
-        subject = 'Error trying to open '+filename        
-        body = 'Unfortunately, there was an error trying to start a file for '+filename + ". We could not "+message
+    username = 'darla.dartmouth'
+    password = open('/home/sravana/applications/email/info.txt').read().strip()
+    sender = username+'@gmail.com'
+    subject = 'Error trying to open '+filename        
+    body = 'Unfortunately, there was an error trying to start a file for '+filename + ". We could not "+message
 
-        message = MIMEMultipart()
-        message['From'] = 'DARLA <'+sender+'>'
-        message['To'] = receiver
-        message['Subject']=subject
-        message['Date'] = formatdate(localtime = True)
+    message = MIMEMultipart()
+    message['From'] = 'DARLA <'+sender+'>'
+    message['To'] = receiver
+    message['Subject']=subject
+    message['Date'] = formatdate(localtime = True)
 
-        message.attach(MIMEText(body, 'plain'))
+    message.attach(MIMEText(body, 'plain'))
 
-        try:
-                server = smtplib.SMTP('smtp.gmail.com', 587)
-                server.starttls()
-                server.login(username, password)
-                server.sendmail(sender, receiver, message.as_string())
-                server.quit()
-                ERROR=1
+    try:
+            server = smtplib.SMTP('smtp.gmail.com', 587)
+            server.starttls()
+            server.login(username, password)
+            server.sendmail(sender, receiver, message.as_string())
+            server.quit()
+            # ERROR=1
 
-        except smtplib.SMTPException:
-                print 'Unable to send e-mail '
-    else:
-        print 'Error email already sent.'
+    except smtplib.SMTPException:
+            print 'Unable to send e-mail '
+    # else:
+    #     print 'Error email already sent.'
 
 def read_prdict(dictfile):
     spam = map(lambda line: line.split(), open(dictfile).readlines())
@@ -186,8 +186,8 @@ def write_hyp(datadir, taskname, filename, txtfilecontent, cmudictfile):
     os.system('mkdir -p '+os.path.join(datadir, taskname+'.wavlab'))
     o = open(os.path.join(datadir, taskname+'.wavlab', filename+'.lab'), 'w')
     
-    words = txtfilecontent.lower().replace("’", "'").replace("\xd5", "'").replace("\xe2\x80\x93", " - ").replace("–", " - ").split()
-    words = map(lambda word: word.strip(string.punctuation).strip(string.digits), words)   #stylized apostrophes and non-letters
+    words = txtfilecontent.lower().replace("’", "'").replace("\xd5", "'").replace("\xe2\x80\x93", " - ").replace("–", " - ").replace("\xd3", '"').replace("\xd2", '"').replace("\xd0", "-").split()   #stylized characters that stupid TextEdit inserts 
+    words = map(lambda word: word.strip(string.punctuation).strip(string.digits), words)   #non-letters
     words = map(lambda word: word.replace("'", "\\'"), words)
     o.write(' '.join(words)+'\n')
     o.close()
