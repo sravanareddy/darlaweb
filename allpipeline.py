@@ -34,7 +34,7 @@ class allpipeline:
 		#os.chdir(datadir)
 		taskname = dictionary["taskname"]
 		numfiles = int(dictionary["numfiles"])
-		print "TASKNAME " + taskname
+		# print "TASKNAME " + taskname
 		if not (os.path.isdir(os.path.join(datadir, taskname+".speakers"))):
 			os.mkdir(os.path.join(datadir, taskname+".speakers"))
 			os.system('chmod g+w '+os.path.join(datadir, taskname+".speakers"))

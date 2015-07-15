@@ -21,7 +21,7 @@ $:form.render_disabled()
 $if speakerform:
 	<h3>Enter speaker information</h3>
 	<span class="note">Does not affect the automatic transcription, but required for vowel extraction results.</span><p>
-	<form action="/alignextract" name="alignextract" method="post">
+	<form action="alignextract" name="alignextract" method="post">
 	$if not speakerform.valid: <p class="error">Correct the errors below.</p>
 	$:speakerform.render()
 	<input type="submit" />

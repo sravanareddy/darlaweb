@@ -32,7 +32,7 @@ class extract:
 			dictionary[name] = value
 
                 taskname = dictionary["taskname"]
-                print "TASKNAME " + taskname
+                # print "TASKNAME " + taskname
                 numfiles = int(dictionary["numfiles"])
                 
                 if not (os.path.isdir(os.path.join(datadir, taskname+".speakers"))):
