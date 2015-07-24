@@ -129,8 +129,8 @@ class uploadsound:
 
           filename, error_message = utilities.youtube_wav(x.filelink, audiodir, taskname)
           
-          #if error_message != '':
-          #    return self.error_form(form, error_message, taskname)
+          if error_message != '':
+             return self.error_form(form, error_message, taskname)
 
           samprate, file_size, error_message = utilities.soxConversion(filename,
                                              audiodir, dochunk=True)

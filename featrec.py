@@ -19,13 +19,13 @@ def featurize_recognize(taskname):
         audio = os.system(args)
         if audio != 0 and receiver!='none':
                 send_error_email(receiver, "", "sphinx_fe processing")
-                #return - only one email, or a value to show that an error occured
+                return False
         args = "/usr/local/bin/pocketsphinx_batch -argfile "+taskname+".recognize_args"
         audio = os.system(args)
         if audio != 0 and receiver!='none':
                 send_error_email(receiver, "", "pocketsphinx_batch processing")
-                #return - only one email                
-        return
+                return False               
+        return True
 
 @task(serializer='json')
 def align_extract(taskname):
@@ -52,11 +52,8 @@ def just_align_extract(taskname):
         retval = alignextract.wait()
 
         if retval != 0:
-                send_error_email(receiver, "", "just_align_extract shell script")
+                send_error_email(receiver, filename, "just_align_extract shell script")
         else:
-                send_email(receiver, filename, taskname)
-
-        if receiver!='none':
                 send_email(receiver, filename, taskname)
 
         return
@@ -73,9 +70,6 @@ def just_extract(taskname):
         if retval != 0:
                 send_error_email(receiver, "", "just_extract shell script")
         else:
-                send_email(receiver, filename, taskname)
-        
-        if receiver!='none':
                 send_email(receiver, filename, taskname)
 
         return

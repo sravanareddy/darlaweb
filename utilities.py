@@ -19,7 +19,7 @@ from email.mime.text import MIMEText
 from email.utils import COMMASPACE, formatdate
 from email import encoders
 
-# ERROR = 0
+ERROR = 0
 
 class CustomException(Exception):
     pass 
@@ -91,34 +91,36 @@ def send_email(receiver, filename, taskname):
 
 
 def send_error_email(receiver, filename, message):
-    # if ERROR==0:
+    global ERROR;
+    
+    if ERROR==0:
 
-    username = 'darla.dartmouth'
-    password = open('/home/sravana/applications/email/info.txt').read().strip()
-    sender = username+'@gmail.com'
-    subject = 'Error trying to open '+filename        
-    body = 'Unfortunately, there was an error trying to start a file for '+filename + ". We could not "+message
+        username = 'darla.dartmouth'
+        password = open('/home/sravana/applications/email/info.txt').read().strip()
+        sender = username+'@gmail.com'
+        subject = 'Error trying to open '+filename        
+        body = 'Unfortunately, there was an error trying to start a file for '+filename + ". We could not "+message
 
-    message = MIMEMultipart()
-    message['From'] = 'DARLA <'+sender+'>'
-    message['To'] = receiver
-    message['Subject']=subject
-    message['Date'] = formatdate(localtime = True)
+        message = MIMEMultipart()
+        message['From'] = 'DARLA <'+sender+'>'
+        message['To'] = receiver
+        message['Subject']=subject
+        message['Date'] = formatdate(localtime = True)
 
-    message.attach(MIMEText(body, 'plain'))
+        message.attach(MIMEText(body, 'plain'))
 
-    try:
-            server = smtplib.SMTP('smtp.gmail.com', 587)
-            server.starttls()
-            server.login(username, password)
-            server.sendmail(sender, receiver, message.as_string())
-            server.quit()
-            # ERROR=1
+        try:
+                server = smtplib.SMTP('smtp.gmail.com', 587)
+                server.starttls()
+                server.login(username, password)
+                server.sendmail(sender, receiver, message.as_string())
+                server.quit()
+                ERROR=1
 
-    except smtplib.SMTPException:
-            print 'Unable to send e-mail '
-    # else:
-    #     print 'Error email already sent.'
+        except smtplib.SMTPException:
+                print 'Unable to send e-mail '
+    else:
+        msg = 'Error email already sent.'
 
 def read_prdict(dictfile):
     spam = map(lambda line: line.split(), open(dictfile).readlines())
@@ -179,7 +181,7 @@ def make_task(datadir):
             os.system('chown sravana:www-data '+audiodir)
             return taskname, audiodir, ""
     except OSError:
-            error_message = "Could not make a taskname for the file."
+            error_message = "Could not start a job."
             return taskname, audiodir, error_message
 
 def write_hyp(datadir, taskname, filename, txtfilecontent, cmudictfile):
@@ -209,7 +211,7 @@ def process_audio(audiodir, filename, extension, filecontent, dochunk):
     o.close()
 
     if extension == '.mp3':
-        print 'converting', os.path.join(audiodir, filename+extension)  #TODO: try and except here
+        # print 'converting', os.path.join(audiodir, filename+extension)  #TODO: try and except here
         os.system("mpg123 "+"-w "+os.path.join(audiodir, filename+'.wav')+' '+os.path.join(audiodir, filename+extension))
         #audio = subprocess.Popen(shlex.split("mpg123 "+"-w "+os.path.join(audiodir, filename+'.wav')+' '+os.path.join(audiodir, filename+extension)), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
         #print audio.stdout.readlines()
@@ -222,7 +224,7 @@ def process_audio(audiodir, filename, extension, filecontent, dochunk):
             
         #os.system('lame --decode '+os.path.join(audiodir, filename+extension)+' '+os.path.join(audiodir, filename+'.wav'))  #TODO: use subprocess instead (it's getting stuck on lame for some reason)
         extension = '.wav'
-        print "converted to", filename+extension
+        # print "converted to", filename+extension
             
     #split and convert frequency
     samprate, filesize, soxerror = soxConversion(filename+extension, audiodir, dochunk)
@@ -231,7 +233,7 @@ def process_audio(audiodir, filename, extension, filecontent, dochunk):
 def youtube_wav(url,audiodir, taskname):
     try:
         tube = subprocess.Popen(shlex.split('youtube-dl '+url+' --extract-audio --audio-format wav --audio-quality 16k -o '+os.path.join(audiodir, 'ytvideo.%(ext)s')), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        print tube.stdout.readlines()
+        # print tube.stdout.readlines()
         return "ytvideo.wav", ""
     except:
         return "ytvideo.wav", "Could not convert youtube video to a .wav file."        
@@ -246,13 +248,13 @@ def soxConversion(filename, audiodir, dochunk):
     retval = sox.wait()
 
     if retval != 0: 
-        error_message = 'Could not call subprocess '
-        print 'Could not call subprocess '
+        error_message = 'Could not do sox conversion '
+        # print 'Could not call subprocess '
         return sample_rate, file_size, error_message
 
 
     for line in sox.stdout.readlines():
-        print line
+        # print line
         if "Sample Rate" in line:
             line = line.split(':')
             sample_rate = int(line[1].strip())
@@ -263,22 +265,22 @@ def soxConversion(filename, audiodir, dochunk):
             file_size = file_size / sample_rate #gets duration, in seconds of the file.
             file_size /= 60.0
 
-    print sample_rate
-    print file_size
+    # print sample_rate
+    # print file_size
 
     #converts wav file to 16000kHz sampling rate if sampling rate is more than
     if sample_rate >= 16000:
         ratecode = '16k'
         sample_rate = 16000
-        print "I AM HERE"                            
+        # print "I AM HERE"                            
 
     elif sample_rate >= 8000:
         ratecode = '8k'
         sample_rate = 8000
-        print "OR AM I HERE?"
+        # print "OR AM I HERE?"
 
     else:
-        print "OR HERE?"
+        # print "OR HERE?"
         error_message = "Sample rate not high enough"
         # return sample_rate, "sample rate not high enough"
         # raise CustomException("sample rate not high enough")
@@ -291,12 +293,12 @@ def soxConversion(filename, audiodir, dochunk):
 
     if retval != 0:
         error_message = 'Could not downsample file'
-        print error_message
+        # print error_message
         return sample_rate, file_size, error_message
 
 
-    print "retval"
-    print retval
+    # print "retval"
+    # print retval
 
     #split into 20sec chunks. TODO: split on silence
     if dochunk:
@@ -309,7 +311,7 @@ def soxConversion(filename, audiodir, dochunk):
 
         if retval != 0:
             error_message = 'Could not split audio file into chunks'
-            print error_message
+            # print error_message
             return sample_rate, file_size, error_message
 
     return sample_rate, file_size, ""

@@ -58,6 +58,9 @@ class allpipeline:
 			result = featurize_recognize.delay(os.path.join(datadir, taskname))
 			while not result.ready():
 				pass
+			#test if featurize_recognize works 
+			if(result.get() == False):
+				return "There was an error in processing your file - we could not run sphinx featurize scripts on the file."
 		else:
 			featurize_recognize(os.path.join(datadir, taskname))
 
