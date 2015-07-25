@@ -31286,6 +31286,7 @@ donovan  D AA1 N AH0 V AH0 N
 donovan\'s  D AA1 N AH0 V AH0 N Z
 dons  D AA1 N Z
 donsbach  D AA1 N Z B AA2 K
+dont  D AA1 N T
 donut  D OW1 N AH2 T
 donuts  D OW1 N AH2 T S
 donuts\'  D OW1 N AH2 T S
@@ -39227,6 +39228,7 @@ fishermen  F IH1 SH ER0 M IH0 N
 fishers  F IH1 SH ER0 Z
 fishery  F IH1 SH ER0 IY0
 fishes  F IH1 SH IH0 Z
+fishhook  F IH1 SH HH UH2 K
 fishing  F IH1 SH IH0 NG
 fishkill  F IH1 SH K IH2 L
 fishkin  F IH1 SH K IH0 N
@@ -40436,6 +40438,7 @@ formations  F AO0 R M EY1 SH AH0 N Z
 formative  F AO1 R M AH0 T IH0 V
 formato  F AO0 R M AA1 T OW0
 formats  F AO1 R M AE2 T S
+formatted  F ER0 M AE1 T IH0 D
 formbey  F AO1 R M B IY0
 formby  F AO1 R M B IY0
 formed  F AO1 R M D
@@ -55442,6 +55445,7 @@ interferons  IH0 N T ER0 F IH1 R AA0 N Z
 interfirst  IH2 N T ER0 F ER1 S T
 interflug  IH1 N T ER0 F L AH0 G
 interfunding  IH1 N T ER0 F AH2 N D IH0 NG
+intergene  IH2 N T ER0 JH IY2 N
 intergenerational  IH2 N T ER0 JH EH1 N ER0 EY1 SH AH0 N AH0 L
 intergovernmental  IH2 N T ER0 G AH2 V ER0 N M EH1 N T AH0 L
 intergraph  IH1 N T ER0 G R AE2 F
@@ -65781,6 +65785,7 @@ loctite  L AA1 K T AY2 T
 locurto  L OW0 K UH1 R T OW0
 locus  L OW1 K AH0 S
 locust  L OW1 K AH0 S T
+locustag  L OW1 K AH0 S T AE2 G
 locusts  L OW1 K AH0 S T S
 locy  L OW1 S IY0
 lodato  L OW0 D AA1 T OW0
@@ -88859,6 +88864,7 @@ przybyla  P ER2 Z AH0 B IH1 L AH0
 przybylski  P ER2 Z AH0 B IH1 L S K IY0
 przybysz  P ER0 Z IH1 B IH0 SH
 przywara  P ER0 Z AH0 V AA1 R AH0
+ps  P IY2 EH1 S
 psalm  S AA1 M
 psalms  S AA1 M Z
 psalter  S AO1 L T ER0
@@ -92550,6 +92556,7 @@ remerci  R IH0 M ER1 S IY0
 remi  R EH1 M IY0
 remic  R EH1 M IH0 K
 remick  R EH1 M IH0 K
+remick\'s  R EH1 M IH0 K S
 remics  R EH1 M IH0 K S
 remigio  R IH0 M IH1 JH IY0 OW0
 remillard  R EH1 M IH0 L ER0 D
@@ -113150,6 +113157,7 @@ trabue  T R AA1 B W EH0
 trac  T R AE1 K
 trace  T R EY1 S
 traceable  T R EY1 S AH0 B AH0 L
+traceback  T R EY1 S B AE2 K
 traced  T R EY1 S T
 tracer  T R EY1 S ER0
 tracers  T R EY1 S ER0 Z
