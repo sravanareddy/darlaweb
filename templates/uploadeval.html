@@ -1,0 +1,24 @@
+$def with (form)
+
+<div class="left-col">
+
+<span class="breadcrumbs"><a href="http://darla.dartmouth.edu" target="_blank">About DARLA</a></span>
+<span class="breadcrumbs"><a href="http://darla.dartmouth.edu#cite" target="_blank">How to cite</a></span><p>
+
+<h2>Compare transcription quality</h2><p><p>
+
+<span class="note">This is an interface to the NIST <a
+  href="http://www.itl.nist.gov/iad/mig/tools/" target="_blank">sctk
+  tool</a> for evaluating ASR transcription error rates. You may also
+  use this to compare two different manual transcriptions.</span>
+<p>
+  
+<a href="uploadeval"><small>Click here at any time to cancel or start over.</small></a><p>
+
+<form name="uploadeval" method="post" enctype="multipart/form-data">
+$if not form.valid: <p class="error">Correct the errors below.</p>
+$:form.render()
+</form>
+
+</div>
+
