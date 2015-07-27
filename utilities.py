@@ -184,13 +184,35 @@ def make_task(datadir):
             error_message = "Could not start a job."
             return taskname, audiodir, error_message
 
-def write_hyp(datadir, taskname, filename, txtfilecontent, cmudictfile):
+def write_transcript(datadir, taskname, reffilecontent, hypfilecontent):
+    """Write reference and hypothesis files for evaluation"""
+    o = open(os.path.join(datadir, taskname+'.ref'), 'w')
+    reffilecontent = string.translate(process_usertext(reffilecontent), None, string.punctuation)
+    hypfilecontent = string.translate(process_usertext(hypfilecontent), None, string.punctuation)
+    for li, line in enumerate(reffilecontent.splitlines()):
+        o.write(line+' (x-'+str(li+1)+')\n')
+    o.close()
+    o = open(os.path.join(datadir, taskname+'.hyp'), 'w')
+    for li, line in enumerate(hypfilecontent.splitlines()):
+        o.write(line+' (x-'+str(li+1)+')\n')
+    o.close()
+
+def process_usertext(inputstring):
+    """clean up unicode, remove punctuation and numbers"""
+    transfrom = '\xd5\xd3\xd2\xd0\xcd\xd4'
+    transto = '\'""-\'\''
+    unimaketrans = string.maketrans(transfrom, transto)
+    #stylized characters that stupid TextEdit inserts. is there an existing module that does this?  
+    return string.translate(inputstring.lower(), 
+                            unimaketrans, 
+                            string.digits).replace("\xe2\x80\x93", " - ").replace('\xe2\x80\x94', " - ").replace('\xe2\x80\x99', "'").strip()
+
+def write_hyp(datadir, taskname, filename, txtfilecontent, cmudictfile):    
     os.system('mkdir -p '+os.path.join(datadir, taskname+'.wavlab'))
     o = open(os.path.join(datadir, taskname+'.wavlab', filename+'.lab'), 'w')
 
-    words = txtfilecontent.lower().replace("’", "'").replace("\xd5", "'").replace("\xe2\x80\x93", " - ").replace("–", " - ").replace("\xd3", '"').replace("\xd2", '"').replace("\xd0", "-").replace("\xcd", "'").replace("\xd4", "'").split()
-    #stylized characters that stupid TextEdit inserts 
-    words = map(lambda word: word.strip(string.punctuation).strip(string.digits), words)   #non-letters
+    words = map(lambda word: word.strip(string.punctuation), 
+                process_usertext(txtfilecontent).split())
     words = map(lambda word: word.replace("'", "\\'"), words)
     o.write(' '.join(words)+'\n')
     o.close()

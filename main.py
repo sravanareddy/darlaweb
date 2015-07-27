@@ -14,7 +14,7 @@ import alignextract
 
 render = web.template.render('templates/', base='layout')
 
-urls = ('/', 'index', '/uploadsound', 'uploadsound', '/uploadtrans', 'uploadtrans', '/uploadtextgrid', 'uploadtextgrid', '/allpipeline', allpipeline.app_allpipeline, '/extract', extract.app_extract, '/alignextract', alignextract.app_alignextract)
+urls = ('/', 'index', '/uploadsound', 'uploadsound', '/uploadtrans', 'uploadtrans', '/uploadtextgrid', 'uploadtextgrid', '/allpipeline', allpipeline.app_allpipeline, '/extract', extract.app_extract, '/alignextract', alignextract.app_alignextract, '/uploadeval', 'uploadeval')
 app = web.application(urls, globals())
 web.config.debug = True
         
@@ -459,6 +459,54 @@ class uploadtextgrid:
         utilities.gen_tgargfile(self.datadir, form.taskname.value, filename, form.email.value)
         
         return self.speaker_form(form, filenames, taskname)
+
+class uploadeval:
+    reffile = myform.MyFile('reffile',
+                            form.notnull,
+                            post = '',
+                            description='Manual transcription as plaintext .txt file (one line per utterance):')
+    hypfile = myform.MyFile('hypfile',
+                            form.notnull,
+                            post = '',
+                            description='ASR or alternate manual transcription as plaintext .txt file (one line per utterance):')
+    taskname = form.Hidden('taskname')
+    submit = form.Button('submit', type='submit', description='Submit')
+    datadir = open('filepaths.txt').read().strip()
+
+    def GET(self):
+            uploadeval = myform.MyForm(self.reffile,
+                                       self.hypfile,
+                                       self.taskname,
+                                       self.submit)
+            form = uploadeval()
+            return render.uploadeval(form)
+
+    def POST(self):
+            uploadeval = myform.MyForm(self.reffile,
+                                       self.hypfile,
+                                       self.taskname,
+                                       self.submit)
+            x = web.input(reffile={}, hypfile={})
+            
+            if 'reffile' in x and 'hypfile' in x:
+                    print "reffile", x.reffile
+                    reffilename, refextension = utilities.get_basename(x.reffile.filename)
+                    hypfilename, hypextension = utilities.get_basename(x.hypfile.filename)
+
+                    if refextension!='.txt' or hypextension!='.txt':
+                            form.note = 'Uploaded files must both be .txt plaintext'
+                            return render.uploadeval(form)
+
+                    taskname, _, error_message = utilities.make_task(self.datadir)
+
+                    utilities.write_transcript(self.datadir,
+                                               taskname,
+                                               x.reffile.file.read(),
+                                               x.hypfile.file.read())
+            else:
+                    form.note = 'Please upload both transcript files.'
+                    return render.uploadeval(form)
+
 
 if __name__=="__main__":
     web.internalerror = web.debugerror
