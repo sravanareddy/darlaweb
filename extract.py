@@ -19,21 +19,18 @@ urls = {
 
 class extract:
 	def GET(self):
-		return "TESTING"
+		return "Invalid"
 	def POST(self):
 		datadir = open('filepaths.txt').read().strip()
 		post_list = web.data().split("&")
-		dictionary = {}
+		parameters = {}
 
 		for form_input in post_list:
 			split = form_input.split("=")
-			name = split[0]
-			value = split[1]
-			dictionary[name] = value
+			parameters[split[0]] = split[1]
 
-                taskname = dictionary["taskname"]
-                # print "TASKNAME " + taskname
-                numfiles = int(dictionary["numfiles"])
+                taskname = parameters["taskname"]
+                numfiles = int(parameters["numfiles"])
                 
                 if not (os.path.isdir(os.path.join(datadir, taskname+".speakers"))):
                         os.mkdir(os.path.join(datadir, taskname+".speakers"))
@@ -42,27 +39,25 @@ class extract:
                 for i in range(0, numfiles):
                         i = str(i)
                         
-                        filename = dictionary["filename"+i]
+                        filename = parameters["filename"+i]
                         if filename=='ytvideo.wav':
                                 filename='ytvideo'
                         try:
                                 o = open(os.path.join(datadir, taskname+'.speakers/converted_'+filename+'.speaker'), 'w')
-                                name = dictionary["name"+i]
-                                sex = dictionary["sex"+i]
+                                name = parameters["name"+i]
+                                sex = parameters["sex"+i]
                                 o.write('--name='+name+'\n--sex='+sex+'\n')
                                 o.close()
                         except IOError:
                                 return "error creating "+filename+" for analysis."
                 
-                #uncelery
 		if celeryon:
 			result = just_extract.delay(os.path.join(datadir, taskname))
 			while not result.ready():
 				pass
 		else:
 			just_extract(os.path.join(datadir, taskname))
-
-
+		
 		return "You may now close this window and we will email you the results. Thank you!" 
 
 app_extract = web.application(urls, locals())
