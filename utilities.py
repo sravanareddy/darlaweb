@@ -72,7 +72,10 @@ def send_email(receiver, filename, taskname):
         password = open(passfile).read().strip()
         sender = username+'@gmail.com'
         subject = 'Vowel Analysis Results for '+filename
-        body = 'The formant extraction results for your data are attached. (1) formants.csv contains detailed information on bandwidths, phonetic environments, and probabilities, (2) formants.fornorm.tsv can be uploaded to the NORM online tool (http://lvc.uoregon.edu/norm/index.php) for additional normalization and plotting options, (3) plot.pdf shows the F1/F2 vowel space of your speakers, (4) alignments.zip contains the TextGrids of the ASR transcriptions aligned with the audio, and (5) transcription.txt contains the ASR transcriptions.\n\n'
+        body = 'The formant extraction results for your data are attached. (1) formants.csv contains detailed information on bandwidths, phonetic environments, and probabilities, (2) formants.fornorm.tsv can be uploaded to the NORM online tool (http://lvc.uoregon.edu/norm/index.php) for additional normalization and plotting options, (3) plot.pdf shows the F1/F2 vowel space of your speakers, (4) alignments.zip contains the TextGrids of the ASR transcriptions aligned with the audio'
+        if os.path.exists(taskname+'.hyp'):
+            body += ', (5) transcription.txt contains the ASR transcriptions.'
+        body += '\n\n'
         body += 'If you manually correct the transcriptions, you may re-upload your data with the new TextGrids to http://darla.dartmouth.edu/uploadtextgrid and receive revised formant measurements and plots. Alternately, you may upload corrected plaintext transcriptions to http://darla.dartmouth.edu/uploadtrans\n\n'
         body += 'Thank you for using DARLA. Please e-mail us with questions or suggestions.\n'
         message = MIMEMultipart()
