@@ -209,8 +209,8 @@ def make_task(datadir):
             error_message = "Could not start a job."
             return taskname, audiodir, error_message
 
-def write_transcript(datadir, taskname, reffilecontent, hypfilecontent):
-    """Write reference and hypothesis files for evaluation"""
+def write_transcript(datadir, taskname, reffilecontent, hypfilecontent, cmudictfile):
+    """Write reference and hypothesis files for evaluation, g2p for OOVs"""
     punct = '!"#$%&\()*+,-./:;<=>?@[\\]^_`{|}~' #same as string.punct but no '
     reffilecontent = string.translate(process_usertext(reffilecontent), 
                                       None, 
@@ -222,15 +222,20 @@ def write_transcript(datadir, taskname, reffilecontent, hypfilecontent):
     hypfilecontent = filter(lambda line: line!='', hypfilecontent)
     numreflines = len(reffilecontent)
     numhyplines = len(hypfilecontent)
+    allwords = []   #for g2p
     if numreflines==numhyplines:
         o = open(os.path.join(datadir, taskname+'.ref'), 'w')
         for li, line in enumerate(reffilecontent):
             o.write(line+'\n')
+            allwords.extend(line.split())
         o.close()
         o = open(os.path.join(datadir, taskname+'.hyp'), 'w')
         for li, line in enumerate(hypfilecontent):
             o.write(line+'\n')
+            allwords.extend(line.split())
         o.close()
+    #OOVs
+    g2p(allwords, cmudictfile)
     return numreflines, numhyplines
 
 def process_usertext(inputstring):

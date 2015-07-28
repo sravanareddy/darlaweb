@@ -144,12 +144,13 @@ def run_evaluation(datadir, taskname):
     cmudict = map(lambda x:x.split(),
                   open('cmudict.forhtk.txt').readlines())
     cmudict = dict(map(lambda x:(x[0].replace("\\'", "'"), x[1:]), cmudict))
-
+    
     reflines = map(lambda line: line.split(),
                    open(basename+'.ref').readlines())
     hyplines = map(lambda line: line.split(),
                    open(basename+'.hyp').readlines())
     for refwords, hypwords in zip(reflines, hyplines):
+        
         model = Alignment(phone=False)
         alref, alhyp = model.align(refwords, hypwords)
         errors = model.count_errors()

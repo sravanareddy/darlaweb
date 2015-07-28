@@ -506,7 +506,8 @@ class uploadeval:
                     numreflines, numhyplines = utilities.write_transcript(self.datadir,
                                                                           taskname,
                                                                           x.reffile.file.read(),
-                                                                          x.hypfile.file.read())
+                                                                          x.hypfile.file.read(),
+                                                                          'cmudict.forhtk.txt')
                     if numreflines!=numhyplines:
                         form.note = 'Files should have the same number of lines, corresponding to each utterance. Please try again.'
                         return render.uploadeval(form)
