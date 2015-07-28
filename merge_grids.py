@@ -39,7 +39,7 @@ if __name__=='__main__':
         os.system('mkdir -p '+merged_tgdir)
         os.system('chmod g+w '+merged_tgdir)
 
-        list_of_tgs = sorted(filter(lambda x: x.endswith('TextGrid'), os.listdir(tgdir)))
+        list_of_tgs = sorted(filter(lambda x: x.endswith('TextGrid'), os.listdir(tgdir)))  #puts splits in correct order
         for filename in list_of_tgs:
                 if filename.endswith('TextGrid'):
                         tg = TextGrid()

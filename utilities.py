@@ -18,6 +18,7 @@ from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 from email.utils import COMMASPACE, formatdate
 from email import encoders
+from collections import defaultdict
 
 ERROR = 0
 
@@ -51,16 +52,28 @@ def send_init_email(tasktype, receiver, filename):
         except smtplib.SMTPException:
                 print 'Unable to send e-mail '
 
+def consolidate_hyp(hypfile, outfile):
+    hyplines = map(lambda line: line.split()[:-1], open(hypfile).readlines())
+    basehyps = defaultdict(list)
+    for hypline in hyplines:
+        basefile, num = hypline[-1].rsplit('.split', 1)
+        basehyps[basefile].append((hypline[:-1], num))
+    o = open(outfile, 'w')
+    for basefile in basehyps:
+        content = sorted(basehyps[basefile], key=lambda x:int(x[1]))
+        for (line, num) in content:
+            o.write(' '.join(line)+' ')
+        o.write(basefile+')\n')
+    o.close()
+
 def send_email(receiver, filename, taskname):
-        
         username = 'darla.dartmouth'
         passfile = open('filepaths.txt').readlines()[1].split()[1]
         password = open(passfile).read().strip()
         sender = username+'@gmail.com'
         subject = 'Vowel Analysis Results for '+filename
-
-        body = 'The formant extraction results for your data are attached. (1) formants.csv contains detailed information on bandwidths, phonetic environments, and probabilities, (2) formants.fornorm.tsv can be uploaded to the NORM online tool (http://lvc.uoregon.edu/norm/index.php) for additional normalization and plotting options, (3) plot.pdf shows the F1/F2 vowel space of your speakers, and (4) alignments.zip contains the TextGrids of the ASR transcriptions aligned with the audio.\n\n'
-        body += 'If you manually correct the transcriptions, you may re-upload your data with the new TextGrids to http://darla.dartmouth.edu/uploadtextgrid and receive revised formant measurements and plots. Alternately, you may upload plaintext transcriptions to http://darla.dartmouth.edu/uploadtrans\n\n'
+        body = 'The formant extraction results for your data are attached. (1) formants.csv contains detailed information on bandwidths, phonetic environments, and probabilities, (2) formants.fornorm.tsv can be uploaded to the NORM online tool (http://lvc.uoregon.edu/norm/index.php) for additional normalization and plotting options, (3) plot.pdf shows the F1/F2 vowel space of your speakers, (4) alignments.zip contains the TextGrids of the ASR transcriptions aligned with the audio, and (5) transcription.txt contains the ASR transcriptions.\n\n'
+        body += 'If you manually correct the transcriptions, you may re-upload your data with the new TextGrids to http://darla.dartmouth.edu/uploadtextgrid and receive revised formant measurements and plots. Alternately, you may upload corrected plaintext transcriptions to http://darla.dartmouth.edu/uploadtrans\n\n'
         body += 'Thank you for using DARLA. Please e-mail us with questions or suggestions.\n'
         message = MIMEMultipart()
         message['From'] = 'DARLA <'+sender+'>'
@@ -80,8 +93,9 @@ def send_email(receiver, filename, taskname):
                     send_error_email(receiver, filename, "Your job was not completed.")
         if os.path.exists(taskname+'.hyp'): #send transcription if ASR task
             try:
+                consolidate_hyp(taskname+'.hyp', taskname+'.orderedhyp')
                 part = MIMEBase('application', "octet-stream")
-                part.set_payload( open(taskname+'.hyp', "rb").read() )
+                part.set_payload( open(taskname+'.orderedhyp', "rb").read() )
                 part.add_header('Content-Disposition', 'attachment; filename=transcription.txt')
                 message.attach(part)
             except:

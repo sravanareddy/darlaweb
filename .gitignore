@@ -1,6 +1,4 @@
 *.pyc
-webphonetics/*
-data/*
 *.*~
 scripts_directory.txt
 filepaths.txt
