@@ -21,7 +21,7 @@ class alignextract:
 	def GET(self):
 		return "TESTING"
 	def POST(self):
-		datadir = open('filepaths.txt').read().strip()
+		datadir = open('filepaths.txt').readline().split()[1]
 		post_list = web.data().split("&")
 		parameters = {}
 
