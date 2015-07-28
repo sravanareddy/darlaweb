@@ -5,6 +5,8 @@ $def with (form, speakerform)
 <span class="breadcrumbs"><a href="http://darla.dartmouth.edu" target="_blank">About DARLA</a></span>
 <span class="breadcrumbs"><a href="http://darla.dartmouth.edu#cite" target="_blank">How to cite</a></span><p>
 <script src="/static/js/speakerInfo.js"></script>
+<script src="/static/js/progress.js"></script>
+
 
 <h2>Completely Automated Vowel Extraction</h2><p><p>
 
@@ -18,11 +20,15 @@ $:form.render_disabled()
 $if speakerform:
 	<h3>Enter speaker information</h3>
 	<span class="note">Does not affect the automatic transcription, but required for vowel extraction results.</span><p>
-	<form action="allpipeline" name="allpipeline" method="post">
+	<form action="allpipeline" name="allpipeline" method="post" onsubmit="progress()">
 	$if not speakerform.valid: <p class="error">Correct the errors below.</p>
 	$:speakerform.render()
 	<input type="submit" />
 	</form>
+	<div id="loading" style="display: none;">
+	<img src="/static/images/ajax-loader.gif"></img>
+	</div>
+	<br>
 
 </div>
 

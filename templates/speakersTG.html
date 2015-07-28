@@ -5,6 +5,8 @@ $def with (form, speakerform)
 <span class="breadcrumbs"><a href="http://darla.dartmouth.edu" target="_blank">About DARLA</a></span>
 <span class="breadcrumbs"><a href="http://darla.dartmouth.edu#cite" target="_blank">How to cite</a></span><p>
 <script src="/static/js/speakerInfo.js"></script>
+<script src="/static/js/progress.js"></script>
+
 
 <h2>Automated Vowel Extraction with Revised Transcriptions</h2><p><p>
 
@@ -26,6 +28,9 @@ $if speakerform:
 	$:speakerform.render()
 	<input type="submit" />
 	</form>
+	<div id="loading"></div>
+	<div id="loading" style="display: none;">please wait, processing...<img src="/static/images/ajax-loader.gif"></img></div>
+	<br>
 
 </div>
 
