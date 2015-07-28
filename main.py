@@ -11,7 +11,7 @@ import tarfile
 import allpipeline
 import extract
 import alignextract
-import os
+from evaluate import run_sclite
 
 render = web.template.render('templates/', base='layout')
 
@@ -511,48 +511,11 @@ class uploadeval:
                         form.note = 'Files should have the same number of lines, corresponding to each utterance. Please try again.'
                         return render.uploadeval(form)
                     
-                    evaluation = self.run_sclite(taskname)
+                    evaluation = run_sclite(self.datadir, taskname)
                     return render.evalresults(evaluation)
             else:
                     form.note = 'Please upload both transcript files.'
                     return render.uploadeval(form)
-
-    def run_sclite(self, taskname):
-        basename = os.path.join(self.datadir, taskname)
-        check_code = os.system('sclite -r '+basename+'.ref -h '+basename+'.hyp -i rm -o pralign sum')
-        if check_code==0:
-            retstring = ''
-            pra = open(basename+'.hyp.pra').readlines()[10:]
-            for line in pra:
-                line = line.strip().split()
-                if len(line)==0:
-                    continue
-                if line[0] == 'id:':
-                    retstring+='<span class="note">Utterance ID:</span> '+line[1].strip('()').split('-')[-1]+'<br>'
-                if line[0] == 'Scores:':
-                    c, s, d, i = map(int, line[-4:])
-                if line[0] == 'REF:':
-                    numrefwords = len(line)-1
-                    retstring+=self.render_praline(line)
-                if line[0] == 'HYP:':
-                    retstring+=self.render_praline(line)
-                    retstring+='<span class="note">WORD ERROR RATE: </span>{0:.2f}% '.format((s+d+i)*100/numrefwords)
-                    retstring+='({0} correct, {1} substituted, {2} deleted, {3} inserted)<p>'.format(c, s, d, i)
-
-            return retstring
-        else:
-            return "There was an error comparing your files."
-
-    def render_praline(self, line):
-        """Render sclite pralign ref or hyp line in HTML"""
-        retstring='<span class="note">'+line[0]+' </span>'
-        for word in line[1:]:
-            if word.isupper() or word=='***':
-                retstring+='<span class="error">'+word+'</span> '
-            else:
-                retstring+=word+' '
-        retstring+='<br>'
-        return retstring
 
 if __name__=="__main__":
     web.internalerror = web.debugerror
