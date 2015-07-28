@@ -186,16 +186,26 @@ def make_task(datadir):
 
 def write_transcript(datadir, taskname, reffilecontent, hypfilecontent):
     """Write reference and hypothesis files for evaluation"""
-    o = open(os.path.join(datadir, taskname+'.ref'), 'w')
-    reffilecontent = string.translate(process_usertext(reffilecontent), None, string.punctuation)
-    hypfilecontent = string.translate(process_usertext(hypfilecontent), None, string.punctuation)
-    for li, line in enumerate(reffilecontent.splitlines()):
-        o.write(line+' (x-'+str(li+1)+')\n')
-    o.close()
-    o = open(os.path.join(datadir, taskname+'.hyp'), 'w')
-    for li, line in enumerate(hypfilecontent.splitlines()):
-        o.write(line+' (x-'+str(li+1)+')\n')
-    o.close()
+    reffilecontent = string.translate(process_usertext(reffilecontent), 
+                                      None, 
+                                      string.punctuation).splitlines()
+    reffilecontent = filter(lambda line: line!='', reffilecontent)
+    hypfilecontent = string.translate(process_usertext(hypfilecontent), 
+                                      None, 
+                                      string.punctuation).splitlines()
+    hypfilecontent = filter(lambda line: line!='', hypfilecontent)
+    numreflines = len(reffilecontent)
+    numhyplines = len(hypfilecontent)
+    if numreflines==numhyplines:
+        o = open(os.path.join(datadir, taskname+'.ref'), 'w')
+        for li, line in enumerate(reffilecontent):
+            o.write(line+' (speaker-'+str(li+1)+')\n')
+        o.close()
+        o = open(os.path.join(datadir, taskname+'.hyp'), 'w')
+        for li, line in enumerate(hypfilecontent):
+            o.write(line+' (speaker-'+str(li+1)+')\n')
+        o.close()
+    return numreflines, numhyplines
 
 def process_usertext(inputstring):
     """clean up unicode, remove punctuation and numbers"""

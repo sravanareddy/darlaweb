@@ -11,10 +11,12 @@ import tarfile
 import allpipeline
 import extract
 import alignextract
+import os
 
 render = web.template.render('templates/', base='layout')
 
 urls = ('/', 'index', '/uploadsound', 'uploadsound', '/uploadtrans', 'uploadtrans', '/uploadtextgrid', 'uploadtextgrid', '/allpipeline', allpipeline.app_allpipeline, '/extract', extract.app_extract, '/alignextract', alignextract.app_alignextract, '/uploadeval', 'uploadeval')
+
 app = web.application(urls, globals())
 web.config.debug = True
         
@@ -306,7 +308,7 @@ class uploadtrans:
         txtfilename, txtextension = utilities.get_basename(x.uploadtxtfile.filename)
         
         if txtextension != '.txt':
-            form.note = 'Upload a plaintext file with a .txt extension.'
+            form.note = 'Upload a plaintext transcript file with a .txt extension.'
             return render.uploadtxt(form, "")
 
         if 'uploadfile' in x:   
@@ -371,13 +373,13 @@ class uploadtextgrid:
 
     datadir = open('filepaths.txt').read().strip()
     
-    def speaker_form(self, completed_form, filenames, taskname): #send in the completed form too           
+    def speaker_form(self, completed_form, filenames, taskname): #send in the completed form too   
         input_list = []
         taskname = form.Hidden(name="taskname",value=taskname)
         numfiles = form.Hidden(name="numfiles",value=len(filenames))
         input_list.extend([taskname, numfiles])
 
-        #TODO: no need to generalize to multiple speakers                                                  
+        #TODO: no need to generalize to multiple speakers                                          
         index = 0
         filename = form.Hidden(value=filenames[index][0],name='filename'+str(index))
         speaker_name = form.Textbox('name'+str(index),
@@ -463,12 +465,12 @@ class uploadtextgrid:
 class uploadeval:
     reffile = myform.MyFile('reffile',
                             form.notnull,
-                            post = '',
-                            description='Manual transcription as plaintext .txt file (one line per utterance):')
+                            post = 'One line per utterance',
+                            description='Manual transcription as plaintext .txt file:')
     hypfile = myform.MyFile('hypfile',
                             form.notnull,
-                            post = '',
-                            description='ASR or alternate manual transcription as plaintext .txt file (one line per utterance):')
+                            post = 'One line per utterance in the same order as above file',
+                            description='ASR or alternate manual transcription as plaintext .txt:')
     taskname = form.Hidden('taskname')
     submit = form.Button('submit', type='submit', description='Submit')
     datadir = open('filepaths.txt').read().strip()
@@ -486,10 +488,11 @@ class uploadeval:
                                        self.hypfile,
                                        self.taskname,
                                        self.submit)
+            form = uploadeval()
+            
             x = web.input(reffile={}, hypfile={})
             
             if 'reffile' in x and 'hypfile' in x:
-                    print "reffile", x.reffile
                     reffilename, refextension = utilities.get_basename(x.reffile.filename)
                     hypfilename, hypextension = utilities.get_basename(x.hypfile.filename)
 
@@ -498,15 +501,58 @@ class uploadeval:
                             return render.uploadeval(form)
 
                     taskname, _, error_message = utilities.make_task(self.datadir)
-
-                    utilities.write_transcript(self.datadir,
-                                               taskname,
-                                               x.reffile.file.read(),
-                                               x.hypfile.file.read())
+                    form.taskname.value = taskname
+                    
+                    numreflines, numhyplines = utilities.write_transcript(self.datadir,
+                                                                          taskname,
+                                                                          x.reffile.file.read(),
+                                                                          x.hypfile.file.read())
+                    if numreflines!=numhyplines:
+                        form.note = 'Files should have the same number of lines, corresponding to each utterance. Please try again.'
+                        return render.uploadeval(form)
+                    
+                    evaluation = self.run_sclite(taskname)
+                    return render.evalresults(evaluation)
             else:
                     form.note = 'Please upload both transcript files.'
                     return render.uploadeval(form)
 
+    def run_sclite(self, taskname):
+        basename = os.path.join(self.datadir, taskname)
+        check_code = os.system('sclite -r '+basename+'.ref -h '+basename+'.hyp -i rm -o pralign sum')
+        if check_code==0:
+            retstring = ''
+            pra = open(basename+'.hyp.pra').readlines()[10:]
+            for line in pra:
+                line = line.strip().split()
+                if len(line)==0:
+                    continue
+                if line[0] == 'id:':
+                    retstring+='<span class="note">Utterance ID:</span> '+line[1].strip('()').split('-')[-1]+'<br>'
+                if line[0] == 'Scores:':
+                    c, s, d, i = map(int, line[-4:])
+                if line[0] == 'REF:':
+                    numrefwords = len(line)-1
+                    retstring+=self.render_praline(line)
+                if line[0] == 'HYP:':
+                    retstring+=self.render_praline(line)
+                    retstring+='<span class="note">WORD ERROR RATE: </span>{0:.2f}% '.format((s+d+i)*100/numrefwords)
+                    retstring+='({0} correct, {1} substituted, {2} deleted, {3} inserted)<p>'.format(c, s, d, i)
+
+            return retstring
+        else:
+            return "There was an error comparing your files."
+
+    def render_praline(self, line):
+        """Render sclite pralign ref or hyp line in HTML"""
+        retstring='<span class="note">'+line[0]+' </span>'
+        for word in line[1:]:
+            if word.isupper() or word=='***':
+                retstring+='<span class="error">'+word+'</span> '
+            else:
+                retstring+=word+' '
+        retstring+='<br>'
+        return retstring
 
 if __name__=="__main__":
     web.internalerror = web.debugerror

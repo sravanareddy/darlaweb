@@ -15,7 +15,7 @@ $def with (form)
   
 <a href="uploadeval"><small>Click here at any time to cancel or start over.</small></a><p>
 
-<form name="uploadeval" method="post" enctype="multipart/form-data">
+<form action="uploadeval" name="uploadeval" method="post" enctype="multipart/form-data">
 $if not form.valid: <p class="error">Correct the errors below.</p>
 $:form.render()
 </form>
