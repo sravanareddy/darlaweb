@@ -209,8 +209,8 @@ def write_transcript(datadir, taskname, reffilecontent, hypfilecontent):
 
 def process_usertext(inputstring):
     """clean up unicode, remove punctuation and numbers"""
-    transfrom = '\xd5\xd3\xd2\xd0\xcd\xd4'
-    transto = '\'""-\'\''
+    transfrom = '\xd5\xd3\xd2\xd0\xd1\xcd\xd4'
+    transto = '\'""--\'\''
     unimaketrans = string.maketrans(transfrom, transto)
     #stylized characters that stupid TextEdit inserts. is there an existing module that does this?  
     return string.translate(inputstring.lower(), 
