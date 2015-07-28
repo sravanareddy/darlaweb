@@ -72,15 +72,20 @@ def send_email(receiver, filename, taskname):
         for nicename, filename in [('formants.csv', taskname+'.aggvowels_formants.csv'), ('formants.fornorm.tsv', taskname+'.fornorm.tsv'), ('plot.pdf', taskname+'.plot.pdf'), ('alignments.zip', taskname+'.alignments.zip')]:
                 part = MIMEBase('application', "octet-stream")
                 try:
-                    with open(filename, "rb") as result:
-
-                        part.set_payload( open(filename,"rb").read() ) #fornorm.tsv? no file 
-                        encoders.encode_base64(part)
-                        part.add_header('Content-Disposition', 'attachment; filename='+nicename)
-                        message.attach(part)
+                    part.set_payload( open(filename,"rb").read() ) 
+                    encoders.encode_base64(part)
+                    part.add_header('Content-Disposition', 'attachment; filename='+nicename)
+                    message.attach(part) 
                 except:
+                    send_error_email(receiver, filename, "Your job was not completed.")
+        if os.path.exists(taskname+'.hyp'): #send transcription if ASR task
+            try:
+                part = MIMEBase('application', "octet-stream")
+                part.set_payload( open(taskname+'.hyp', "rb").read() )
+                part.add_header('Content-Disposition', 'attachment; filename=transcription.txt')
+                message.attach(part)
+            except:
                     send_error_email(receiver, filename, "")
-            
         try:
                 server = smtplib.SMTP('smtp.gmail.com', 587)
                 server.starttls()
