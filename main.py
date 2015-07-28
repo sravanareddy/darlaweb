@@ -11,7 +11,7 @@ import tarfile
 import allpipeline
 import extract
 import alignextract
-from evaluate import run_sclite
+from evaluate import run_evaluation
 
 render = web.template.render('templates/', base='layout')
 
@@ -57,7 +57,7 @@ class uploadsound:
     soundvalid = [form.Validator('Please upload a file or enter a video link (but not both).',
                                  lambda x: (x.filelink!='' or x.uploadfile) and not (x.uploadfile and x.filelink!=''))]
     
-    datadir = open('filepaths.txt').read().strip()
+    datadir = open('filepaths.txt').readline().split()[1]
     
     def speaker_form(self, completed_form, filenames, taskname): #send in the completed form too
       input_list = []
@@ -257,7 +257,7 @@ class uploadtrans:
     soundvalid = [form.Validator('Please upload a file or enter a video link (but not both).',
                                  lambda x: (x.filelink!='' or x.uploadfile) and not (x.uploadfile and x.filelink!=''))]
 
-    datadir = open('filepaths.txt').read().strip()
+    datadir = open('filepaths.txt').readline().split()[1]
     
     def speaker_form(self, completed_form, filenames, taskname): #send in the completed form too           
         input_list = []
@@ -370,8 +370,8 @@ class uploadtextgrid:
 
     soundvalid = [form.Validator('Please upload a file or enter a video link (but not both).',
                                  lambda x: (x.filelink!='' or x.uploadfile) and not (x.uploadfile and x.filelink!=''))]
-
-    datadir = open('filepaths.txt').read().strip()
+    
+    datadir = open('filepaths.txt').readline().split()[1]    
     
     def speaker_form(self, completed_form, filenames, taskname): #send in the completed form too   
         input_list = []
@@ -473,7 +473,7 @@ class uploadeval:
                             description='ASR or alternate manual transcription as plaintext .txt:')
     taskname = form.Hidden('taskname')
     submit = form.Button('submit', type='submit', description='Submit')
-    datadir = open('filepaths.txt').read().strip()
+    datadir = open('filepaths.txt').readline().split()[1]
 
     def GET(self):
             uploadeval = myform.MyForm(self.reffile,
@@ -511,7 +511,7 @@ class uploadeval:
                         form.note = 'Files should have the same number of lines, corresponding to each utterance. Please try again.'
                         return render.uploadeval(form)
                     
-                    evaluation = run_sclite(self.datadir, taskname)
+                    evaluation = run_evaluation(self.datadir, taskname)
                     return render.evalresults(evaluation)
             else:
                     form.note = 'Please upload both transcript files.'

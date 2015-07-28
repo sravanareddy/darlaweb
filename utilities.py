@@ -26,7 +26,8 @@ class CustomException(Exception):
 
 def send_init_email(tasktype, receiver, filename):
         username = 'darla.dartmouth'
-        password = open('/home/darla/email/info.txt').read().strip()
+        passfile = open('filepaths.txt').readlines()[1].split()[1]
+        password = open(passfile).read().strip()
         sender = username+'@gmail.com'
         subject = tasktype+' Task started for '+filename
         
@@ -53,7 +54,8 @@ def send_init_email(tasktype, receiver, filename):
 def send_email(receiver, filename, taskname):
         
         username = 'darla.dartmouth'
-        password = open('/home/darla/email/info.txt').read().strip()
+        passfile = open('filepaths.txt').readlines()[1].split()[1]
+        password = open(passfile).read().strip()
         sender = username+'@gmail.com'
         subject = 'Vowel Analysis Results for '+filename
 
@@ -96,7 +98,8 @@ def send_error_email(receiver, filename, message):
     if ERROR==0:
 
         username = 'darla.dartmouth'
-        password = open('/home/darla/email/info.txt').read().strip()
+        passfile = open('filepaths.txt').readlines()[1].split()[1]
+        password = open(passfile).read().strip()
         sender = username+'@gmail.com'
         subject = 'Error trying to open '+filename        
         body = 'Unfortunately, there was an error trying to start a file for '+filename + ". We could not "+message
@@ -186,29 +189,30 @@ def make_task(datadir):
 
 def write_transcript(datadir, taskname, reffilecontent, hypfilecontent):
     """Write reference and hypothesis files for evaluation"""
+    punct = '!"#$%&\()*+,-./:;<=>?@[\\]^_`{|}~' #same as string.punct but no '
     reffilecontent = string.translate(process_usertext(reffilecontent), 
                                       None, 
-                                      string.punctuation).splitlines()
+                                      punct).splitlines()
     reffilecontent = filter(lambda line: line!='', reffilecontent)
     hypfilecontent = string.translate(process_usertext(hypfilecontent), 
                                       None, 
-                                      string.punctuation).splitlines()
+                                      punct).splitlines()
     hypfilecontent = filter(lambda line: line!='', hypfilecontent)
     numreflines = len(reffilecontent)
     numhyplines = len(hypfilecontent)
     if numreflines==numhyplines:
         o = open(os.path.join(datadir, taskname+'.ref'), 'w')
         for li, line in enumerate(reffilecontent):
-            o.write(line+' (speaker-'+str(li+1)+')\n')
+            o.write(line+'\n')
         o.close()
         o = open(os.path.join(datadir, taskname+'.hyp'), 'w')
         for li, line in enumerate(hypfilecontent):
-            o.write(line+' (speaker-'+str(li+1)+')\n')
+            o.write(line+'\n')
         o.close()
     return numreflines, numhyplines
 
 def process_usertext(inputstring):
-    """clean up unicode, remove punctuation and numbers"""
+    """clean up unicode, remove numbers"""
     transfrom = '\xd5\xd3\xd2\xd0\xd1\xcd\xd4'
     transto = '\'""--\'\''
     unimaketrans = string.maketrans(transfrom, transto)
