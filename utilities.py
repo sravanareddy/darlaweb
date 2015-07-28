@@ -26,7 +26,7 @@ class CustomException(Exception):
 
 def send_init_email(tasktype, receiver, filename):
         username = 'darla.dartmouth'
-        password = open('/home/sravana/applications/email/info.txt').read().strip()
+        password = open('/home/darla/email/info.txt').read().strip()
         sender = username+'@gmail.com'
         subject = tasktype+' Task started for '+filename
         
@@ -53,7 +53,7 @@ def send_init_email(tasktype, receiver, filename):
 def send_email(receiver, filename, taskname):
         
         username = 'darla.dartmouth'
-        password = open('/home/sravana/applications/email/info.txt').read().strip()
+        password = open('/home/darla/email/info.txt').read().strip()
         sender = username+'@gmail.com'
         subject = 'Vowel Analysis Results for '+filename
 
@@ -96,7 +96,7 @@ def send_error_email(receiver, filename, message):
     if ERROR==0:
 
         username = 'darla.dartmouth'
-        password = open('/home/sravana/applications/email/info.txt').read().strip()
+        password = open('/home/darla/email/info.txt').read().strip()
         sender = username+'@gmail.com'
         subject = 'Error trying to open '+filename        
         body = 'Unfortunately, there was an error trying to start a file for '+filename + ". We could not "+message
@@ -135,7 +135,7 @@ def g2p(transwords, cmudictfile):
     o = open('OOV.txt', 'w')
     o.write('\n'.join(map(lambda word:word.replace("\\'", "'"), oov))+'\n')
     o.close()
-    os.system('/usr/local/bin/g2p.py --model /home/sravana/applications/g2p/model-6 --apply OOV.txt > OOVprons.txt')
+    os.system('/usr/local/bin/g2p.py --model /home/darla/applications/g2p/model-6 --apply OOV.txt > OOVprons.txt')
     newdict = {}
     for line in open('OOVprons.txt'):
         line = line.split()
@@ -178,7 +178,7 @@ def make_task(datadir):
             make_task(datadir) #make a new taskname
         else:
             os.mkdir(audiodir)
-            os.system('chown sravana:www-data '+audiodir)
+            os.system('chgrp www-data '+audiodir)
             return taskname, audiodir, ""
     except OSError:
             error_message = "Could not start a job."
@@ -402,20 +402,20 @@ def gen_argfiles(datadir, taskname, uploadfilename, samprate, lw, dialect, email
     """recognition"""
     options = {}
     if samprate==8000:
-            hmm = '/home/sravana/acousticmodels/sphinx-8'
+            hmm = '/home/darla/acousticmodels/sphinx-8'
             options.update({'nfilt': '20',
                             'upperf': '3500'})
     else:
-            hmm = '/home/sravana/acousticmodels/sphinx-16'
+            hmm = '/home/darla/acousticmodels/sphinx-16'
             options.update({'nfilt': '25',
                             'upperf': '6800'})
     
     options.update({'cepdir': os.path.join(datadir, taskname+'.mfc'),
                     'cepext': '.mfc',
-                    'dict': '/home/sravana/prdicts/cmudict.nostress.txt',
+                    'dict': '/home/darla/prdicts/cmudict.nostress.txt',
                     'fdict': os.path.join(hmm, 'noisedict'),
                     'hmm': hmm, 
-                    'lm': '/home/sravana/languagemodels/en-us.lm.dmp',
+                    'lm': '/home/darla/languagemodels/en-us.lm.dmp',
                     'lw': str(lw), 
                     'samprate': str(samprate), 
                     'bestpath': 'no',
@@ -443,9 +443,9 @@ def gen_argfiles(datadir, taskname, uploadfilename, samprate, lw, dialect, email
     o.write(uploadfilename+' ')
     
     if samprate==8000:
-            o.write('/home/sravana/acousticmodels/prosodylab-8.zip ')
+            o.write('/home/darla/acousticmodels/prosodylab-8.zip ')
     else:
-            o.write('/home/sravana/acousticmodels/prosodylab-16.zip ')
+            o.write('/home/darla/acousticmodels/prosodylab-16.zip ')
 
     if email=="":
         email="none"
@@ -462,9 +462,9 @@ def gen_txtargfile(datadir, taskname, uploadfilename, samprate, email):
     o.write(uploadfilename+' ')
 
     if samprate==8000:
-            o.write('/home/sravana/acousticmodels/prosodylab-8.zip ')
+            o.write('/home/darla/acousticmodels/prosodylab-8.zip ')
     else:
-            o.write('/home/sravana/acousticmodels/prosodylab-16.zip ')
+            o.write('/home/darla/acousticmodels/prosodylab-16.zip ')
 
     if email=="":
         email="none"

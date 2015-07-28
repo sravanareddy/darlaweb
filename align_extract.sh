@@ -3,13 +3,13 @@
 taskname=$1
 hmm=$2
 
-favedir='/home/sravana/applications/FAVE/FAVE-extract'
+favedir='/home/darla/applications/FAVE/FAVE-extract'
 stressdict='cmudict.forhtk.txt'
 
 #get Viterbi phone alignment
 mkdir -p $taskname.wavlab
 chmod g+w $taskname.wavlab 
-chown sravana:www-data $taskname.wavlab
+chgrp www-data $taskname.wavlab
 python hyp2lab.py $taskname.hyp $taskname.wavlab
 for f in $taskname.wavlab/*.lab;
 do
@@ -19,7 +19,7 @@ do
   ln -sf $taskname.audio/splits/$basename.wav $taskname.wavlab/
 done
 
-export PYTHONPATH=/home/sravana/applications/Prosodylab-Aligner
+export PYTHONPATH=/home/darla/applications/Prosodylab-Aligner
 /usr/bin/python3 -m aligner -r $hmm -d $stressdict -a $taskname.wavlab &> tmp
 pwd >> tmp
 echo $hmm >> tmp

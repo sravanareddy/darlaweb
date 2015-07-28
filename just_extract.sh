@@ -2,7 +2,7 @@
 
 taskname=$1
 
-favedir='/home/sravana/applications/FAVE/FAVE-extract'
+favedir='/home/darla/applications/FAVE/FAVE-extract'
 
 zip -j $taskname.alignments.zip $taskname.mergedtg/*.TextGrid
 

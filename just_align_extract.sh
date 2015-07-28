@@ -3,7 +3,7 @@
 taskname=$1
 hmm=$2
 
-favedir='/home/sravana/applications/FAVE/FAVE-extract'
+favedir='/home/darla/applications/FAVE/FAVE-extract'
 stressdict='cmudict.forhtk.txt'
 
 #get Viterbi phone alignment
@@ -16,7 +16,7 @@ do
 done
 
 pwd > $taskname.log
-export PYTHONPATH=/home/sravana/applications/Prosodylab-Aligner
+export PYTHONPATH=/home/darla/applications/Prosodylab-Aligner
 /usr/bin/python3 -m aligner -r $hmm -d $stressdict -a $taskname.wavlab &>> $taskname.log
 echo $hmm >> $taskname.log
 echo $stressdict >> $taskname.log
