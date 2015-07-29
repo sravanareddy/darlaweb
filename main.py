@@ -465,11 +465,11 @@ class uploadtextgrid:
 class uploadeval:
     reffile = myform.MyFile('reffile',
                             form.notnull,
-                            post = 'One line per utterance',
+                            post = '',
                             description='Manual transcription as plaintext .txt file:')
     hypfile = myform.MyFile('hypfile',
                             form.notnull,
-                            post = 'One line per utterance in the same order as above file',
+                            post = '',
                             description='ASR or alternate manual transcription as plaintext .txt:')
     taskname = form.Hidden('taskname')
     submit = form.Button('submit', type='submit', description='Submit')
@@ -509,7 +509,7 @@ class uploadeval:
                                                                           x.hypfile.file.read(),
                                                                           'cmudict.forhtk.txt')
                     if numreflines!=numhyplines:
-                        form.note = 'Files should have the same number of lines, corresponding to each utterance. Please try again.'
+                        form.note = 'Files should have the same number of lines, corresponding to each speech input. Please try again.'
                         return render.uploadeval(form)
                     
                     evaluation = run_evaluation(self.datadir, taskname)
