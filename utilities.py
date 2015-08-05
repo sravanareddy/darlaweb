@@ -167,7 +167,7 @@ def g2p(transwords, cmudictfile):
         if len(line)<2:
             continue
         newdict[line[0]] = line[1:]
-    os.system('rm OOV.txt OOVprons.txt')
+    #os.system('rm OOV.txt OOVprons.txt')
     if newdict!={}:
         for word in newdict:
             cmudict[word.replace("'", "\\'")] = newdict[word]
@@ -228,15 +228,18 @@ def write_transcript(datadir, taskname, reffilecontent, hypfilecontent, cmudictf
         for li, line in enumerate(reffilecontent):
             words = map(lambda word: word.replace("'", "\\'"), line.split())
             o.write(' '.join(words)+'\n')
-            allwords.extend(words)
+            allwords+=words
         o.close()
         o = open(os.path.join(datadir, taskname+'.hyp'), 'w')
         for li, line in enumerate(hypfilecontent):
             words = map(lambda word: word.replace("'", "\\'"), line.split())
             o.write(' '.join(words)+'\n')
-            allwords.extend(words)
+            allwords+=words
         o.close()
     #OOVs
+    o = open('all', 'w')
+    o.write(' '.join(allwords))
+    o.close()
     g2p(allwords, cmudictfile)
     return numreflines, numhyplines
 
@@ -247,8 +250,7 @@ def process_usertext(inputstring):
     unimaketrans = string.maketrans(transfrom, transto)
     #stylized characters that stupid TextEdit inserts. is there an existing module that does this?  
     return string.translate(inputstring.lower(), 
-                            unimaketrans, 
-                            string.digits).replace("\xe2\x80\x93", " - ").replace('\xe2\x80\x94', " - ").replace('\xe2\x80\x99', "'").strip()
+                            unimaketrans).replace("\xe2\x80\x93", " - ").replace('\xe2\x80\x94', " - ").replace('\xe2\x80\x99', "'").strip()
 
 def write_hyp(datadir, taskname, filename, txtfilecontent, cmudictfile):    
     os.system('mkdir -p '+os.path.join(datadir, taskname+'.wavlab'))

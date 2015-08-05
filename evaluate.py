@@ -143,7 +143,7 @@ def run_evaluation(datadir, taskname):
     basename = os.path.join(datadir, taskname)
     cmudict = map(lambda x:x.split(),
                   open('cmudict.forhtk.txt').readlines())
-    cmudict = dict(map(lambda x:(x[0].replace("\\'", "'"), x[1:]), cmudict))
+    cmudict = dict(map(lambda x:(x[0], x[1:]), cmudict))
     
     reflines = map(lambda line: line.split(),
                    open(basename+'.ref').readlines())
