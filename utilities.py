@@ -295,8 +295,8 @@ def process_audio(audiodir, filename, extension, filecontent, dochunk):
                         
 def youtube_wav(url,audiodir, taskname):
     try:
-        tube = subprocess.Popen(shlex.split('youtube-dl '+url+' --extract-audio --audio-format wav --audio-quality 16k -o '+os.path.join(audiodir, 'ytvideo.%(ext)s')), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        # print tube.stdout.readlines()
+        tube = subprocess.Popen(shlex.split('youtube-dl '+url+' --extract-audio --audio-format wav --audio-quality 16k -o '+os.path.join(audiodir, 'ytvideo.m4a')), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        print tube.stdout.readlines()
         return "ytvideo.wav", ""
     except:
         return "ytvideo.wav", "Could not convert youtube video to a .wav file."        
