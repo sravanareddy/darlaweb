@@ -19,6 +19,7 @@ from email.mime.text import MIMEText
 from email.utils import COMMASPACE, formatdate
 from email import encoders
 from collections import defaultdict
+import inflect
 
 ERROR = 0
 
@@ -222,19 +223,19 @@ def write_transcript(datadir, taskname, reffilecontent, hypfilecontent, cmudictf
     hypfilecontent = filter(lambda line: line!='', hypfilecontent)
     numreflines = len(reffilecontent)
     numhyplines = len(hypfilecontent)
-    allwords = []   #for g2p
+    allwords = set()   #for g2p
     if numreflines==numhyplines:
         o = open(os.path.join(datadir, taskname+'.ref'), 'w')
         for li, line in enumerate(reffilecontent):
             words = map(lambda word: word.replace("'", "\\'"), line.split())
             o.write(' '.join(words)+'\n')
-            allwords+=words
+            
         o.close()
         o = open(os.path.join(datadir, taskname+'.hyp'), 'w')
         for li, line in enumerate(hypfilecontent):
             words = map(lambda word: word.replace("'", "\\'"), line.split())
             o.write(' '.join(words)+'\n')
-            allwords+=words
+            allwords.update(words)
         o.close()
     #OOVs
     o = open('all', 'w')
@@ -249,8 +250,12 @@ def process_usertext(inputstring):
     transto = '\'""--\'\''
     unimaketrans = string.maketrans(transfrom, transto)
     #stylized characters that stupid TextEdit inserts. is there an existing module that does this?  
-    return string.translate(inputstring.lower(), 
+    cleaned = string.translate(inputstring.lower(), 
                             unimaketrans).replace("\xe2\x80\x93", " - ").replace('\xe2\x80\x94', " - ").replace('\xe2\x80\x99', "'").strip()
+    digitconverter = inflect.engine()
+    return ' '.join(map(lambda word:
+                        digitconverter.number_to_words(word).replace('-', ' ').replace(',', '') if word[0].isdigit() else word, 
+                        cleaned.split()))
 
 def write_hyp(datadir, taskname, filename, txtfilecontent, cmudictfile):    
     os.system('mkdir -p '+os.path.join(datadir, taskname+'.wavlab'))
@@ -262,7 +267,7 @@ def write_hyp(datadir, taskname, filename, txtfilecontent, cmudictfile):
     o.write(' '.join(words)+'\n')
     o.close()
     #make dictionary for OOVs
-    g2p(words, cmudictfile)
+    g2p(set(words), cmudictfile)
 
 def write_textgrid(datadir, taskname, filename, tgfilecontent):
     #TODO: validate TextGrid
