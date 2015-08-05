@@ -245,7 +245,7 @@ def write_transcript(datadir, taskname, reffilecontent, hypfilecontent, cmudictf
     return numreflines, numhyplines
 
 def process_usertext(inputstring):
-    """clean up unicode, remove numbers"""
+    """clean up unicode, translate numbers"""
     transfrom = '\xd5\xd3\xd2\xd0\xd1\xcd\xd4'
     transto = '\'""--\'\''
     unimaketrans = string.maketrans(transfrom, transto)
