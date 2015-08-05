@@ -168,7 +168,7 @@ def g2p(transwords, cmudictfile):
         if len(line)<2:
             continue
         newdict[line[0]] = line[1:]
-    #os.system('rm OOV.txt OOVprons.txt')
+    os.system('rm OOV.txt OOVprons.txt')
     if newdict!={}:
         for word in newdict:
             cmudict[word.replace("'", "\\'")] = newdict[word]
@@ -237,11 +237,9 @@ def write_transcript(datadir, taskname, reffilecontent, hypfilecontent, cmudictf
             o.write(' '.join(words)+'\n')
             allwords.update(words)
         o.close()
-    #OOVs
-    o = open('all', 'w')
-    o.write(' '.join(allwords))
-    o.close()
-    g2p(allwords, cmudictfile)
+    
+    g2p(allwords, cmudictfile)  #OOVs
+    
     return numreflines, numhyplines
 
 def process_usertext(inputstring):
@@ -254,7 +252,7 @@ def process_usertext(inputstring):
                             unimaketrans).replace("\xe2\x80\x93", " - ").replace('\xe2\x80\x94', " - ").replace('\xe2\x80\x99', "'").strip()
     digitconverter = inflect.engine()
     return ' '.join(map(lambda word:
-                        digitconverter.number_to_words(word).replace('-', ' ').replace(',', '') if word[0].isdigit() else word, 
+                        digitconverter.number_to_words(word).replace('-', ' ').replace(',', '') if word[0].isdigit() or (word[0]=="'" and len(word)>1 and word[1].isdigit()) else word, 
                         cleaned.split()))
 
 def write_hyp(datadir, taskname, filename, txtfilecontent, cmudictfile):    
