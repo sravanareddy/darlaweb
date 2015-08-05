@@ -226,13 +226,15 @@ def write_transcript(datadir, taskname, reffilecontent, hypfilecontent, cmudictf
     if numreflines==numhyplines:
         o = open(os.path.join(datadir, taskname+'.ref'), 'w')
         for li, line in enumerate(reffilecontent):
-            o.write(line+'\n')
-            allwords.extend(line.split())
+            words = map(lambda word: word.replace("'", "\\'"), line.split())
+            o.write(' '.join(words)+'\n')
+            allwords.extend(words)
         o.close()
         o = open(os.path.join(datadir, taskname+'.hyp'), 'w')
         for li, line in enumerate(hypfilecontent):
-            o.write(line+'\n')
-            allwords.extend(line.split())
+            words = map(lambda word: word.replace("'", "\\'"), line.split())
+            o.write(' '.join(words)+'\n')
+            allwords.extend(words)
         o.close()
     #OOVs
     g2p(allwords, cmudictfile)
