@@ -251,9 +251,12 @@ def process_usertext(inputstring):
     cleaned = string.translate(inputstring.lower(), 
                             unimaketrans).replace("\xe2\x80\x93", " - ").replace('\xe2\x80\x94', " - ").replace('\xe2\x80\x99', "'").replace('\r\n', '\n').replace('\r', '\n').strip()
     digitconverter = inflect.engine()
-    return ' '.join(map(lambda word:
+    returnstr = ''
+    for line in cleaned.splitlines():
+        returnstr += ' '.join(map(lambda word:
                         digitconverter.number_to_words(word).replace('-', ' ').replace(',', '') if word[0].isdigit() or (word[0]=="'" and len(word)>1 and word[1].isdigit()) else word, 
-                        cleaned.split()))
+                        line.split()))+'\n'
+    return returnstr
 
 def write_hyp(datadir, taskname, filename, txtfilecontent, cmudictfile):    
     os.system('mkdir -p '+os.path.join(datadir, taskname+'.wavlab'))
