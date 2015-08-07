@@ -149,13 +149,14 @@ def run_evaluation(datadir, taskname):
                    open(basename+'.ref').readlines())
     hyplines = map(lambda line: line.split(),
                    open(basename+'.hyp').readlines())
+
+    retstring = ''
     for refwords, hypwords in zip(reflines, hyplines):
-        
         model = Alignment(phone=False)
         alref, alhyp = model.align(refwords, hypwords)
         errors = model.count_errors()
 
-        retstring = '<span class="note">REF:</span> '+render_praline(alref)
+        retstring += '<span class="note">REF:</span> '+render_praline(alref)
         retstring += '<span class="note">HYP:</span> '+render_praline(alhyp)
 
         numrefwords = len(refwords)
@@ -185,6 +186,7 @@ def run_evaluation(datadir, taskname):
                                                                                          errors['sub'],
                                                                                          errors['del'],
                                                                                          errors['ins'])
+        print retstring
 
     return retstring
     
