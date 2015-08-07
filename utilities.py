@@ -249,9 +249,9 @@ def process_usertext(inputstring):
     transfrom = '\xd5\xd3\xd2\xd0\xd1\xcd\xd4'
     transto = '\'""--\'\''
     unimaketrans = string.maketrans(transfrom, transto)
-    #stylized characters that stupid TextEdit inserts. is there an existing module that does this?  
+    #MS line breaks and stylized characters that stupid TextEdit inserts. (is there an existing module that does this?)
     cleaned = string.translate(inputstring.lower(), 
-                            unimaketrans).replace("\xe2\x80\x93", " - ").replace('\xe2\x80\x94', " - ").replace('\xe2\x80\x99', "'").strip()
+                            unimaketrans).replace("\xe2\x80\x93", " - ").replace('\xe2\x80\x94', " - ").replace('\xe2\x80\x99', "'").replace('\r\n', '\n').replace('\r', '\n').strip()
     digitconverter = inflect.engine()
     return ' '.join(map(lambda word:
                         digitconverter.number_to_words(word).replace('-', ' ').replace(',', '') if word[0].isdigit() else word, 
