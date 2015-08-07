@@ -168,7 +168,7 @@ def g2p(transwords, cmudictfile):
         if len(line)<2:
             continue
         newdict[line[0]] = line[1:]
-    os.system('rm OOV.txt OOVprons.txt')
+    #os.system('rm OOV.txt OOVprons.txt')
     if newdict!={}:
         for word in newdict:
             cmudict[word.replace("'", "\\'")] = newdict[word]
@@ -229,7 +229,7 @@ def write_transcript(datadir, taskname, reffilecontent, hypfilecontent, cmudictf
         for li, line in enumerate(reffilecontent):
             words = map(lambda word: word.replace("'", "\\'"), line.split())
             o.write(' '.join(words)+'\n')
-            
+            allwords.update(words)
         o.close()
         o = open(os.path.join(datadir, taskname+'.hyp'), 'w')
         for li, line in enumerate(hypfilecontent):
