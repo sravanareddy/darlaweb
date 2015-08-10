@@ -245,7 +245,7 @@ class uploadtrans:
                               description='or copy and paste a link to a YouTube video:')
     uploadtxtfile = myform.MyFile('uploadtxtfile',
                                  form.notnull,
-                           post = 'Textgrid should contain a single tier named "sentence" with sentence/breath group intervals.',
+                           post = 'Textgrid should contain a tier named "sentence" with sentence/breath group intervals.',
                            description='Manual transcription as a .TextGrid file.')
     email = form.Textbox('email',
                          form.notnull,
