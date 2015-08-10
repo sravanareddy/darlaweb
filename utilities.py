@@ -275,14 +275,16 @@ def write_sentgrid_as_lab(datadir, taskname, filename, txtfile, cmudictfile):
     os.system('mkdir -p '+os.path.join(datadir, taskname+'.wavlab'))
     #parse textgrid, extracting sentence boundaries
     tg = TextGrid()
-    tg.read(txtfile)
+    tg.read(os.path.join(datadir, txtfile))
+    os.system('rm '+os.path.join(datadir, txtfile))
+    
     sent_tier = tg.getFirst('sentence')  #TODO: error checking here
     chunks = []
     allwords = set()
     for i, interval in enumerate(sent_tier.intervals):
         o = open(os.path.join(datadir, 
                               taskname+'.wavlab', 
-                              filename+'{0:03d}.lab'.format(i+1)), 
+                              filename+'.split{0:03d}.lab'.format(i+1)), 
                  'w')
         if interval.mark:
             words = map(lambda word: word.strip(string.punctuation),
@@ -415,7 +417,7 @@ def soxConversion(filename, audiodir, dochunk=None):
 
             elif type(dochunk) is list:
                 for ci, chunk in enumerate(dochunk):
-                    conv = subprocess.Popen(['sox', os.path.join(audiodir, 'converted_'+filename), os.path.join(audiodir, 'splits', basename+'.split{0:03d}.wav'.format(ci+1)), 'trim', str(chunk[0]), str(chunk[1])], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                    conv = subprocess.Popen(['sox', os.path.join(audiodir, 'converted_'+filename), os.path.join(audiodir, 'splits', basename+'.split{0:03d}.wav'.format(ci+1)), 'trim', str(chunk[0]), str(chunk[1]-chunk[0])], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
                     retval = conv.wait()
                     if retval != 0:
                         error_message = 'Could not split audio file into chunks given by TextGrid.'

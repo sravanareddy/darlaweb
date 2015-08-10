@@ -4,6 +4,7 @@
 import web
 import shutil
 import codecs
+import os
 from web import form
 import myform
 import utilities
@@ -312,7 +313,7 @@ class uploadtrans:
             form.note = 'Upload a transcript with a .TextGrid extension indicating sentence boundaries.'
             return render.uploadtxt(form, "")
 
-        o = codecs.open(txtfilename+txtextension, 'w', 'utf8')
+        o = codecs.open(os.path.join(self.datadir, txtfilename+txtextension), 'w', 'utf8')
         o.write(x.uploadtxtfile.file.read())
         o.close()
 
