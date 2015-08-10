@@ -285,7 +285,6 @@ def write_sentgrid_as_lab(datadir, taskname, filename, txtfile, cmudictfile):
                               filename+'{0:03d}.lab'.format(i+1)), 
                  'w')
         if interval.mark:
-            print interval.mark
             words = map(lambda word: word.strip(string.punctuation),
                     process_usertext(interval.mark.encode('utf8')).split())
             words = map(lambda word: word.replace("'", "\\'"), words)
@@ -343,8 +342,8 @@ def soxConversion(filename, audiodir, dochunk=None):
     file_size = 0.0
     args = "sox --i "+os.path.join(audiodir, filename)
     sox = subprocess.Popen(shlex.split(args), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    # print "I AM HERE"
-    # print sox.stdout.readlines()
+    #print "I AM HERE"
+    #print sox.stdout.readlines()
     retval = sox.wait()
 
     if retval != 0: 
@@ -364,8 +363,8 @@ def soxConversion(filename, audiodir, dochunk=None):
             file_size = file_size / sample_rate #gets duration, in seconds of the file.
             file_size /= 60.0
 
-    # print sample_rate
-    # print file_size
+    #print 'Sample rate', sample_rate
+    #print 'Size', file_size
 
     #converts wav file to 16000kHz sampling rate if sampling rate is more than
     if sample_rate >= 16000:
@@ -380,25 +379,25 @@ def soxConversion(filename, audiodir, dochunk=None):
 
     else:
         # print "OR HERE?"
-        error_message = "Sample rate not high enough"
+        error_message = "Sample rate not high enough. Please upload files with minimum 8kHz sample rate."
         # return sample_rate, "sample rate not high enough"
         # raise CustomException("sample rate not high enough")
         return sample_rate, file_size, error_message
         #TODO: actually make it work instead of break. Note: this is also a way to catch non-sound files that have been (maliciously?) uploaded using a .wav extension.
-
-    #convert to 16-bit, signed, little endian as well as downsample                                       
+    
+    #convert to 16-bit, signed, little endian as well as downsample                        
     conv = subprocess.Popen(['sox', os.path.join(audiodir, filename), '-r', ratecode, '-b', '16', '-e', 'signed', '-L', os.path.join(audiodir, 'converted_'+filename), 'channels', '1'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     retval = conv.wait()
-
+    #print 'Converted', retval
+    
     if retval != 0:
         error_message = 'Could not downsample file'
         # print error_message
         return sample_rate, file_size, error_message
-
-
+   
     # print "retval"
     # print retval
-
+    #print 'chunks', dochunk
     #split into chunks as specified. TODO: split on silence
     if dochunk:
         if not os.path.isdir(os.path.join(audiodir, 'splits')):  #need this for multiple files
