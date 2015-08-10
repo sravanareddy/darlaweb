@@ -20,6 +20,7 @@ from email.utils import COMMASPACE, formatdate
 from email import encoders
 from collections import defaultdict
 import inflect
+from textgrid.textgrid import TextGrid
 
 ERROR = 0
 
@@ -270,6 +271,32 @@ def write_hyp(datadir, taskname, filename, txtfilecontent, cmudictfile):
     #make dictionary for OOVs
     g2p(set(words), cmudictfile)
 
+def write_sentgrid_as_lab(datadir, taskname, filename, txtfile, cmudictfile):
+    os.system('mkdir -p '+os.path.join(datadir, taskname+'.wavlab'))
+    #parse textgrid, extracting sentence boundaries
+    tg = TextGrid()
+    tg.read(txtfile)
+    sent_tier = tg.getFirst('sentence')  #TODO: error checking here
+    chunks = []
+    allwords = set()
+    for i, interval in enumerate(sent_tier.intervals):
+        o = open(os.path.join(datadir, 
+                              taskname+'.wavlab', 
+                              filename+'{0:03d}.lab'.format(i+1)), 
+                 'w')
+        if interval.mark:
+            print interval.mark
+            words = map(lambda word: word.strip(string.punctuation),
+                    process_usertext(interval.mark.encode('utf8')).split())
+            words = map(lambda word: word.replace("'", "\\'"), words)
+            for word in words:
+                allwords.add(word)
+                o.write(word+' ')
+        o.write('\n')
+        chunks.append((interval.minTime, interval.maxTime))
+    g2p(allwords, cmudictfile)
+    return chunks
+
 def write_textgrid(datadir, taskname, filename, tgfilecontent):
     #TODO: validate TextGrid
     os.system('mkdir -p '+os.path.join(datadir, taskname+'.mergedtg'))
@@ -311,7 +338,7 @@ def youtube_wav(url,audiodir, taskname):
     except:
         return "ytvideo.wav", "Could not convert youtube video to a .wav file."        
 
-def soxConversion(filename, audiodir, dochunk):
+def soxConversion(filename, audiodir, dochunk=None):
     sample_rate = 0
     file_size = 0.0
     args = "sox --i "+os.path.join(audiodir, filename)
@@ -321,10 +348,9 @@ def soxConversion(filename, audiodir, dochunk):
     retval = sox.wait()
 
     if retval != 0: 
-        error_message = 'Could not do sox conversion '
+        error_message = 'Could not process your audio file. Please check that the file is valid and not blank. '
         # print 'Could not call subprocess '
         return sample_rate, file_size, error_message
-
 
     for line in sox.stdout.readlines():
         # print line
@@ -373,20 +399,29 @@ def soxConversion(filename, audiodir, dochunk):
     # print "retval"
     # print retval
 
-    #split into 20sec chunks. TODO: split on silence
+    #split into chunks as specified. TODO: split on silence
     if dochunk:
         if not os.path.isdir(os.path.join(audiodir, 'splits')):  #need this for multiple files
             os.mkdir(os.path.join(audiodir, 'splits'))
 
         basename, _ = os.path.splitext(filename)
-        conv = subprocess.Popen(['sox', os.path.join(audiodir, 'converted_'+filename), os.path.join(audiodir, 'splits', basename+'.split.wav'), 'trim', '0', '20', ':', 'newfile', ':', 'restart'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        retval = conv.wait()
+        
+        if dochunk:
+            if type(dochunk) is int:
+                conv = subprocess.Popen(['sox', os.path.join(audiodir, 'converted_'+filename), os.path.join(audiodir, 'splits', basename+'.split.wav'.format(ci+1)), 'trim', '0', str(dochunk), ':', 'newfile', ':', 'restart'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                retval = conv.wait()
+                if retval != 0:
+                    error_message = 'Could not split audio file into chunks.'
+                    return sample_rate, file_size, error_message
 
-        if retval != 0:
-            error_message = 'Could not split audio file into chunks'
-            # print error_message
-            return sample_rate, file_size, error_message
-
+            elif type(dochunk) is list:
+                for ci, chunk in enumerate(dochunk):
+                    conv = subprocess.Popen(['sox', os.path.join(audiodir, 'converted_'+filename), os.path.join(audiodir, 'splits', basename+'.split{0:03d}.wav'.format(ci+1)), 'trim', str(chunk[0]), str(chunk[1])], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                    retval = conv.wait()
+                    if retval != 0:
+                        error_message = 'Could not split audio file into chunks given by TextGrid.'
+                        return sample_rate, file_size, error_message
+            
     return sample_rate, file_size, ""
 
 def gen_argfiles(datadir, taskname, uploadfilename, samprate, lw, dialect, email):

@@ -3,6 +3,7 @@
 
 import web
 import shutil
+import codecs
 from web import form
 import myform
 import utilities
@@ -133,9 +134,9 @@ class uploadsound:
           
           if error_message != '':
              return self.error_form(form, error_message, taskname)
-
+          
           samprate, file_size, error_message = utilities.soxConversion(filename,
-                                             audiodir, dochunk=True)
+                                             audiodir, dochunk=20)
           if error_message != '':
               return self.error_form(form, error_message, taskname)
 
@@ -200,12 +201,12 @@ class uploadsound:
                                   samprate, file_size, error = utilities.process_audio(audiodir,
                                                        subfilename, subextension,
                                       z.open(subname).read(),
-                                      dochunk=True)
+                                      dochunk=20)
                               else:
                                   samprate, file_size, error = utilities.process_audio(audiodir,
                                                        subfilename, subextension,
                                       z.extractfile(subname).read(),
-                                      dochunk=True)
+                                      dochunk=20)
                             
                               filenames.append((subfilename, subfilename))
                               total_size += file_size
@@ -216,7 +217,7 @@ class uploadsound:
                     samprate, file_size, error_message = utilities.process_audio(audiodir,
                                              filename, extension,
                         x.uploadfile.file.read(),
-                        dochunk=True)
+                        dochunk=20)
                     
                     if error_message != '':
                         return self.error_form(form, error_message, taskname)
@@ -243,8 +244,8 @@ class uploadtrans:
                               description='or copy and paste a link to a YouTube video:')
     uploadtxtfile = myform.MyFile('uploadtxtfile',
                                  form.notnull,
-                           post = '',
-                           description='Corrected transcript as a plaintext .txt file.')
+                           post = 'Textgrid should contain a single tier named "sentence" with sentence/breath group intervals.',
+                           description='Manual transcription as a .TextGrid file.')
     email = form.Textbox('email',
                          form.notnull,
                          form.regexp(r'^[\w.+-]+@[\w.+-]+\.[\w.+-]+$',
@@ -307,27 +308,33 @@ class uploadtrans:
         filenames = []
         txtfilename, txtextension = utilities.get_basename(x.uploadtxtfile.filename)
         
-        if txtextension != '.txt':
-            form.note = 'Upload a plaintext transcript file with a .txt extension.'
+        if txtextension != '.textgrid':  #TODO: check textgrid validity too
+            form.note = 'Upload a transcript with a .TextGrid extension indicating sentence boundaries.'
             return render.uploadtxt(form, "")
+
+        o = codecs.open(txtfilename+txtextension, 'w', 'utf8')
+        o.write(x.uploadtxtfile.file.read())
+        o.close()
 
         if 'uploadfile' in x:   
             #sanitize filename
             filename, extension = utilities.get_basename(x.uploadfile.filename)
-            
+
             if extension not in ['.wav', '.mp3']:
                 form.note = "Please upload a .wav or .mp3 file."
                 return render.uploadtxt(form, "")
 
             else:
-                #create new task                                                               
+                #create new task                                                          
                 taskname, audiodir, error_message = utilities.make_task(self.datadir)
                 form.taskname.value = taskname
                 
+                chunks = utilities.write_sentgrid_as_lab(self.datadir, form.taskname.value, filename, txtfilename+txtextension, 'cmudict.forhtk.txt')
+
                 samprate, total_size, error = utilities.process_audio(audiodir,
                                              filename, extension,
                     x.uploadfile.file.read(),
-                    dochunk=False)
+                    dochunk=chunks)
 
                 filenames.append((filename, filename))
         
@@ -338,11 +345,13 @@ class uploadtrans:
             form.taskname.value = taskname
 
             filename = utilities.youtube_wav(x.filelink, audiodir, taskname)
-            samprate, file_size = utilities.soxConversion(filename, audiodir, dochunk=False)
+
+            chunks = utilities.write_sentgrid_as_lab(self.datadir, form.taskname.value, filename, txtfilename+txtextension, 'cmudict.forhtk.txt')
+
+            samprate, file_size = utilities.soxConversion(filename, audiodir, dochunk=chunks)
 
             filenames = [(filename, x.filelink)]
-        
-        utilities.write_hyp(self.datadir, form.taskname.value, filename, x.uploadtxtfile.file.read(), 'cmudict.forhtk.txt')  
+          
         utilities.gen_txtargfile(self.datadir, form.taskname.value, filename, samprate, form.email.value)
         
         return self.speaker_form(form, filenames, taskname)
@@ -441,7 +450,7 @@ class uploadtextgrid:
                 samprate, total_size, error = utilities.process_audio(audiodir,
                                              filename, extension,
                     x.uploadfile.file.read(),
-                    dochunk=False)
+                    dochunk=None)
 
                 filenames.append((filename, filename))
         
@@ -452,7 +461,7 @@ class uploadtextgrid:
             form.taskname.value = taskname
 
             filename = utilities.youtube_wav(x.filelink, audiodir, taskname)
-            samprate, file_size = utilities.soxConversion(filename, audiodir, dochunk=False)
+            samprate, file_size = utilities.soxConversion(filename, audiodir, dochunk=None)
 
             filenames = [(filename, x.filelink)]
         
