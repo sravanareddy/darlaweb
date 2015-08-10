@@ -186,7 +186,6 @@ def run_evaluation(datadir, taskname):
                                                                                          errors['sub'],
                                                                                          errors['del'],
                                                                                          errors['ins'])
-        print retstring
 
     return retstring
     
