@@ -153,23 +153,23 @@ def read_prdict(dictfile):
     spam = map(lambda line: line.split(), open(dictfile).readlines())
     return dict(map(lambda line: (line[0], line[1:]), spam))
     
-def g2p(transwords, cmudictfile):
+def g2p(taskname, transwords, cmudictfile):
     """Predict pronunciations of words not in dictionary and add"""
     cmudict = read_prdict(cmudictfile)
     oov = filter(lambda word: word not in cmudict, set(transwords))
     if len(oov)==0:
         return
-    o = open('OOV.txt', 'w')
+    o = open(taskname+'.oov', 'w')
     o.write('\n'.join(map(lambda word:word.replace("\\'", "'"), oov))+'\n')
     o.close()
-    os.system('/usr/local/bin/g2p.py --model /home/darla/applications/g2p/model-6 --apply OOV.txt > OOVprons.txt')
+    os.system('/usr/local/bin/g2p.py --model /home/darla/applications/g2p/model-6 --apply '+taskname+'.oov > '+taskname+'.oovprons')
     newdict = {}
-    for line in open('OOVprons.txt'):
+    for line in open(taskname+'.oovprons'):
         line = line.split()
         if len(line)<2:
             continue
         newdict[line[0]] = line[1:]
-    #os.system('rm OOV.txt OOVprons.txt')
+    os.system('rm '+taskname+'.oov '+taskname+'.oovprons')
     if newdict!={}:
         for word in newdict:
             cmudict[word.replace("'", "\\'")] = newdict[word]
@@ -177,13 +177,13 @@ def g2p(transwords, cmudictfile):
         #need to replace \ again for sorting order... argh!
         words = sorted(map(lambda word: word.replace("\\'", "'"), cmudict.keys()))
         
-        o = open(cmudictfile+'.tmp', 'w')
+        o = open(taskname+'.'+cmudictfile, 'w')
         for word in words:
             rword = word.replace("'", "\\'")
             o.write(rword+'  '+' '.join(cmudict[rword])+'\n')
         o.close()
         
-    os.system('mv '+cmudictfile+'.tmp '+cmudictfile)
+        os.system('mv '+taskname+'.'+cmudictfile+' '+cmudictfile)
     return
 
 def get_basename(filename):
@@ -239,7 +239,7 @@ def write_transcript(datadir, taskname, reffilecontent, hypfilecontent, cmudictf
             allwords.update(words)
         o.close()
     
-    g2p(allwords, cmudictfile)  #OOVs
+    g2p(os.path.join(datadir, taskname), allwords, cmudictfile)  #OOVs
     
     return numreflines, numhyplines
 
@@ -269,7 +269,7 @@ def write_hyp(datadir, taskname, filename, txtfilecontent, cmudictfile):
     o.write(' '.join(words)+'\n')
     o.close()
     #make dictionary for OOVs
-    g2p(set(words), cmudictfile)
+    g2p(os.path.join(datadir, taskname), set(words), cmudictfile)
 
 def write_sentgrid_as_lab(datadir, taskname, filename, txtfile, cmudictfile):
     os.system('mkdir -p '+os.path.join(datadir, taskname+'.wavlab'))
@@ -293,9 +293,11 @@ def write_sentgrid_as_lab(datadir, taskname, filename, txtfile, cmudictfile):
             for word in words:
                 allwords.add(word)
                 o.write(word+' ')
+        else:
+            o.write('sil')
         o.write('\n')
         chunks.append((interval.minTime, interval.maxTime))
-    g2p(allwords, cmudictfile)
+    g2p(os.path.join(datadir, taskname), allwords, cmudictfile)
     return chunks
 
 def write_textgrid(datadir, taskname, filename, tgfilecontent):
