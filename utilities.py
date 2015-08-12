@@ -126,7 +126,7 @@ def send_error_email(receiver, filename, message):
         password = open(passfile).read().strip()
         sender = username+'@gmail.com'
         subject = 'Error trying to open '+filename        
-        body = 'Unfortunately, there was an error trying to start a file for '+filename + ". We could not "+message
+        body = 'Unfortunately, there was an error running your job for '+filename + ". "+message
 
         message = MIMEMultipart()
         message['From'] = 'DARLA <'+sender+'>'

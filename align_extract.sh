@@ -21,6 +21,7 @@ done
 
 export PYTHONPATH=/home/darla/applications/Prosodylab-Aligner
 /usr/bin/python3 -m aligner -r $hmm -d $stressdict -a $taskname.wavlab 
+python insert_sil_tg.py $taskname
 mkdir -p $taskname.tg
 chmod g+w $taskname.tg
 cp $taskname.wavlab/*.TextGrid $taskname.tg/
