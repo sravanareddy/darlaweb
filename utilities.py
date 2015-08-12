@@ -281,22 +281,38 @@ def write_sentgrid_as_lab(datadir, taskname, filename, txtfile, cmudictfile):
     sent_tier = tg.getFirst('sentence')  #TODO: error checking here
     chunks = []
     allwords = set()
+    #prosodylab aligner strips out silences from ends, so let's attach them to adjacent. TODO: fix the PL aligner code
+    ctr = 1
     for i, interval in enumerate(sent_tier.intervals):
-        o = open(os.path.join(datadir, 
-                              taskname+'.wavlab', 
-                              filename+'.split{0:03d}.lab'.format(i+1)), 
-                 'w')
         if interval.mark:
+            o = open(os.path.join(datadir,
+                              taskname+'.wavlab',
+                                  filename+'.split{0:03d}.lab'.format(ctr)),
+                 'w')
             words = map(lambda word: word.strip(string.punctuation),
                     process_usertext(interval.mark.encode('utf8')).split())
             words = map(lambda word: word.replace("'", "\\'"), words)
             for word in words:
                 allwords.add(word)
                 o.write(word+' ')
-        else:
-            o.write('sil')
-        o.write('\n')
-        chunks.append((interval.minTime, interval.maxTime))
+            o.write('\n')
+            if i==1 and chunks==[]:
+                chunks.append([0, interval.maxTime])
+            else:
+                chunks.append([interval.minTime, interval.maxTime])
+            o.close()
+            ctr+=1
+        elif interval.duration()<1 and i==len(sent_tier.intervals)-1:
+            chunks[-1][1] = interval.maxTime
+        elif i>0:
+            o = open(os.path.join(datadir,
+                              taskname+'.wavlab',
+                                  filename+'.split{0:03d}.lab'.format(ctr)),
+                 'w')
+            o.write('sil\n')
+            chunks.append([interval.minTime, interval.maxTime])
+            ctr+=1
+    
     g2p(os.path.join(datadir, taskname), allwords, cmudictfile)
     return chunks
 
@@ -305,6 +321,12 @@ def write_textgrid(datadir, taskname, filename, tgfilecontent):
     os.system('mkdir -p '+os.path.join(datadir, taskname+'.mergedtg'))
     o = open(os.path.join(datadir, taskname+'.mergedtg', filename+'.TextGrid'), 'w')
     o.write(tgfilecontent)
+    o.close()
+
+def write_chunks(chunks, filepath):
+    o = open(filepath, 'w')
+    for chunk in chunks:
+        o.write('{0} {1}\n'.format(chunk[0], chunk[1]))
     o.close()
 
 def process_audio(audiodir, filename, extension, filecontent, dochunk):
@@ -330,8 +352,8 @@ def process_audio(audiodir, filename, extension, filecontent, dochunk):
         # print "converted to", filename+extension
             
     #split and convert frequency
-    samprate, filesize, soxerror = soxConversion(filename+extension, audiodir, dochunk)
-    return samprate, filesize, soxerror
+    samprate, filesize, chunks, soxerror = soxConversion(filename+extension, audiodir, dochunk)
+    return samprate, filesize, chunks, soxerror
                         
 def youtube_wav(url,audiodir, taskname):
     try:
@@ -367,22 +389,16 @@ def soxConversion(filename, audiodir, dochunk=None):
             file_size = file_size / sample_rate #gets duration, in seconds of the file.
             file_size /= 60.0
 
-    #print 'Sample rate', sample_rate
-    #print 'Size', file_size
-
     #converts wav file to 16000kHz sampling rate if sampling rate is more than
     if sample_rate >= 16000:
         ratecode = '16k'
         sample_rate = 16000
-        # print "I AM HERE"                            
 
     elif sample_rate >= 8000:
         ratecode = '8k'
         sample_rate = 8000
-        # print "OR AM I HERE?"
-
+        
     else:
-        # print "OR HERE?"
         error_message = "Sample rate not high enough. Please upload files with minimum 8kHz sample rate."
         # return sample_rate, "sample rate not high enough"
         # raise CustomException("sample rate not high enough")
@@ -398,34 +414,34 @@ def soxConversion(filename, audiodir, dochunk=None):
         error_message = 'Could not downsample file'
         # print error_message
         return sample_rate, file_size, error_message
-   
-    # print "retval"
-    # print retval
-    #print 'chunks', dochunk
+    
     #split into chunks as specified. TODO: split on silence
+    chunks = []
     if dochunk:
         if not os.path.isdir(os.path.join(audiodir, 'splits')):  #need this for multiple files
             os.mkdir(os.path.join(audiodir, 'splits'))
 
         basename, _ = os.path.splitext(filename)
         
-        if dochunk:
-            if type(dochunk) is int:
-                conv = subprocess.Popen(['sox', os.path.join(audiodir, 'converted_'+filename), os.path.join(audiodir, 'splits', basename+'.split.wav'.format(ci+1)), 'trim', '0', str(dochunk), ':', 'newfile', ':', 'restart'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        if type(dochunk) is int:
+            chunks = map(lambda i: (i, i+20), range(0, 20, int(file_size*60)))
+            
+            conv = subprocess.Popen(['sox', os.path.join(audiodir, 'converted_'+filename), os.path.join(audiodir, 'splits', basename+'.split.wav'), 'trim', '0', str(dochunk), ':', 'newfile', ':', 'restart'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            retval = conv.wait()
+            if retval != 0:
+                error_message = 'Could not split audio file into chunks.'
+                return sample_rate, file_size, chunks, error_message
+
+        elif type(dochunk) is list:
+            chunks = dochunk
+            for ci, chunk in enumerate(dochunk):
+                conv = subprocess.Popen(['sox', os.path.join(audiodir, 'converted_'+filename), os.path.join(audiodir, 'splits', basename+'.split{0:03d}.wav'.format(ci+1)), 'trim', str(chunk[0]), str(chunk[1]-chunk[0])], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
                 retval = conv.wait()
                 if retval != 0:
-                    error_message = 'Could not split audio file into chunks.'
-                    return sample_rate, file_size, error_message
-
-            elif type(dochunk) is list:
-                for ci, chunk in enumerate(dochunk):
-                    conv = subprocess.Popen(['sox', os.path.join(audiodir, 'converted_'+filename), os.path.join(audiodir, 'splits', basename+'.split{0:03d}.wav'.format(ci+1)), 'trim', str(chunk[0]), str(chunk[1]-chunk[0])], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-                    retval = conv.wait()
-                    if retval != 0:
-                        error_message = 'Could not split audio file into chunks given by TextGrid.'
-                        return sample_rate, file_size, error_message
+                    error_message = 'Could not split audio file into chunks given by TextGrid.'
+                    return sample_rate, file_size, chunks, error_message
             
-    return sample_rate, file_size, ""
+    return sample_rate, file_size, chunks, ""
 
 def gen_argfiles(datadir, taskname, uploadfilename, samprate, lw, dialect, email):
     """create ctl files"""
@@ -434,9 +450,6 @@ def gen_argfiles(datadir, taskname, uploadfilename, samprate, lw, dialect, email
                                  os.listdir(os.path.join(datadir, taskname+'.audio', 'splits'))))
     numfiles = len(filelist)
     
-    #numsplits = min(numfiles, 8)
-    
-    #for i in range(numsplits):
     o = open(os.path.join(datadir, taskname+'.ctl'), 'w')
     o.write('\n'.join(filelist))
     o.write('\n')

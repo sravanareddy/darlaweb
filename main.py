@@ -136,8 +136,11 @@ class uploadsound:
           if error_message != '':
              return self.error_form(form, error_message, taskname)
           
-          samprate, file_size, error_message = utilities.soxConversion(filename,
+          samprate, file_size, chunks, error_message = utilities.soxConversion(filename,
                                              audiodir, dochunk=20)
+          
+          utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+filename+'.chunks'))
+
           if error_message != '':
               return self.error_form(form, error_message, taskname)
 
@@ -199,15 +202,17 @@ class uploadsound:
                         
                           else:
                               if extension == '.zip':
-                                  samprate, file_size, error = utilities.process_audio(audiodir,
+                                  samprate, file_size, chunks, error = utilities.process_audio(audiodir,
                                                        subfilename, subextension,
                                       z.open(subname).read(),
                                       dochunk=20)
+                                  utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+subfilename+'.chunks'))
                               else:
-                                  samprate, file_size, error = utilities.process_audio(audiodir,
+                                  samprate, file_size, chunks, error = utilities.process_audio(audiodir,
                                                        subfilename, subextension,
                                       z.extractfile(subname).read(),
                                       dochunk=20)
+                                  utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+subfilename+'.chunks'))
                             
                               filenames.append((subfilename, subfilename))
                               total_size += file_size
@@ -215,10 +220,12 @@ class uploadsound:
                         return self.error_form(form, "Could not read the zip file", taskname)
                   
                 else:  #will be mp3 or wav
-                    samprate, file_size, error_message = utilities.process_audio(audiodir,
+                    samprate, file_size, chunks, error_message = utilities.process_audio(audiodir,
                                              filename, extension,
                         x.uploadfile.file.read(),
                         dochunk=20)
+                    
+                    utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+filename+'.chunks'))
                     
                     if error_message != '':
                         return self.error_form(form, error_message, taskname)
@@ -238,7 +245,7 @@ class uploadsound:
 class uploadtrans:
     uploadfile = myform.MyFile('uploadfile',
                            post='',
-                           description='Your .wav or .mp3 file')
+                           description='Your .wav or .mp3 file:')
     filelink = form.Textbox('filelink',
                             form.regexp(r'^$|https\://www\.youtube\.com/watch\?v\=\S+', 'Check your link. It should start with https://www.youtube.com/watch?v='),
                               post='',
@@ -246,7 +253,7 @@ class uploadtrans:
     uploadtxtfile = myform.MyFile('uploadtxtfile',
                                  form.notnull,
                            post = 'Textgrid should contain a tier named "sentence" with sentence/breath group intervals.',
-                           description='Manual transcription as a .TextGrid file.')
+                           description='Manual transcription as a .TextGrid file:')
     email = form.Textbox('email',
                          form.notnull,
                          form.regexp(r'^[\w.+-]+@[\w.+-]+\.[\w.+-]+$',
@@ -332,11 +339,13 @@ class uploadtrans:
                 
                 chunks = utilities.write_sentgrid_as_lab(self.datadir, form.taskname.value, filename, txtfilename+txtextension, 'cmudict.forhtk.txt')
 
-                samprate, total_size, error = utilities.process_audio(audiodir,
+                samprate, total_size, chunks, error = utilities.process_audio(audiodir,
                                              filename, extension,
                     x.uploadfile.file.read(),
                     dochunk=chunks)
-
+                
+                utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+filename+'.chunks'))
+                
                 filenames.append((filename, filename))
         
         elif x.filelink!='':
@@ -349,8 +358,10 @@ class uploadtrans:
 
             chunks = utilities.write_sentgrid_as_lab(self.datadir, form.taskname.value, filename, txtfilename+txtextension, 'cmudict.forhtk.txt')
 
-            samprate, file_size = utilities.soxConversion(filename, audiodir, dochunk=chunks)
+            samprate, file_size, chunks, error = utilities.soxConversion(filename, audiodir, dochunk=chunks)
 
+            utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+filename+'.chunks'))
+            
             filenames = [(filename, x.filelink)]
           
         utilities.gen_txtargfile(self.datadir, form.taskname.value, filename, samprate, form.email.value)
@@ -360,7 +371,7 @@ class uploadtrans:
 class uploadtextgrid:
     uploadfile = myform.MyFile('uploadfile',
                            post='',
-                           description='Your .wav or .mp3 file')
+                           description='Your .wav or .mp3 file:')
     filelink = form.Textbox('filelink',
                             form.regexp(r'^$|https\://www\.youtube\.com/watch\?v\=\S+', 'Check your link. It should start with https://www.youtube.com/watch?v='),
                               post='',
@@ -448,10 +459,12 @@ class uploadtextgrid:
                 taskname, audiodir, error_message = utilities.make_task(self.datadir)
                 form.taskname.value = taskname
                 
-                samprate, total_size, error = utilities.process_audio(audiodir,
+                samprate, total_size, chunks, error = utilities.process_audio(audiodir,
                                              filename, extension,
                     x.uploadfile.file.read(),
                     dochunk=None)
+
+                utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+filename+'.chunks'))
 
                 filenames.append((filename, filename))
         
@@ -462,7 +475,9 @@ class uploadtextgrid:
             form.taskname.value = taskname
 
             filename = utilities.youtube_wav(x.filelink, audiodir, taskname)
-            samprate, file_size = utilities.soxConversion(filename, audiodir, dochunk=None)
+            samprate, file_size, chunks, error = utilities.soxConversion(filename, audiodir, dochunk=None)
+
+            utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+filename+'.chunks'))
 
             filenames = [(filename, x.filelink)]
         
