@@ -52,7 +52,7 @@ def just_align_extract(taskname):
         retval = alignextract.wait()
 
         if retval != 0:
-                send_error_email(receiver, filename, "just_align_extract shell script")
+                send_error_email(receiver, filename, "Alignment and extraction process failed.")
         else:
                 send_email(receiver, filename, taskname)
 
@@ -68,7 +68,7 @@ def just_extract(taskname):
         retval = extract.wait()
 
         if retval != 0:
-                send_error_email(receiver, "", "just_extract shell script")
+                send_error_email(receiver, "", "Extraction process failed.")
         else:
                 send_email(receiver, filename, taskname)
 
