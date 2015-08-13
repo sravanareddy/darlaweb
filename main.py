@@ -125,35 +125,33 @@ class uploadsound:
 
         elif x.filelink!="": 
           #make taskname
-          taskname, audiodir, error_message = utilities.make_task(self.datadir)
-          if error_message != '':
-              utilities.send_error_email(self.email, self.filelink, error_message)
+          taskname, audiodir, error = utilities.make_task(self.datadir)
+          if error!="":
+              form.note = error
+              return render.uploadsound(form, "")
 
           form.taskname.value = taskname
 
-          filename, error_message = utilities.youtube_wav(x.filelink, audiodir, taskname)
+          filename, error = utilities.youtube_wav(x.filelink, audiodir, taskname)
           
-          if error_message != '':
-             return self.error_form(form, error_message, taskname)
-          
-          samprate, file_size, chunks, error_message = utilities.soxConversion(filename,
-                                             audiodir, dochunk=20)
+          if error!="":
+              form.note = error
+              return render.uploadsound(form, "")
+                    
+          samprate, file_size, chunks, error = utilities.soxConversion(filename,
+                                                                       audiodir, dochunk=20)
+          if error!="":
+              form.note = error
+              return render.uploadsound(form, "")
           
           utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+filename+'.chunks'))
-
-          if error_message != '':
-              return self.error_form(form, error_message, taskname)
-
 
           filenames = [(filename, x.filelink)]   #passed filename, display filename
 
           utilities.gen_argfiles(self.datadir, form.taskname.value, filename, samprate, form.lw.value, form.dialect.value, form.email.value)
           if file_size<self.MINDURATION:
-              form.note = "Warning: Your files total only {:.2f} minutes of speech. We recommend at least {:.2f} minutes for best results.".format(file_size, self.MINDURATION)
-          # return "Success! your file {0} has a sampling rate of {1}. Your email: {2}".format(filename, samprate, form.email.value)
-          #return new form? 
+              form.note = "Warning: Your files total only {:.2f} minutes of speech. We recommend at least {:.2f} minutes for best results.".format(file_size, self.MINDURATION) 
           return self.speaker_form(form, filenames, taskname)
-
         
         elif 'uploadfile' in x:  
             
@@ -166,10 +164,11 @@ class uploadsound:
 
             else:
                 #create new task                                                               
-                taskname, audiodir, error_message = utilities.make_task(self.datadir)
-                if error_message != '':
-                    utilities.send_error_email(self.email, self.filelink, error_message)
-
+                taskname, audiodir, error = utilities.make_task(self.datadir)
+                if error!="":
+                    form.note = error
+                    return render.uploadsound(form, "")
+                    
                 form.taskname.value = taskname
                 
                 if extension in ['.zip', '.tar', '.tgz', '.gz']:
@@ -206,13 +205,17 @@ class uploadsound:
                                                        subfilename, subextension,
                                       z.open(subname).read(),
                                       dochunk=20)
-                                  utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+subfilename+'.chunks'))
                               else:
                                   samprate, file_size, chunks, error = utilities.process_audio(audiodir,
                                                        subfilename, subextension,
                                       z.extractfile(subname).read(),
                                       dochunk=20)
-                                  utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+subfilename+'.chunks'))
+                              
+                              if error!="":
+                                  form.note = error
+                                  return render.uploadsound(form, "")
+                              
+                              utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+subfilename+'.chunks'))
                             
                               filenames.append((subfilename, subfilename))
                               total_size += file_size
@@ -220,15 +223,16 @@ class uploadsound:
                         return self.error_form(form, "Could not read the zip file", taskname)
                   
                 else:  #will be mp3 or wav
-                    samprate, file_size, chunks, error_message = utilities.process_audio(audiodir,
+                    samprate, file_size, chunks, error = utilities.process_audio(audiodir,
                                              filename, extension,
                         x.uploadfile.file.read(),
                         dochunk=20)
                     
-                    utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+filename+'.chunks'))
+                    if error!="":
+                        form.note = error
+                        return render.uploadsound(form, "")
                     
-                    if error_message != '':
-                        return self.error_form(form, error_message, taskname)
+                    utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+filename+'.chunks'))
                     
                     filenames.append((filename, filename))
                     total_size = file_size
@@ -476,7 +480,9 @@ class uploadtextgrid:
                     x.uploadfile.file.read(),
                     dochunk=None)
 
-                utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+filename+'.chunks'))
+                if error!="":
+                    form.note = error
+                    return render.uploadTG(form, "")
 
                 filenames.append((filename, filename))
         
@@ -488,9 +494,10 @@ class uploadtextgrid:
 
             filename = utilities.youtube_wav(x.filelink, audiodir, taskname)
             samprate, file_size, chunks, error = utilities.soxConversion(filename, audiodir, dochunk=None)
-
-            utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+filename+'.chunks'))
-
+            if error!="":
+                form.note = error
+                return render.uploadTG(form, "")
+            
             filenames = [(filename, x.filelink)]
         
         utilities.write_textgrid(self.datadir, form.taskname.value, filename, x.uploadTGfile.file.read()) 
