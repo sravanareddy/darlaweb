@@ -54,6 +54,20 @@ def send_init_email(tasktype, receiver, filename):
         except smtplib.SMTPException:
                 print 'Unable to send e-mail '
 
+def prep_to_edit(taskname):
+    """copy sound file and hypotheses to static/ to edit"""
+    hyplines = map(lambda line: line.split()[:-1], open(taskname+'.hyp').readlines())
+    taskcode = os.path.basename(taskname)
+    for hypline in hyplines:
+        filename = hypline[-1][1:]
+        os.system('mkdir -p '+os.path.join('static', 'usersounds', taskcode))
+        o = open(os.path.join('static', 'usersounds', taskcode, filename+'.hyp'), 'w')
+        o.write(' '.join(hypline[:-1]))
+        o.close()
+        os.system('cp '+taskname+'.audio/splits/'+filename+'.wav '+os.path.join('static', 
+                                                                                'usersounds', 
+                                                                                taskcode))
+
 def consolidate_hyp(hypfile, outfile):
     hyplines = map(lambda line: line.split()[:-1], open(hypfile).readlines())
     basehyps = defaultdict(list)

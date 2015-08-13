@@ -10,6 +10,8 @@ import os
 import sys
 from featrec import featurize_recognize, align_extract
 
+render = web.template.render('templates/', base='layout')
+
 if celeryon:
 	from celery import group
 
@@ -48,24 +50,31 @@ class allpipeline:
                 o.write('--name='+name+'\n--sex='+sex+'\n')
                 o.close()
             except IOError:
-                return "error creating "+filename+" for analysis."
-                
-	#uncelery
+                return "Error creating a job for "+filename                
+	
 	if celeryon:
 		result = featurize_recognize.delay(os.path.join(datadir, taskname))
 		while not result.ready():
 			pass
-		#test if featurize_recognize works TODO: notw working
+		
 		if result.get() == False:
-			return "There was an error in processing your file - we could not run sphinx featurize scripts on the file."
+			return "There was an error in processing your file - we could not extract MFCCs or run ASR."
 	else:
 		featurize_recognize(os.path.join(datadir, taskname))
 
-	# #jobs = group(featurize_recognize.s(taskname, i) for i in range(numsplits))
-		# #results = jobs.apply_async()
-		# #while False in filter(lambda result: result.ready(), results):
-		# #        pass
-
+        #editor
+        utilities.prep_to_edit(os.path.join(datadir, taskname))
+        wavfiles = sorted(filter(lambda filename: filename.endswith('wav'),
+                          os.listdir(os.path.join('static', 'usersounds', taskname))))
+        audiolist = []
+        for wavfile in wavfiles:
+                audiolist.append(form.Textarea(wavfile[:-4], 
+                                              value=open(os.path.join('static', 'usersounds', taskname, wavfile[:-4]+'.hyp')).read(),
+                                              size="40",
+                                              description = '<audio controls><source src="{0}" type="audio/wav"></audio>'.format(os.path.join('../static', 'usersounds', taskname, wavfile))))
+        transedit = myform.ListToForm(audiolist)
+        return render.asredit(transedit)
+        
 	if celeryon:
 		result = align_extract.delay(os.path.join(datadir, taskname))
 		while not result.ready():
