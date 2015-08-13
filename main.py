@@ -90,7 +90,6 @@ class uploadsound:
       # s.taskname.value = completed_form.taskname.value
       # s.filenames.value = len(filenames)
 
-
       return render.speakers(completed_form, s)
       
     def GET(self):
@@ -300,6 +299,14 @@ class uploadtrans:
         o.write(x.uploadtxtfile.file.read())
         o.close()
 
+        #create new task                                                                            
+        taskname, audiodir, error = utilities.make_task(self.datadir)
+        if error!="":
+            form.note = error
+            return render.uploadtxt(form, "")
+
+        form.taskname.value = taskname
+
         if 'uploadfile' in x:   
             #sanitize filename
             filename, extension = utilities.get_basename(x.uploadfile.filename)
@@ -309,14 +316,6 @@ class uploadtrans:
                 return render.uploadtxt(form, "")
 
             else:
-                #create new task                                                          
-                taskname, audiodir, error = utilities.make_task(self.datadir)
-                if error!="":
-                    form.note = error
-                    return render.uploadtxt(form, "")
-                
-                form.taskname.value = taskname
-                
                 chunks, error = utilities.write_sentgrid_as_lab(self.datadir, form.taskname.value, filename, txtfilename+txtextension, 'cmudict.forhtk.txt')
                 if error!="":
                     form.note = error
@@ -330,20 +329,10 @@ class uploadtrans:
                     form.note = error
                     return render.uploadtxt(form, "")
                 
-                utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+filename+'.chunks'))
-                
-                filenames.append((filename, filename))
-        
+                filenames = [(filename, filename)]
+
         elif x.filelink!='':
-
-            #make taskname
-            taskname, audiodir, error = utilities.make_task(self.datadir)
-            if error!="":
-                    form.note = error
-                    return render.uploadtxt(form, "")
             
-            form.taskname.value = taskname
-
             filename = utilities.youtube_wav(x.filelink, audiodir, taskname)
 
             chunks, error = utilities.write_sentgrid_as_lab(self.datadir, form.taskname.value, filename, txtfilename+txtextension, 'cmudict.forhtk.txt')
@@ -356,10 +345,9 @@ class uploadtrans:
                 form.note = error
                 return render.uploadtxt(form, "")
             
-            utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+filename+'.chunks'))
-            
             filenames = [(filename, x.filelink)]
           
+        utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+filename+'.chunks'))
         utilities.gen_txtargfile(self.datadir, form.taskname.value, filename, samprate, form.email.value)
         
         return self.speaker_form(form, filenames, taskname)
