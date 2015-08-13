@@ -289,10 +289,19 @@ def write_sentgrid_as_lab(datadir, taskname, filename, txtfile, cmudictfile):
     os.system('mkdir -p '+os.path.join(datadir, taskname+'.wavlab'))
     #parse textgrid, extracting sentence boundaries
     tg = TextGrid()
-    tg.read(os.path.join(datadir, txtfile))
+    try:
+        tg.read(os.path.join(datadir, txtfile))
+    except:
+        error = 'Not a valid TextGrid file. Please correct it and upload again.'
+        return [], error
+    
     os.system('rm '+os.path.join(datadir, txtfile))
     
-    sent_tier = tg.getFirst('sentence')  #TODO: error checking here
+    sent_tier = tg.getFirst('sentence')  
+    if not sent_tier:  #something wrong with the tier name
+        error = 'Please upload a TextGrid with a tier named "sentence" containing breath groups or utterances.' 
+        return [], error
+    
     chunks = []
     allwords = set()
     #prosodylab aligner strips out silences from ends, so let's attach them to adjacent. TODO: fix the PL aligner code
@@ -328,7 +337,7 @@ def write_sentgrid_as_lab(datadir, taskname, filename, txtfile, cmudictfile):
             ctr+=1
     
     g2p(os.path.join(datadir, taskname), allwords, cmudictfile)
-    return chunks
+    return chunks, ""
 
 def write_textgrid(datadir, taskname, filename, tgfilecontent):
     #TODO: validate TextGrid
@@ -387,7 +396,7 @@ def soxConversion(filename, audiodir, dochunk=None):
     retval = sox.wait()
 
     if retval != 0: 
-        error_message = 'Could not process your audio file. Please check that the file is valid and not blank. '
+        error_message = 'Could not process your audio file. Please check that the file is valid and not blank.'
         # print 'Could not call subprocess '
         return sample_rate, file_size, error_message
 

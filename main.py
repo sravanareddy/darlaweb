@@ -319,7 +319,7 @@ class uploadtrans:
         if txtextension != '.textgrid':  #TODO: check textgrid validity too
             form.note = 'Upload a transcript with a .TextGrid extension indicating sentence boundaries.'
             return render.uploadtxt(form, "")
-
+        
         o = codecs.open(os.path.join(self.datadir, txtfilename+txtextension), 'w', 'utf8')
         o.write(x.uploadtxtfile.file.read())
         o.close()
@@ -337,12 +337,18 @@ class uploadtrans:
                 taskname, audiodir, error_message = utilities.make_task(self.datadir)
                 form.taskname.value = taskname
                 
-                chunks = utilities.write_sentgrid_as_lab(self.datadir, form.taskname.value, filename, txtfilename+txtextension, 'cmudict.forhtk.txt')
-
+                chunks, error = utilities.write_sentgrid_as_lab(self.datadir, form.taskname.value, filename, txtfilename+txtextension, 'cmudict.forhtk.txt')
+                if error!="":
+                    form.note = error
+                    return render.uploadtxt(form, "")
+                
                 samprate, total_size, chunks, error = utilities.process_audio(audiodir,
                                              filename, extension,
                     x.uploadfile.file.read(),
                     dochunk=chunks)
+                if error!="":
+                    form.note = error
+                    return render.uploadtxt(form, "")
                 
                 utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+filename+'.chunks'))
                 
@@ -356,10 +362,16 @@ class uploadtrans:
 
             filename = utilities.youtube_wav(x.filelink, audiodir, taskname)
 
-            chunks = utilities.write_sentgrid_as_lab(self.datadir, form.taskname.value, filename, txtfilename+txtextension, 'cmudict.forhtk.txt')
-
+            chunks, error = utilities.write_sentgrid_as_lab(self.datadir, form.taskname.value, filename, txtfilename+txtextension, 'cmudict.forhtk.txt')
+            if error!="":
+                form.note = error
+                return render.uploadtxt(form, "")
+            
             samprate, file_size, chunks, error = utilities.soxConversion(filename, audiodir, dochunk=chunks)
-
+            if error!="":
+                form.note = error
+                return render.uploadtxt(form, "")
+            
             utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+filename+'.chunks'))
             
             filenames = [(filename, x.filelink)]
