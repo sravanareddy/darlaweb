@@ -116,128 +116,107 @@ class uploadsound:
         if not form.validates(): #not validated
             return render.uploadsound(form, "")
 
-        elif x.filelink!="": 
-          #make taskname
-          taskname, audiodir, error = utilities.make_task(self.datadir)
-          if error!="":
-              form.note = error
-              return render.uploadsound(form, "")
-
-          form.taskname.value = taskname
-
-          filename, error = utilities.youtube_wav(x.filelink, audiodir, taskname)
-          
-          if error!="":
-              form.note = error
-              return render.uploadsound(form, "")
-                    
-          samprate, file_size, chunks, error = utilities.soxConversion(filename,
-                                                                       audiodir, dochunk=20)
-          if error!="":
-              form.note = error
-              return render.uploadsound(form, "")
-          
-          utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+filename+'.chunks'))
-
-          filenames = [(filename, x.filelink)]   #passed filename, display filename
-
-          utilities.gen_argfiles(self.datadir, form.taskname.value, filename, samprate, form.lw.value, form.dialect.value, form.email.value)
-          if file_size<self.MINDURATION:
-              form.note = "Warning: Your files total only {:.2f} minutes of speech. We recommend at least {:.2f} minutes for best results.".format(file_size, self.MINDURATION) 
-          return self.speaker_form(form, filenames, taskname)
-        
-        elif 'uploadfile' in x:  
-            
-            #sanitize filename
-            filename, extension = utilities.get_basename(x.uploadfile.filename)
-
-            if extension not in ['.wav', '.zip', '.mp3', '.gz', '.tgz', '.tar']:
-                form.note = "Please upload a .wav, .mp3, .zip, .tgz, or .tar file."
+        else:
+            #make taskname                                                                              
+            taskname, audiodir, error = utilities.make_task(self.datadir)
+            if error!="":
+                form.note = error
                 return render.uploadsound(form, "")
-
-            else:
-                #create new task                                                               
-                taskname, audiodir, error = utilities.make_task(self.datadir)
+            
+            form.taskname.value = taskname
+            
+            if x.filelink!="": 
+                filename, error = utilities.youtube_wav(x.filelink, audiodir, taskname)
                 if error!="":
                     form.note = error
                     return render.uploadsound(form, "")
-                    
-                form.taskname.value = taskname
+        
+                samprate, file_size, chunks, error = utilities.soxConversion(filename,
+                                                                       audiodir, dochunk=20)
+                if error!="":
+                    form.note = error
+                    return render.uploadsound(form, "")
+
+                filenames = [(filename, x.filelink)]   #passed filename, display filename
+                utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+filename+'.chunks'))
                 
-                if extension in ['.zip', '.tar', '.tgz', '.gz']:
-                    try:
-                      if extension == '.zip':
-                          z = zipfile.ZipFile(x.uploadfile.file)
-                      else:
-                          z = tarfile.open(fileobj=x.uploadfile.file)
+            elif 'uploadfile' in x:  
+            
+                #sanitize filename
+                filename, extension = utilities.get_basename(x.uploadfile.filename)
 
-                      total_size = 0.0
+                if extension not in ['.wav', '.zip', '.mp3', '.gz', '.tgz', '.tar']:
+                    form.note = "Please upload a .wav, .mp3, .zip, .tgz, or .tar file."
+                    return render.uploadsound(form, "")
 
-                      namelist = []
-                      if extension == '.zip':
-                          namelist = z.namelist()
-                      else:
-                          namelist = z.getnames()
-                        
-                      for subname in namelist:
-                          subfilename, subextension = utilities.get_basename(subname)
-                        
-                          if subfilename in ['', '__MACOSX', '.DS_Store', '._']:
-                              continue
-                        
-                          if subextension not in ['.wav', '.mp3']:
+                else:                
+                    if extension in ['.zip', '.tar', '.tgz', '.gz']:
+                        try:
+                            if extension == '.zip':
+                                z = zipfile.ZipFile(x.uploadfile.file)
+                            else:
+                                z = tarfile.open(fileobj=x.uploadfile.file)
 
-                              form.note = "Extension incorrect for file {0} in the folder {1}{2}. Make sure your folder only contains .wav or .mp3 files.".format(subfilename+subextension, filename, extension)
+                            total_size = 0.0
 
-                              return self.speaker_form(form, filenames, taskname)
+                            namelist = []
+                            if extension == '.zip':
+                                namelist = z.namelist()
+                            else:
+                                namelist = z.getnames()
                         
-                          else:
-                              if extension == '.zip':
-                                  samprate, file_size, chunks, error = utilities.process_audio(audiodir,
-                                                       subfilename, subextension,
-                                      z.open(subname).read(),
-                                      dochunk=20)
-                              else:
-                                  samprate, file_size, chunks, error = utilities.process_audio(audiodir,
-                                                       subfilename, subextension,
-                                      z.extractfile(subname).read(),
-                                      dochunk=20)
+                            for subname in namelist:
+                                subfilename, subextension = utilities.get_basename(subname)
+                        
+                                if subfilename in ['', '__MACOSX', '.DS_Store', '._']:
+                                    continue
+                        
+                                if subextension not in ['.wav', '.mp3']:
+                                    form.note = "Extension incorrect for file {0} in the folder {1}{2}. Make sure your folder only contains .wav or .mp3 files.".format(subfilename+subextension, filename, extension)
+                                    return render.uploadsound(form, "")
+                        
+                                else:
+                                    if extension == '.zip':
+                                        samprate, file_size, chunks, error = utilities.process_audio(audiodir, subfilename, subextension, z.open(subname).read(), dochunk=20)
+                                    else:
+                                        samprate, file_size, chunks, error = utilities.process_audio(audiodir, subfilename, subextension, z.extractfile(subname).read(), dochunk=20)
                               
-                              if error!="":
-                                  form.note = error
-                                  return render.uploadsound(form, "")
+                                    if error!="":
+                                        form.note = error
+                                        return render.uploadsound(form, "")
                               
-                              utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+subfilename+'.chunks'))
+                                    utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+subfilename+'.chunks'))
                             
-                              filenames.append((subfilename, subfilename))
-                              total_size += file_size
-                    except:
-                        form.note = "Could not read the archive file. Please check and upload again."
-                        return render.uploadsound(form, "")
+                                    filenames.append((subfilename, subfilename))
+                                    total_size += file_size
+                    
+                        except:
+                            form.note = "Could not read the archive file. Please check and upload again."
+                            return render.uploadsound(form, "")
                   
-                else:  #will be mp3 or wav
-                    samprate, file_size, chunks, error = utilities.process_audio(audiodir,
+                    else:  #will be mp3 or wav
+                        samprate, file_size, chunks, error = utilities.process_audio(audiodir,
                                              filename, extension,
-                        x.uploadfile.file.read(),
-                        dochunk=20)
+                                                                                     x.uploadfile.file.read(),
+                                                                                     dochunk=20)
                     
-                    if error!="":
-                        form.note = error
-                        return render.uploadsound(form, "")
+                        if error!="":
+                            form.note = error
+                            return render.uploadsound(form, "")
                     
-                    utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+filename+'.chunks'))
+                        utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+filename+'.chunks'))
                     
-                    filenames.append((filename, filename))
-                    total_size = file_size
+                        filenames.append((filename, filename))
+                        total_size = file_size
                 
-                if total_size < self.MINDURATION:  
-                    form.note = "Warning: Your files total only {:.2f} minutes of speech. We recommend at least {:.0f} minutes for best results.".format(total_size, self.MINDURATION)
+            if total_size < self.MINDURATION:  
+                form.note = "Warning: Your files total only {:.2f} minutes of speech. We recommend at least {:.0f} minutes for best results.".format(total_size, self.MINDURATION)
                     
-                #generate argument files
-                utilities.gen_argfiles(self.datadir, form.taskname.value, filename, samprate, form.lw.value, form.dialect.value, form.email.value)
+            #generate argument files
+            utilities.gen_argfiles(self.datadir, form.taskname.value, filename, samprate, form.lw.value, form.dialect.value, form.email.value)
                     
-                #show speaker form by adding fields to existing form and re-rendering
-                return self.speaker_form(form, filenames, taskname)
+            #show speaker form by adding fields to existing form and re-rendering
+            return self.speaker_form(form, filenames, taskname)
 
 class uploadtrans:
     uploadfile = myform.MyFile('uploadfile',
