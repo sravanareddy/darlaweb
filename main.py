@@ -91,14 +91,7 @@ class uploadsound:
       # s.filenames.value = len(filenames)
 
 
-      return render.speakers(completed_form, s) 
-
-    def error_form(self, completed_form, error_message, taskname):
-      taskname = form.Hidden(name="taskname",value=taskname)
-
-      error = myform.MyForm()
-      e = error(error_message)
-      return render.error(error_message)
+      return render.speakers(completed_form, s)
       
     def GET(self):
         self.dialect.value = 'standard'
@@ -173,7 +166,6 @@ class uploadsound:
                 
                 if extension in ['.zip', '.tar', '.tgz', '.gz']:
                     try:
-                      #TODO: try-except in case there's a problem with the file or a mismatch of the type with the extension
                       if extension == '.zip':
                           z = zipfile.ZipFile(x.uploadfile.file)
                       else:
@@ -220,7 +212,8 @@ class uploadsound:
                               filenames.append((subfilename, subfilename))
                               total_size += file_size
                     except:
-                        return self.error_form(form, "Could not read the zip file", taskname)
+                        form.note = "Could not read the archive file. Please check and upload again."
+                        return render.uploadsound(form, "")
                   
                 else:  #will be mp3 or wav
                     samprate, file_size, chunks, error = utilities.process_audio(audiodir,
@@ -238,7 +231,7 @@ class uploadsound:
                     total_size = file_size
                 
                 if total_size < self.MINDURATION:  
-                        form.note = "Warning: Your files total only {:.2f} minutes of speech. We recommend at least {:.0f} minutes for best results.".format(total_size, self.MINDURATION)
+                    form.note = "Warning: Your files total only {:.2f} minutes of speech. We recommend at least {:.0f} minutes for best results.".format(total_size, self.MINDURATION)
                     
                 #generate argument files
                 utilities.gen_argfiles(self.datadir, form.taskname.value, filename, samprate, form.lw.value, form.dialect.value, form.email.value)
@@ -338,7 +331,11 @@ class uploadtrans:
 
             else:
                 #create new task                                                          
-                taskname, audiodir, error_message = utilities.make_task(self.datadir)
+                taskname, audiodir, error = utilities.make_task(self.datadir)
+                if error!="":
+                    form.note = error
+                    return render.uploadtxt(form, "")
+                
                 form.taskname.value = taskname
                 
                 chunks, error = utilities.write_sentgrid_as_lab(self.datadir, form.taskname.value, filename, txtfilename+txtextension, 'cmudict.forhtk.txt')
@@ -361,7 +358,11 @@ class uploadtrans:
         elif x.filelink!='':
 
             #make taskname
-            taskname, audiodir, error_message = utilities.make_task(self.datadir)
+            taskname, audiodir, error = utilities.make_task(self.datadir)
+            if error!="":
+                    form.note = error
+                    return render.uploadtxt(form, "")
+            
             form.taskname.value = taskname
 
             filename = utilities.youtube_wav(x.filelink, audiodir, taskname)
@@ -472,7 +473,11 @@ class uploadtextgrid:
 
             else:
                 #create new task                                                               
-                taskname, audiodir, error_message = utilities.make_task(self.datadir)
+                taskname, audiodir, error = utilities.make_task(self.datadir)
+                if error!="":
+                    form.note = error
+                    return render.uploadTG(form, "")
+                
                 form.taskname.value = taskname
                 
                 samprate, total_size, chunks, error = utilities.process_audio(audiodir,
@@ -489,7 +494,11 @@ class uploadtextgrid:
         elif x.filelink!='':
 
             #make taskname
-            taskname, audiodir, error_message = utilities.make_task(self.datadir)
+            taskname, audiodir, error = utilities.make_task(self.datadir)
+            if error!="":
+                    form.note = error
+                    return render.uploadTG(form, "")
+            
             form.taskname.value = taskname
 
             filename = utilities.youtube_wav(x.filelink, audiodir, taskname)
@@ -544,7 +553,11 @@ class uploadeval:
                             form.note = 'Uploaded files must both be .txt plaintext'
                             return render.uploadeval(form)
 
-                    taskname, _, error_message = utilities.make_task(self.datadir)
+                    taskname, _, error = utilities.make_task(self.datadir)
+                    if error!="":
+                        form.note = error
+                        return render.uploadeval(form, "")
+                        
                     form.taskname.value = taskname
                     
                     numreflines, numhyplines = utilities.write_transcript(self.datadir,
