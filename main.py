@@ -233,7 +233,7 @@ class uploadtrans:
                          form.notnull,
                          form.regexp(r'^[\w.+-]+@[\w.+-]+\.[\w.+-]+$',
                                      'Please enter a valid email address'),
-                                     post='',
+                                     post='We will not store or distribute your address.',
                                      description='Your e-mail address:')
     taskname = form.Hidden('taskname')
     submit = form.Button('submit', type='submit', description='Submit')
@@ -368,7 +368,7 @@ class uploadtextgrid:
                          form.notnull,
                          form.regexp(r'^[\w.+-]+@[\w.+-]+\.[\w.+-]+$',
                                      'Please enter a valid email address'),
-                                     post='',
+                                     post='We will not store or distribute your address.',
                                      description='Your e-mail address:')
     taskname = form.Hidden('taskname')
     submit = form.Button('submit', type='submit', description='Submit')
