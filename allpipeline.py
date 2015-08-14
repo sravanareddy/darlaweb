@@ -35,7 +35,7 @@ class allpipeline:
         taskname = parameters["taskname"]
         numfiles = int(parameters["numfiles"])
 
-        edit = False  #TODO: make this a form parameter
+        edit = True  #TODO: make this a form parameter
         
         if not (os.path.isdir(os.path.join(datadir, taskname+".speakers"))):
             os.mkdir(os.path.join(datadir, taskname+".speakers"))

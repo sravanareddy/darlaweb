@@ -17,7 +17,7 @@ from evaluate import run_evaluation
 
 render = web.template.render('templates/', base='layout')
 
-urls = ('/', 'index', '/uploadsound', 'uploadsound', '/uploadtrans', 'uploadtrans', '/uploadtextgrid', 'uploadtextgrid', '/allpipeline', allpipeline.app_allpipeline, '/extract', extract.app_extract, '/alignextract', alignextract.app_alignextract, '/uploadeval', 'uploadeval')
+urls = ('/', 'index', '/uploadsound', 'uploadsound', '/uploadtxttrans', 'uploadtxttrans', '/uploadboundtrans', 'uploadboundtrans', '/uploadtextgrid', 'uploadtextgrid', '/allpipeline', allpipeline.app_allpipeline, '/extract', extract.app_extract, '/alignextract', alignextract.app_alignextract, '/uploadeval', 'uploadeval')
 
 app = web.application(urls, globals())
 web.config.debug = True
@@ -90,7 +90,7 @@ class uploadsound:
       # s.taskname.value = completed_form.taskname.value
       # s.filenames.value = len(filenames)
 
-      return render.speakers(completed_form, s)
+      return render.speakerssound(completed_form, s)
       
     def GET(self):
         self.dialect.value = 'standard'
@@ -217,15 +217,135 @@ class uploadsound:
             #show speaker form by adding fields to existing form and re-rendering
             return self.speaker_form(form, filenames, taskname)
 
-class uploadtrans:
+class uploadtxttrans:
     uploadfile = myform.MyFile('uploadfile',
-                           post='',
+                               post='Your uploaded files are stored temporarily on the Dartmouth servers in order to process your job, and deleted after.',
+                               description='Your .wav or .mp3 file:')
+    filelink = form.Textbox('filelink',
+                            form.regexp(r'^$|https\://www\.youtube\.com/watch\?v\=\S+', 'Check your link. It should start with https://www.youtube.com/watch?v='),
+                            post='',
+                            description='or copy and paste a link to a YouTube video:')
+    uploadtxtfile = myform.MyFile('uploadtxtfile',
+                                    form.notnull,
+                                    post='We recommend creating this file using Notepad or TextEdit (with <a href="http://scttdvd.com/post/65242711516/how-to-get-rid-of-smart-quotes-osx-mavericks" target="_blank">smart replace turned off</a>) or emacs or any other plaintext editor. Transcripts created by "rich text" editors like Word may contain markup that will interfere with your results.',
+                                  description='Manual transcription as a .txt file:')
+    email = form.Textbox('email',
+                         form.notnull,
+                         form.regexp(r'^[\w.+-]+@[\w.+-]+\.[\w.+-]+$',
+                                     'Please enter a valid email address'),
+                                     post='We will not store or distribute your address.',
+                                     description='Your e-mail address:')
+    taskname = form.Hidden('taskname')
+    submit = form.Button('submit', type='submit', description='Submit')
+    soundvalid = [form.Validator('Please upload a file or enter a video link (but not both).',
+                                 lambda x: (x.filelink!='' or x.uploadfile) and not (x.uploadfile and x.filelink!=''))]
+
+    datadir = open('filepaths.txt').readline().split()[1]
+
+    def speaker_form(self, completed_form, filenames, taskname): #send in the completed form too           
+        input_list = []
+        taskname = form.Hidden(name="taskname",value=taskname)
+        numfiles = form.Hidden(name="numfiles",value=len(filenames))
+        input_list.extend([taskname, numfiles])
+        #TODO: no need to generalize to multiple speakers                                                  
+        filename = form.Hidden(value=filenames[0][0],name='filename0')
+        speaker_name = form.Textbox('name0',
+                         form.notnull,
+                         pre="File Name: "+filenames[0][1],
+                         description='Speaker ID')
+        sex = myform.MyRadio('sex0',
+                        [('M','Male', 'M0'),('F','Female', 'F0'),('C','Child', 'C0')],
+                        description='Sex'
+                        )
+        input_list.extend([speaker_name,sex,filename])
+        speakers = myform.ListToForm(input_list)
+        s = speakers()
+        return render.speakerstxttrans(completed_form, s)
+
+    def GET(self):
+        uploadtxttrans = myform.MyForm(self.uploadfile,
+                                    self.filelink,
+                                    self.uploadtxtfile,
+                                    self.email, self.taskname, self.submit)
+        form = uploadtxttrans()
+        return render.uploadtxttrans(form, "")
+
+    def POST(self):
+        uploadtxttrans = myform.MyForm(self.uploadfile,
+                                 self.filelink,
+                                 self.uploadtxtfile,
+                                 self.email, self.taskname, self.submit,
+                                 validators = self.soundvalid)
+        form = uploadtxttrans()
+        x = web.input(uploadfile={}, uploadtxtfile={})
+
+        if not form.validates(): #not validated
+            return render.uploadtxttrans(form, "")
+
+        filenames = []
+        txtfilename, txtextension = utilities.get_basename(x.uploadtxtfile.filename)
+
+        if txtextension != '.txt':  #TODO: check plaintext validity                               
+            form.note = 'Upload a transcript with a .txt extension.'
+            return render.uploadtxttrans(form, "")
+
+        #create new task                                                                                 
+        taskname, audiodir, error = utilities.make_task(self.datadir)
+        if error!="":
+            form.note = error
+            return render.uploadtxttrans(form, "")
+
+        form.taskname.value = taskname
+
+        if 'uploadfile' in x:
+            #sanitize filename                                                                        
+            filename, extension = utilities.get_basename(x.uploadfile.filename)
+            if extension not in ['.wav', '.mp3']:
+                form.note = "Please upload a .wav or .mp3 file."
+                return render.uploadboundtrans(form, "")
+            else:
+                error = utilities.write_hyp(self.datadir, form.taskname.value, filename, txtfilename+txtextension, 'cmudict.forhtk.txt')
+                if error!="":
+                    form.note = error
+                    return render.uploadtxttrans(form, "")
+
+                samprate, total_size, chunks, error = utilities.process_audio(audiodir,
+                                             filename, extension,
+                    x.uploadfile.file.read(),
+                    dochunk=20)
+                if error!="":
+                    form.note = error
+                    return render.uploadtxttrans(form, "")
+                filenames = [(filename, filename)]
+
+        elif x.filelink!='':
+
+            filename = utilities.youtube_wav(x.filelink, audiodir, taskname)
+            error = utilities.write_hyp(self.datadir, form.taskname.value, filename, txtfilename+txtextension, 'cmudict.forhtk.txt')
+            if error!="":
+                form.note = error
+                return render.uploadtxttrans(form, "")
+            samprate, file_size, chunks, error = utilities.soxConversion(filename, audiodir, dochunk=20)
+            if error!="":
+                form.note = error
+                return render.uploadtxttrans(form, "")
+
+            filenames = [(filename, x.filelink)]
+
+        utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+filename+'.chunks'))
+        utilities.gen_txtargfile(self.datadir, form.taskname.value, filename, samprate, form.email.value)
+
+        return self.speaker_form(form, filenames, taskname)
+
+class uploadboundtrans:
+    uploadfile = myform.MyFile('uploadfile',
+                           post='Your uploaded files are stored temporarily on the Dartmouth servers in order to process your job, and deleted after.',
                            description='Your .wav or .mp3 file:')
     filelink = form.Textbox('filelink',
                             form.regexp(r'^$|https\://www\.youtube\.com/watch\?v\=\S+', 'Check your link. It should start with https://www.youtube.com/watch?v='),
                               post='',
                               description='or copy and paste a link to a YouTube video:')
-    uploadtxtfile = myform.MyFile('uploadtxtfile',
+    uploadboundfile = myform.MyFile('uploadboundfile',
                                  form.notnull,
                            post = 'Textgrid should contain a tier named "sentence" with sentence/breath group intervals.',
                            description='Manual transcription as a .TextGrid file:')
@@ -248,62 +368,57 @@ class uploadtrans:
         taskname = form.Hidden(name="taskname",value=taskname)
         numfiles = form.Hidden(name="numfiles",value=len(filenames))
         input_list.extend([taskname, numfiles])
-
         #TODO: no need to generalize to multiple speakers                                                  
-        index = 0
-        filename = form.Hidden(value=filenames[index][0],name='filename'+str(index))
-        speaker_name = form.Textbox('name'+str(index),
+        filename = form.Hidden(value=filenames[0][0],name='filename0')
+        speaker_name = form.Textbox('name0',
                          form.notnull,
-                         pre="File Name: "+filenames[index][1],
+                         pre="File Name: "+filenames[0][1],
                          description='Speaker ID')
-        sex = myform.MyRadio('sex'+str(index),
-                        [('M','Male', 'M'+str(index)),('F','Female', 'F'+str(index)),('C','Child', 'C'+str(index))],
+        sex = myform.MyRadio('sex0',
+                        [('M','Male', 'M0'),('F','Female', 'F0'),('C','Child', 'C0')],
                         description='Sex'
                         )
-
         input_list.extend([speaker_name,sex,filename])
-
         speakers = myform.ListToForm(input_list)
         s = speakers()
-
-        return render.speakerstxt(completed_form, s)
+        return render.speakersboundtrans(completed_form, s)
     
     def GET(self):
-        uploadsound = myform.MyForm(self.uploadfile,
+        uploadboundtrans = myform.MyForm(self.uploadfile,
                                     self.filelink, 
-                                    self.uploadtxtfile,  
+                                    self.uploadboundfile,  
                                     self.email, self.taskname, self.submit)
-        form = uploadsound()
-        return render.uploadtxt(form, "")
+        form = uploadboundtrans()
+        return render.uploadboundtrans(form, "")
 
     def POST(self):
-        uploadtxt = myform.MyForm(self.uploadfile,
+        uploadboundtrans = myform.MyForm(self.uploadfile,
                                  self.filelink, 
-                                 self.uploadtxtfile,  
+                                 self.uploadboundfile,  
                                  self.email, self.taskname, self.submit,
                                  validators = self.soundvalid)
-        form = uploadtxt()      
-        x = web.input(uploadfile={}, uploadtxtfile={})  
+        form = uploadboundtrans()      
+        x = web.input(uploadfile={}, uploadboundfile={})  
 
         if not form.validates(): #not validated
-            return render.uploadtxt(form, "")
+            return render.uploadboundtrans(form, "")
 
         filenames = []
-        txtfilename, txtextension = utilities.get_basename(x.uploadtxtfile.filename)
+        boundfilename, boundextension = utilities.get_basename(x.uploadboundfile.filename)
         
-        if txtextension != '.textgrid':  #TODO: check textgrid validity too
+        if boundextension != '.textgrid':  
             form.note = 'Upload a transcript with a .TextGrid extension indicating sentence boundaries.'
-            return render.uploadtxt(form, "")
+            return render.uploadboundtrans(form, "")
         
-        o = codecs.open(os.path.join(self.datadir, txtfilename+txtextension), 'w', 'utf8')
-        o.write(x.uploadtxtfile.file.read())
+        o = codecs.open(os.path.join(self.datadir, boundfilename+boundextension), 'w', 'utf8')
+        o.write(x.uploadboundfile.file.read())
         o.close()
 
         #create new task                                                                            
         taskname, audiodir, error = utilities.make_task(self.datadir)
         if error!="":
             form.note = error
-            return render.uploadtxt(form, "")
+            return render.uploadboundtrans(form, "")
 
         form.taskname.value = taskname
 
@@ -313,13 +428,12 @@ class uploadtrans:
 
             if extension not in ['.wav', '.mp3']:
                 form.note = "Please upload a .wav or .mp3 file."
-                return render.uploadtxt(form, "")
-
+                return render.uploadboundtrans(form, "")
             else:
-                chunks, error = utilities.write_sentgrid_as_lab(self.datadir, form.taskname.value, filename, txtfilename+txtextension, 'cmudict.forhtk.txt')
+                chunks, error = utilities.write_sentgrid_as_lab(self.datadir, form.taskname.value, filename, boundfilename+boundextension, 'cmudict.forhtk.txt')
                 if error!="":
                     form.note = error
-                    return render.uploadtxt(form, "")
+                    return render.uploadboundtrans(form, "")
                 
                 samprate, total_size, chunks, error = utilities.process_audio(audiodir,
                                              filename, extension,
@@ -327,7 +441,7 @@ class uploadtrans:
                     dochunk=chunks)
                 if error!="":
                     form.note = error
-                    return render.uploadtxt(form, "")
+                    return render.uploadboundtrans(form, "")
                 
                 filenames = [(filename, filename)]
 
@@ -335,15 +449,15 @@ class uploadtrans:
             
             filename = utilities.youtube_wav(x.filelink, audiodir, taskname)
 
-            chunks, error = utilities.write_sentgrid_as_lab(self.datadir, form.taskname.value, filename, txtfilename+txtextension, 'cmudict.forhtk.txt')
+            chunks, error = utilities.write_sentgrid_as_lab(self.datadir, form.taskname.value, filename, boundfilename+boundextension, 'cmudict.forhtk.txt')
             if error!="":
                 form.note = error
-                return render.uploadtxt(form, "")
+                return render.uploadboundtrans(form, "")
             
             samprate, file_size, chunks, error = utilities.soxConversion(filename, audiodir, dochunk=chunks)
             if error!="":
                 form.note = error
-                return render.uploadtxt(form, "")
+                return render.uploadboundtrans(form, "")
             
             filenames = [(filename, x.filelink)]
           
@@ -354,7 +468,7 @@ class uploadtrans:
 
 class uploadtextgrid:
     uploadfile = myform.MyFile('uploadfile',
-                           post='',
+                           post='Your uploaded files are stored temporarily on the Dartmouth servers in order to process your job, and deleted after.',
                            description='Your .wav or .mp3 file:')
     filelink = form.Textbox('filelink',
                             form.regexp(r'^$|https\://www\.youtube\.com/watch\?v\=\S+', 'Check your link. It should start with https://www.youtube.com/watch?v='),
@@ -385,50 +499,49 @@ class uploadtextgrid:
         input_list.extend([taskname, numfiles])
 
         #TODO: no need to generalize to multiple speakers                                          
-        index = 0
-        filename = form.Hidden(value=filenames[index][0],name='filename'+str(index))
-        speaker_name = form.Textbox('name'+str(index),
-                         form.notnull,
-                         pre="File Name: "+filenames[index][1],
-                         description='Speaker ID')
-        sex = myform.MyRadio('sex'+str(index),
-                        [('M','Male', 'M'+str(index)),('F','Female', 'F'+str(index)),('C','Child', 'C'+str(index))],
-                        description='Sex'
-                        )
+        filename = form.Hidden(value=filenames[0][0],name='filename0')
+        speaker_name = form.Textbox('name0',
+                                    form.notnull,
+                                    pre="File Name: "+filenames[0][1],
+                                    description='Speaker ID')
+        sex = myform.MyRadio('sex0',
+                             [('M','Male', 'M0'),('F','Female', 'F0'),('C','Child', 'C0')],
+                             description='Sex'
+                             )
 
         input_list.extend([speaker_name,sex,filename])
 
         speakers = myform.ListToForm(input_list)
         s = speakers()
 
-        return render.speakersTG(completed_form, s)
+        return render.speakerstextgrid(completed_form, s)
     
     def GET(self):
-        uploadsound = myform.MyForm(self.uploadfile,
+        uploadtextgrid = myform.MyForm(self.uploadfile,
                                     self.filelink, 
                                     self.uploadTGfile,  
                                     self.email, self.taskname, self.submit)
         form = uploadsound()
-        return render.uploadTG(form, "")
+        return render.uploadtextgrid(form, "")
 
     def POST(self):
-        uploadTG = myform.MyForm(self.uploadfile,
+        uploadtextgrid = myform.MyForm(self.uploadfile,
                                  self.filelink, 
                                  self.uploadTGfile,  
                                  self.email, self.taskname, self.submit,
                                  validators = self.soundvalid)
-        form = uploadTG()      
+        form = uploadtextgrid()      
         x = web.input(uploadfile={}, uploadTGfile={})  
 
         if not form.validates(): #not validated
-            return render.uploadTG(form, "")
+            return render.uploadtextgrid(form, "")
 
         filenames = []
         tgfilename, tgextension = utilities.get_basename(x.uploadTGfile.filename)
         
         if tgextension != '.textgrid':
             form.note = 'Upload a file with a .TextGrid extension.'
-            return render.uploadTG(form, "")
+            return render.uploadtextgrid(form, "")
 
         if 'uploadfile' in x:   
             #sanitize filename
@@ -436,14 +549,14 @@ class uploadtextgrid:
             
             if extension not in ['.wav', '.mp3']:
                 form.note = "Please upload a .wav or .mp3 file."
-                return render.uploadTG(form, "")
+                return render.uploadtextgrid(form, "")
 
             else:
                 #create new task                                                               
                 taskname, audiodir, error = utilities.make_task(self.datadir)
                 if error!="":
                     form.note = error
-                    return render.uploadTG(form, "")
+                    return render.uploadtextgrid(form, "")
                 
                 form.taskname.value = taskname
                 
@@ -454,7 +567,7 @@ class uploadtextgrid:
 
                 if error!="":
                     form.note = error
-                    return render.uploadTG(form, "")
+                    return render.uploadtextgrid(form, "")
 
                 filenames.append((filename, filename))
         
@@ -464,7 +577,7 @@ class uploadtextgrid:
             taskname, audiodir, error = utilities.make_task(self.datadir)
             if error!="":
                     form.note = error
-                    return render.uploadTG(form, "")
+                    return render.uploadtextgrid(form, "")
             
             form.taskname.value = taskname
 
@@ -472,7 +585,7 @@ class uploadtextgrid:
             samprate, file_size, chunks, error = utilities.soxConversion(filename, audiodir, dochunk=None)
             if error!="":
                 form.note = error
-                return render.uploadTG(form, "")
+                return render.uploadtextgrid(form, "")
             
             filenames = [(filename, x.filelink)]
         
@@ -485,7 +598,7 @@ class uploadtextgrid:
 class uploadeval:
     reffile = myform.MyFile('reffile',
                             form.notnull,
-                            post = '',
+                            post = 'Your uploaded files are stored temporarily on the Dartmouth servers in order to process your job, and deleted after.',
                             description='Manual transcription as plaintext .txt file:')
     hypfile = myform.MyFile('hypfile',
                             form.notnull,

@@ -275,15 +275,18 @@ def process_usertext(inputstring):
 
 def write_hyp(datadir, taskname, filename, txtfilecontent, cmudictfile):    
     os.system('mkdir -p '+os.path.join(datadir, taskname+'.wavlab'))
-    o = open(os.path.join(datadir, taskname+'.wavlab', filename+'.lab'), 'w')
-
-    words = map(lambda word: word.strip(string.punctuation), 
-                process_usertext(txtfilecontent).split())
-    words = map(lambda word: word.replace("'", "\\'"), words)
-    o.write(' '.join(words)+'\n')
-    o.close()
-    #make dictionary for OOVs
-    g2p(os.path.join(datadir, taskname), set(words), cmudictfile)
+    try:
+        o = open(os.path.join(datadir, taskname+'.wavlab', filename+'.lab'), 'w')
+        words = map(lambda word: word.strip(string.punctuation), 
+                    process_usertext(txtfilecontent).split())
+        words = map(lambda word: word.replace("'", "\\'"), words)
+        o.write(' '.join(words)+'\n')
+        o.close()
+        #make dictionary for OOVs
+        g2p(os.path.join(datadir, taskname), set(words), cmudictfile)
+        return ""
+    except:
+        return "Error processing transcript file. Please check plaintext format and try again."
 
 def write_sentgrid_as_lab(datadir, taskname, filename, txtfile, cmudictfile):
     os.system('mkdir -p '+os.path.join(datadir, taskname+'.wavlab'))

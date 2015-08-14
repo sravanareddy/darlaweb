@@ -5,14 +5,14 @@ $def with (form, speakerform)
 <span class="breadcrumbs"><a href="http://darla.dartmouth.edu" target="_blank">About DARLA</a></span>
 <span class="breadcrumbs"><a href="http://darla.dartmouth.edu#cite" target="_blank">How to cite</a></span><p>
 
-<h2>Automated Vowel Extraction with Revised Transcriptions</h2><p><p>
+<h2>Automated Vowel Extraction with Manual Transcriptions</h2><p><p>
 
-<span class="note">Upload your audio files with the corrected transcriptions to run
+<span class="note">Upload your audio files with manual transcriptions to run
   forced alignment using ProsodyLab Aligner, followed by formant extraction with FAVE-extract.</span><p>
 
-<a href="uploadtrans"><small>Click here at any time to cancel or start over.</small></a><p>
+<a href="uploadtxttrans"><small>Click here at any time to cancel or start over.</small></a><p>
 
-<form name="uploadtrans" method="post" enctype="multipart/form-data">
+<form name="uploadtxttrans" method="post" enctype="multipart/form-data">
 $if not form.valid: <p class="error">Correct the errors below.</p>
 $:form.render()
 </form>
