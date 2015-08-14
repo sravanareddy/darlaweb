@@ -34,6 +34,9 @@ class allpipeline:
 
         taskname = parameters["taskname"]
         numfiles = int(parameters["numfiles"])
+
+        edit = False  #TODO: make this a form parameter
+        
         if not (os.path.isdir(os.path.join(datadir, taskname+".speakers"))):
             os.mkdir(os.path.join(datadir, taskname+".speakers"))
             os.system('chmod g+w '+os.path.join(datadir, taskname+".speakers"))
@@ -63,17 +66,18 @@ class allpipeline:
 		featurize_recognize(os.path.join(datadir, taskname))
 
         #editor
-        utilities.prep_to_edit(os.path.join(datadir, taskname))
-        wavfiles = sorted(filter(lambda filename: filename.endswith('wav'),
+        if edit:
+                utilities.prep_to_edit(os.path.join(datadir, taskname))
+                wavfiles = sorted(filter(lambda filename: filename.endswith('wav'),
                           os.listdir(os.path.join('static', 'usersounds', taskname))))
-        audiolist = []
-        for wavfile in wavfiles:
-                audiolist.append(form.Textarea(wavfile[:-4], 
-                                              value=open(os.path.join('static', 'usersounds', taskname, wavfile[:-4]+'.hyp')).read(),
-                                              size="40",
-                                              description = '<audio controls><source src="{0}" type="audio/wav"></audio>'.format(os.path.join('../static', 'usersounds', taskname, wavfile))))
-        transedit = myform.ListToForm(audiolist)
-        return render.asredit(transedit)
+                audiolist = []
+                for wavfile in wavfiles:
+                        audiolist.append(form.Textarea(wavfile[:-4], 
+                                                       value=open(os.path.join('static', 'usersounds', taskname, wavfile[:-4]+'.hyp')).read(),
+                                                       size="40",
+                                                       description = '<audio controls><source src="{0}" type="audio/wav"></audio>'.format(os.path.join('../static', 'usersounds', taskname, wavfile))))
+                transedit = myform.ListToForm(audiolist)
+                return render.asredit(transedit)
         
 	if celeryon:
 		result = align_extract.delay(os.path.join(datadir, taskname))

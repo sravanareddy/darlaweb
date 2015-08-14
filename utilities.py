@@ -447,8 +447,8 @@ def soxConversion(filename, audiodir, dochunk=None):
         basename, _ = os.path.splitext(filename)
         
         if type(dochunk) is int:
-            chunks = map(lambda i: (i, i+20), range(0, 20, int(file_size*60)))
-            
+            chunks = map(lambda i: (i, i+20), range(0, int(file_size*60), 20))
+                
             conv = subprocess.Popen(['sox', os.path.join(audiodir, 'converted_'+filename), os.path.join(audiodir, 'splits', basename+'.split.wav'), 'trim', '0', str(dochunk), ':', 'newfile', ':', 'restart'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             retval = conv.wait()
             if retval != 0:
