@@ -139,7 +139,7 @@ def send_error_email(receiver, filename, message):
         passfile = open('filepaths.txt').readlines()[1].split()[1]
         password = open(passfile).read().strip()
         sender = username+'@gmail.com'
-        subject = 'Error trying to open '+filename        
+        subject = 'Error trying to process '+filename        
         body = 'Unfortunately, there was an error running your job for '+filename + ". "+message
 
         message = MIMEMultipart()
@@ -469,149 +469,101 @@ def soxConversion(filename, audiodir, dochunk=None):
             
     return sample_rate, file_size, chunks, ""
 
-def gen_argfiles(datadir, taskname, uploadfilename, samprate, lw, dialect, email):
-    """create ctl files"""
-    filelist = map(lambda filename: filename[:-4],
+def gen_argfiles(datadir, taskname, uploadfilename, task, email, samprate=None, lw=None, dialect=None):
+    """create ctl files if applicable"""
+    if task=='asr':
+        filelist = map(lambda filename: filename[:-4],
                           filter(lambda filename: filename.endswith('.wav'),
                                  os.listdir(os.path.join(datadir, taskname+'.audio', 'splits'))))
-    numfiles = len(filelist)
+        numfiles = len(filelist)
     
-    o = open(os.path.join(datadir, taskname+'.ctl'), 'w')
-    o.write('\n'.join(filelist))
-    o.write('\n')
-    o.close()
+        o = open(os.path.join(datadir, taskname+'.ctl'), 'w')
+        o.write('\n'.join(filelist))
+        o.write('\n')
+        o.close()
 
-    """feature extraction"""
-    options = {'di': os.path.join(datadir, taskname+'.audio/splits/'),
-               'do': os.path.join(datadir, taskname+'.mfc'),
-               'ei': 'wav',
-               'eo': 'mfc',
-               'mswav': 'yes', 
-               'raw': 'no',
-               'remove_noise': 'no',  #change?
-               'remove_silence': 'no',
-               'whichchan': '0',
-               'samprate': str(samprate),
-               'lowerf': '130',    #starting from here, echo the acoustic model
-               'feat': '1s_c_d_dd',
-               'transform': 'dct',
-               'lifter': '22',
-               'agc': 'none',
-               'cmn': 'current',
-               'varnorm': 'no',
-               'cmninit': '40'}
-    if samprate==8000:
-        options.update({'nfilt': '20',
-                       'upperf': '3500'})
-    else:
-        options.update({'nfilt': '25',
-                       'upperf': '6800'})
+        """feature extraction"""
+        options = {'di': os.path.join(datadir, taskname+'.audio/splits/'),
+                   'do': os.path.join(datadir, taskname+'.mfc'),
+                   'ei': 'wav',
+                   'eo': 'mfc',
+                   'mswav': 'yes', 
+                   'raw': 'no',
+                   'remove_noise': 'no',  #change?
+                   'remove_silence': 'no',
+                   'whichchan': '0',
+                   'samprate': str(samprate),
+                   'lowerf': '130',    #starting from here, echo the acoustic model
+                   'feat': '1s_c_d_dd',
+                   'transform': 'dct',
+                   'lifter': '22',
+                   'agc': 'none',
+                   'cmn': 'current',
+                   'varnorm': 'no',
+                   'cmninit': '40'}
+        if samprate==8000:
+            options.update({'nfilt': '20',
+                            'upperf': '3500'})
+        else:
+            options.update({'nfilt': '25',
+                            'upperf': '6800'})
 
-    #for i in range(numsplits):
-    o = open(os.path.join(datadir, taskname+'.featurize_args'), 'w')
-    options['c'] = os.path.join(datadir, taskname+'.ctl')
-    o.write('\n'.join(map(lambda (k, v): '-'+k+' '+v,
-                          options.items())))
-    o.close()
+        o = open(os.path.join(datadir, taskname+'.featurize_args'), 'w')
+        options['c'] = os.path.join(datadir, taskname+'.ctl')
+        o.write('\n'.join(map(lambda (k, v): '-'+k+' '+v,
+                              options.items())))
+        o.close()
 
-    os.system('mkdir -p '+os.path.join(datadir, taskname)+'.mfc')
-    os.system('chmod g+w '+os.path.join(datadir, taskname)+'.mfc')
+        os.system('mkdir -p '+os.path.join(datadir, taskname)+'.mfc')
+        os.system('chmod g+w '+os.path.join(datadir, taskname)+'.mfc')
     
-    """recognition"""
-    options = {}
-    if samprate==8000:
+        """recognition"""
+        options = {}
+        if samprate==8000:
             hmm = '/home/darla/acousticmodels/sphinx-8'
             options.update({'nfilt': '20',
                             'upperf': '3500'})
-    else:
+        else:
             hmm = '/home/darla/acousticmodels/sphinx-16'
             options.update({'nfilt': '25',
                             'upperf': '6800'})
     
-    options.update({'cepdir': os.path.join(datadir, taskname+'.mfc'),
-                    'cepext': '.mfc',
-                    'dict': '/home/darla/prdicts/cmudict.nostress.txt',
-                    'fdict': os.path.join(hmm, 'noisedict'),
-                    'hmm': hmm, 
-                    'lm': '/home/darla/languagemodels/en-us.lm.dmp',
-                    'lw': str(lw), 
-                    'samprate': str(samprate), 
-                    'bestpath': 'no',
-                    'lowerf': '130',    #starting from here, echo the acoustic model
-                    'feat': '1s_c_d_dd',
-                    'transform': 'dct',
-                    'lifter': '22',
-                    'agc': 'none',
-                    'cmn': 'current',
-                    'varnorm': 'no',
-                    'cmninit': '40'})
+            options.update({'cepdir': os.path.join(datadir, taskname+'.mfc'),
+                            'cepext': '.mfc',
+                            'dict': '/home/darla/prdicts/cmudict.nostress.txt',
+                            'fdict': os.path.join(hmm, 'noisedict'),
+                            'hmm': hmm, 
+                            'lm': '/home/darla/languagemodels/en-us.lm.dmp',
+                            'lw': str(lw), 
+                            'samprate': str(samprate), 
+                            'bestpath': 'no',
+                            'lowerf': '130',    #starting from here, echo the acoustic model
+                            'feat': '1s_c_d_dd',
+                            'transform': 'dct',
+                            'lifter': '22',
+                            'agc': 'none',
+                            'cmn': 'current',
+                            'varnorm': 'no',
+                            'cmninit': '40'})
     
-    #for i in range(numsplits):
-    o = open(os.path.join(datadir, taskname+'.recognize_args'), 'w')
-    options.update({'ctl': os.path.join(datadir, taskname+'.ctl'),
-                    'hyp': os.path.join(datadir, taskname+'.hyp'),
-                    'hypseg': os.path.join(datadir, taskname+'.hypseg')})
-    o.write('\n'.join(map(lambda (k, v): '-'+k+' '+v,
+    
+        o = open(os.path.join(datadir, taskname+'.recognize_args'), 'w')
+        options.update({'ctl': os.path.join(datadir, taskname+'.ctl'),
+                        'hyp': os.path.join(datadir, taskname+'.hyp'),
+                        'hypseg': os.path.join(datadir, taskname+'.hypseg')})
+        o.write('\n'.join(map(lambda (k, v): '-'+k+' '+v,
                           options.items())))
-    o.close()
+        o.close()
 
     """Align and extract"""
     o = open(os.path.join(datadir, taskname+'.alext_args'), 'w')
-    
     o.write(uploadfilename+' ')
-    
     if samprate==8000:
             o.write('/home/darla/acousticmodels/prosodylab-8.zip ')
     else:
             o.write('/home/darla/acousticmodels/prosodylab-16.zip ')
-
-    if email=="":
-        email="none"
-    o.write(email)
-    o.write('\n')
+    o.write(email+' ')
+    o.write(task+'\n')
     o.close()
-
     return
 
-def gen_txtargfile(datadir, taskname, uploadfilename, samprate, email):
-    """Generate alext_args file from uploadtrans task"""
-    o = open(os.path.join(datadir, taskname+'.alext_args'), 'w')
-
-    o.write(uploadfilename+' ')
-
-    if samprate==8000:
-            o.write('/home/darla/acousticmodels/prosodylab-8.zip ')
-    else:
-            o.write('/home/darla/acousticmodels/prosodylab-16.zip ')
-
-    if email=="":
-        email="none"
-    o.write(email)
-    o.write('\n')
-    o.close()
-
-    return
-
-def gen_tgargfile(datadir, taskname, uploadfilename, email):
-    """Generate ext_args file for uploadtextgrid task"""
-    o = open(os.path.join(datadir, taskname+'.ext_args'), 'w')
-    
-    o.write(uploadfilename+' ')
-    
-    if email=="":
-        email="none"
-    o.write(email)
-    o.write('\n')
-    o.close()
-
-    return
-    
-if __name__=='__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-taskname', type=str, help='used to name the files and directories', required=True) #for web app, randomly gen. hash
-    parser.add_argument('-samprate', type=float, help='sampling rate in Hz', required=True) #can be input by user or derived from wav files
-    parser.add_argument('-lw', type=float, help='language model scaling factor', default=6.5)
-    args = parser.parse_args()
-
-    gen_argfiles(args.taskname, args.samprate, args.lw)
-    

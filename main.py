@@ -212,7 +212,7 @@ class uploadsound:
                 form.note = "Warning: Your files total only {:.2f} minutes of speech. We recommend at least {:.0f} minutes for best results.".format(total_size, self.MINDURATION)
                     
             #generate argument files
-            utilities.gen_argfiles(self.datadir, form.taskname.value, filename, samprate, form.lw.value, form.dialect.value, form.email.value)
+            utilities.gen_argfiles(self.datadir, form.taskname.value, filename, 'asr', form.email.value, samprate, form.lw.value, form.dialect.value)
                     
             #show speaker form by adding fields to existing form and re-rendering
             return self.speaker_form(form, filenames, taskname)
@@ -304,15 +304,15 @@ class uploadtxttrans:
                 form.note = "Please upload a .wav or .mp3 file."
                 return render.uploadboundtrans(form, "")
             else:
-                error = utilities.write_hyp(self.datadir, form.taskname.value, filename, txtfilename+txtextension, 'cmudict.forhtk.txt')
+                error = utilities.write_hyp(self.datadir, form.taskname.value, filename, x.uploadtxtfile.file.read(), 'cmudict.forhtk.txt')
                 if error!="":
                     form.note = error
                     return render.uploadtxttrans(form, "")
 
-                samprate, total_size, chunks, error = utilities.process_audio(audiodir,
+                samprate, total_size, _, error = utilities.process_audio(audiodir,
                                              filename, extension,
                     x.uploadfile.file.read(),
-                    dochunk=20)
+                dochunk=None)
                 if error!="":
                     form.note = error
                     return render.uploadtxttrans(form, "")
@@ -321,19 +321,18 @@ class uploadtxttrans:
         elif x.filelink!='':
 
             filename = utilities.youtube_wav(x.filelink, audiodir, taskname)
-            error = utilities.write_hyp(self.datadir, form.taskname.value, filename, txtfilename+txtextension, 'cmudict.forhtk.txt')
+            error = utilities.write_hyp(self.datadir, form.taskname.value, filename, x.uploadtxtfile.file.read(), 'cmudict.forhtk.txt')
             if error!="":
                 form.note = error
                 return render.uploadtxttrans(form, "")
-            samprate, file_size, chunks, error = utilities.soxConversion(filename, audiodir, dochunk=20)
+            samprate, file_size, chunks, error = utilities.soxConversion(filename, audiodir, dochunk=None)
             if error!="":
                 form.note = error
                 return render.uploadtxttrans(form, "")
 
             filenames = [(filename, x.filelink)]
 
-        utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+filename+'.chunks'))
-        utilities.gen_txtargfile(self.datadir, form.taskname.value, filename, samprate, form.email.value)
+        utilities.gen_argfiles(self.datadir, form.taskname.value, filename, 'txtalign', form.email.value, samprate)
 
         return self.speaker_form(form, filenames, taskname)
 
@@ -462,7 +461,7 @@ class uploadboundtrans:
             filenames = [(filename, x.filelink)]
           
         utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+filename+'.chunks'))
-        utilities.gen_txtargfile(self.datadir, form.taskname.value, filename, samprate, form.email.value)
+        utilities.gen_argfiles(self.datadir, form.taskname.value, filename, 'boundalign', form.email.value, samprate)
         
         return self.speaker_form(form, filenames, taskname)
 
@@ -591,7 +590,7 @@ class uploadtextgrid:
         
         utilities.write_textgrid(self.datadir, form.taskname.value, filename, x.uploadTGfile.file.read()) 
 
-        utilities.gen_tgargfile(self.datadir, form.taskname.value, filename, form.email.value)
+        utilities.gen_argfiles(self.datadir, form.taskname.value, filename, 'extract', form.email.value)
         
         return self.speaker_form(form, filenames, taskname)
 

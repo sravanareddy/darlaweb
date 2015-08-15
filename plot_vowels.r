@@ -26,7 +26,6 @@ write.table(mydata, file = tsvfile, quote = FALSE, row.names=FALSE, col.names=na
 library(vowels)
 
 #Compute means, Lobanov-normalize if there are multiple speakers
-
 numspeakers <- length(unique(mydata$speaker_id))
 if(numspeakers > 1) {
   mydata$F1 <- data$F1_lobnorm
