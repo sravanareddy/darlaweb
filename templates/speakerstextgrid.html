@@ -23,13 +23,15 @@ $:form.render_disabled()
 $if speakerform:
 	<h3>Enter speaker information</h3>
 	<span class="note">Does not affect the automatic transcription, but required for vowel extraction results.</span><p>
-	<form action="extract" name="extract" method="post">
+	<form action="extract" name="extract" method="post" onsubmit="progress()">
 	$if not speakerform.valid: <p class="error">Correct the errors below.</p>
 	$:speakerform.render()
 	<input type="submit" />
 	</form>
-	<div id="loading"></div>
-	<div id="loading" style="display: none;">please wait, processing...<img src="/static/images/ajax-loader.gif"></img></div>
+	<div id="loading" style="display: none;">
+	  Task processing. You may now close this window and we will email you the results.
+	  <img src="/static/images/ajax-loader.gif"></img>
+	</div>
 	<br>
 
 </div>
