@@ -30,6 +30,13 @@ def featurize_recognize(taskname):
 @task(serializer='json')
 def align_extract(taskname):
         filename, align_hmm, receiver, task = open(taskname+'.alext_args').read().split()
+        subject_tasks = {'asr': 'Completely Automated Vowel Extraction',
+                         'txtalign': 'Alignment and Extraction',
+                         'boundalign': 'Alignment and Extraction',
+                         'extract': 'Formant Extraction'}
+        if task!='asr':
+                send_init_email(subject_tasks[task], receiver, filename)
+        
         args = "./align_and_extract.sh "+taskname+" "+align_hmm+" "+task
         align = subprocess.Popen(shlex.split(args), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         retval = align.wait()
@@ -37,5 +44,5 @@ def align_extract(taskname):
         if retval != 0:
                 send_error_email(receiver, filename, "Alignment and extraction process failed.")
         else:
-                send_email(receiver, filename, taskname)
+                send_email(subject_tasks[task], receiver, filename, taskname)
         return
