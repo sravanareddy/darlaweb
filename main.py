@@ -519,8 +519,9 @@ class uploadtextgrid:
         uploadtextgrid = myform.MyForm(self.uploadfile,
                                     self.filelink, 
                                     self.uploadTGfile,  
-                                    self.email, self.taskname, self.submit)
-        form = uploadsound()
+                                       self.email, self.taskname, self.submit,
+                                       validators = self.soundvalid)
+        form = uploadtextgrid()
         return render.uploadtextgrid(form, "")
 
     def POST(self):
