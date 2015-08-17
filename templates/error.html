@@ -1,8 +1,8 @@
-$def with(error)
+$def with(error,uploadlink)
 
 <div class="left-col">
 
 <p class="error">An error occured. Here is a short description of what happened: </p>
-$error
-<a href="uploadsound"><small>Click here to start over and try again.</small></a>
+<p>$error</p>
+<a href=$uploadlink><small>Click here to start over and try again.</small></a>
 </div>

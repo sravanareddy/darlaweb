@@ -8,7 +8,7 @@ import myform
 import utilities
 import os
 import sys
-from featrec import just_extract
+from featrec import align_extract
 
 if celeryon:
 	from celery import group
@@ -52,11 +52,11 @@ class extract:
                                 return "error creating "+filename+" for analysis."
                 
 		if celeryon:
-			result = just_extract.delay(os.path.join(datadir, taskname))
+			result = align_extract.delay(os.path.join(datadir, taskname))
 			while not result.ready():
 				pass
 		else:
-			just_extract(os.path.join(datadir, taskname))
+			align_extract(os.path.join(datadir, taskname))
 		
 		return "You may now close this window and we will email you the results. Thank you!" 
 

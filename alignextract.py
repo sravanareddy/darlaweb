@@ -8,7 +8,7 @@ import myform
 import utilities
 import os
 import sys
-from featrec import just_align_extract
+from featrec import align_extract
 
 if celeryon:
 	from celery import group
@@ -48,14 +48,14 @@ class alignextract:
 			o.write('--name='+name+'\n--sex='+sex+'\n')
 			o.close()
 		except IOError:
-			return "error creating "+filename+" for analysis."
+			return render.error("Error creating a job for {0}.".format(filename), "index.html")
                 
 		if celeryon:
-			result = just_align_extract.delay(os.path.join(datadir, taskname))
+			result = align_extract.delay(os.path.join(datadir, taskname))
 			while not result.ready():
 				pass
 		else:
-			just_align_extract(os.path.join(datadir, taskname))
+			align_extract(os.path.join(datadir, taskname))
 
 		return "You may now close this window and we will email you the results. Thank you!" 
 

@@ -53,7 +53,7 @@ class allpipeline:
                 o.write('--name='+name+'\n--sex='+sex+'\n')
                 o.close()
             except IOError:
-                return "Error creating a job for "+filename                
+                return render.error("Error creating a job for {0}.".format(filename), "uploadsound")      
 	
 	if celeryon:
 		result = featurize_recognize.delay(os.path.join(datadir, taskname))
@@ -61,7 +61,7 @@ class allpipeline:
 			pass
 		
 		if result.get() == False:
-			return "There was an error in processing your file - we could not extract MFCCs or run ASR."
+			return render.error("There is something wrong with your audio file(s). We could not extract acoustic features or run ASR.", "uploadsound")
 	else:
 		featurize_recognize(os.path.join(datadir, taskname))
 
