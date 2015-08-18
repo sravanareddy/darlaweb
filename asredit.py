@@ -69,7 +69,7 @@ class asredit:
                         transcription = transcription.replace("'", "\\'").split()
                         cleaned = map(lambda word:
                                       digitconverter.number_to_words(word).replace('-', ' ').replace(',', '') if word[0].isdigit() or (word[0]=="'" and len(word)>1 and word[1].isdigit()) else word,
-                                      map(lambda word: word.strip(punct), 
+                                      map(lambda word: word.lower().strip(punct), 
                                           transcription))
                         utilities.g2p(os.path.join(self.datadir, taskname), 
                                       set(cleaned), 
