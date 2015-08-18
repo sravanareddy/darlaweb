@@ -1,0 +1,25 @@
+$def with (form)
+
+<div class="left-col">
+
+<span class="breadcrumbs"><a href="http://darla.dartmouth.edu" target="_blank">About DARLA</a></span>
+<span class="breadcrumbs"><a href="http://darla.dartmouth.edu#cite" target="_blank">How to cite</a></span><p>
+<script src="/static/js/progress.js"></script>
+
+<h2>Edit Transcriptions</h2><p><p>
+
+<span class="note">Edit the ASR transcriptions of your uploaded files before running alignment and formant extraction.</span>
+<p>
+  
+<form action="asredit" name="asredit" method="post" enctype="multipart/form-data" onsubmit="progress()">
+$:form.render()
+<input type="submit" />
+</form>
+<div id="loading" style="display: none;">
+  <span class="note">Task processing. You may now close this window and we will email you the results of formant extraction with your corrected transcriptions.</span>
+  <img src="/static/images/ajax-loader.gif"></img>
+</div>
+<br>
+
+</div>
+

@@ -1,9 +1,11 @@
 textarea {
-   font-size: 20pt;
+   font-size: 16pt;
    font-family: Courier;
+   width: 50em;
+   height: 5em;
 } 
 
-audio{ width: 100px; display: block;}
+audio{ width: 500px; display: block;}
 
 th{font-weight: normal; text-align: left;}
 

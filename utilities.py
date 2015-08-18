@@ -54,20 +54,6 @@ def send_init_email(tasktype, receiver, filename):
         except smtplib.SMTPException:
                 print 'Unable to send e-mail '
 
-def prep_to_edit(taskname):
-    """copy sound file and hypotheses to static/ to edit"""
-    hyplines = map(lambda line: line.split()[:-1], open(taskname+'.hyp').readlines())
-    taskcode = os.path.basename(taskname)
-    for hypline in hyplines:
-        filename = hypline[-1][1:]
-        os.system('mkdir -p '+os.path.join('static', 'usersounds', taskcode))
-        o = open(os.path.join('static', 'usersounds', taskcode, filename+'.hyp'), 'w')
-        o.write(' '.join(hypline[:-1]))
-        o.close()
-        os.system('cp '+taskname+'.audio/splits/'+filename+'.wav '+os.path.join('static', 
-                                                                                'usersounds', 
-                                                                                taskcode))
-
 def consolidate_hyp(hypfile, outfile):
     hyplines = map(lambda line: line.split()[:-1], open(hypfile).readlines())
     basehyps = defaultdict(list)
@@ -90,9 +76,13 @@ def send_email(tasktype, receiver, filename, taskname):
         subject = '{0}: Vowel Analysis Results for {1}'.format(tasktype, filename)
         body = 'The formant extraction results for your data are attached. (1) formants.csv contains detailed information on bandwidths, phonetic environments, and probabilities, (2) formants.fornorm.tsv can be uploaded to the NORM online tool (http://lvc.uoregon.edu/norm/index.php) for additional normalization and plotting options, (3) plot.pdf shows the F1/F2 vowel space of your speakers, (4) alignments.zip contains the TextGrids of the ASR transcriptions aligned with the audio'
         if os.path.exists(taskname+'.hyp'):
-            body += ', (5) transcription.txt contains the ASR transcriptions.'
+            body += ', and (5) transcription.txt contains the ASR transcriptions.'
+            body += 'If you manually correct the transcriptions, you may re-upload your data with the new TextGrids to http://darla.dartmouth.edu/uploadtextgrid and receive revised formant measurements and plots. Alternately, you may upload corrected plaintext transcriptions to http://darla.dartmouth.edu/uploadtrans\n\n'
+            body += 'To edit the ASR transcriptions and re-run the alignment and extraction program, go to http://darla.dartmouth.edu:8080/main.py/asredit?taskname={0}\n\n'.format(os.path.basename(taskname))
+        else:
+            body +='.'
         body += '\n\n'
-        body += 'If you manually correct the transcriptions, you may re-upload your data with the new TextGrids to http://darla.dartmouth.edu/uploadtextgrid and receive revised formant measurements and plots. Alternately, you may upload corrected plaintext transcriptions to http://darla.dartmouth.edu/uploadtrans\n\n'
+        body += 'Do not share this e-mail if you need to preserve the privacy of your uploaded data.\n\n'
         body += 'Thank you for using DARLA. Please e-mail us with questions or suggestions.\n'
         message = MIMEMultipart()
         message['From'] = 'DARLA <'+sender+'>'

@@ -14,10 +14,11 @@ import allpipeline
 import extract
 import alignextract
 from evaluate import run_evaluation
+import asredit
 
 render = web.template.render('templates/', base='layout')
 
-urls = ('/', 'index', '/uploadsound', 'uploadsound', '/uploadtxttrans', 'uploadtxttrans', '/uploadboundtrans', 'uploadboundtrans', '/uploadtextgrid', 'uploadtextgrid', '/allpipeline', allpipeline.app_allpipeline, '/extract', extract.app_extract, '/alignextract', alignextract.app_alignextract, '/uploadeval', 'uploadeval')
+urls = ('/', 'index', '/uploadsound', 'uploadsound', '/uploadtxttrans', 'uploadtxttrans', '/uploadboundtrans', 'uploadboundtrans', '/uploadtextgrid', 'uploadtextgrid', '/allpipeline', allpipeline.app_allpipeline, '/extract', extract.app_extract, '/alignextract', alignextract.app_alignextract, '/uploadeval', 'uploadeval', '/asredit', asredit.app_asredit)
 
 app = web.application(urls, globals())
 web.config.debug = True
