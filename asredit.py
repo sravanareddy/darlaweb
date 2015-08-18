@@ -1,3 +1,6 @@
+#!/usr/bin/env python                                                                        
+# -*- coding: utf-8 -*- 
+
 """edit transcriptions"""
 
 celeryon = True
@@ -9,6 +12,8 @@ import utilities
 import os
 import shutil
 from featrec import align_extract
+import string
+import inflect
 
 if celeryon:
         from celery import group
@@ -57,16 +62,26 @@ class asredit:
                 #write edited labs and delete old TextGrids
                 hyps = filter(lambda (k,v):k.endswith('.wav'),
                               parameters.items())
+                punct = '!"#$%&\()*+,-./:;<=>?@[\\]^_`{|}~' #same as string.punct but no '
+                digitconverter = inflect.engine()
                 for wavfile, transcription in hyps:
                         o = open(os.path.join(self.datadir, taskname+'.wavlab', wavfile[:-4]+'.lab'), 'w')
-                        o.write(transcription.replace("\\'", "'")+'\n')
+                        transcription = transcription.replace("'", "\\'").split()
+                        cleaned = map(lambda word:
+                                      digitconverter.number_to_words(word).replace('-', ' ').replace(',', '') if word[0].isdigit() or (word[0]=="'" and len(word)>1 and word[1].isdigit()) else word,
+                                      map(lambda word: word.strip(punct), 
+                                          transcription))
+                        utilities.g2p(os.path.join(self.datadir, taskname), 
+                                      set(cleaned), 
+                                      'cmudict.forhtk.txt')
+                        o.write(' '.join(cleaned)+'\n')
                         o.close()
                         if os.path.exists(os.path.join(self.datadir, taskname+'.wavlab', wavfile[:-4]+'.TextGrid')):
                                 os.remove(os.path.join(self.datadir, taskname+'.wavlab', wavfile[:-4]+'.TextGrid'))
                 #change task type
                 filename, hmm, email, _ = open(os.path.join(self.datadir, taskname+'.alext_args')).read().split()
                 o = open(os.path.join(self.datadir, taskname+'.alext_args'), 'w')
-                o.write(filename+' '+hmm+' '+email+' txtalign')
+                o.write(filename+' '+hmm+' '+email+' asredit')
                 o.close()
                 
                 #now re-run alignment and extraction
