@@ -12,8 +12,8 @@ import shlex
 @task(serializer='json', ignore_result=True)
 def featurize_recognize(taskname):
         
-        filename, _, receiver, _ = open(taskname+'.alext_args').read().split()
-        send_init_email("Completely Automated Vowel Extraction", receiver, filename)
+        filename, _, receiver, tasktype = open(taskname+'.alext_args').read().split()
+        send_init_email(tasktype, receiver, filename)
         
         args = "/usr/local/bin/sphinx_fe -argfile "+taskname+".featurize_args"
         audio = os.system(args)
@@ -29,20 +29,16 @@ def featurize_recognize(taskname):
 
 @task(serializer='json')
 def align_extract(taskname):
-        filename, align_hmm, receiver, task = open(taskname+'.alext_args').read().split()
-        subject_tasks = {'asr': 'Completely Automated Vowel Extraction',
-                         'txtalign': 'Alignment and Extraction',
-                         'boundalign': 'Alignment and Extraction',
-                         'extract': 'Formant Extraction'}
-        if task!='asr':
-                send_init_email(subject_tasks[task], receiver, filename)
+        filename, align_hmm, receiver, tasktype = open(taskname+'.alext_args').read().split()
+        if tasktype!='asr':
+                send_init_email(tasktype, receiver, filename)
         
-        args = "./align_and_extract.sh "+taskname+" "+align_hmm+" "+task
+        args = "./align_and_extract.sh "+taskname+" "+align_hmm+" "+tasktype
         align = subprocess.Popen(shlex.split(args), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         retval = align.wait()
 
         if retval != 0:
                 send_error_email(receiver, filename, "Alignment and extraction process failed.")
         else:
-                send_email(subject_tasks[task], receiver, filename, taskname)
+                send_email(tasktype, receiver, filename, taskname)
         return

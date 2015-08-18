@@ -32,7 +32,12 @@ def send_init_email(tasktype, receiver, filename):
         passfile = open('filepaths.txt').readlines()[1].split()[1]
         password = open(passfile).read().strip()
         sender = username+'@gmail.com'
-        subject = tasktype+' Task started for '+filename
+
+        subjectmap = {'asr': 'Completely Automated Vowel Extraction',
+                      'txtalign': 'Alignment and Extraction',
+                      'boundalign': 'Alignment and Extraction',
+                      'extract': 'Formant Extraction'}
+        subject = subjectmap[tasktype]+': Task Started for '+filename
         
         body = 'This is a confirmation to let you know that your job has been submitted. You will receive the results shortly.'
 
@@ -54,18 +59,18 @@ def send_init_email(tasktype, receiver, filename):
         except smtplib.SMTPException:
                 print 'Unable to send e-mail '
 
-def consolidate_hyp(hypfile, outfile):
-    hyplines = map(lambda line: line.split()[:-1], open(hypfile).readlines())
+def consolidate_hyp(wavlab, outfile):
     basehyps = defaultdict(list)
-    for hypline in hyplines:
-        basefile, num = hypline[-1].rsplit('.split', 1)
-        basehyps[basefile].append((hypline[:-1], num))
+    for filename in sorted(filter(lambda filename: filename.endswith('.lab'),
+                           os.listdir(wavlab))):
+        basefile, num = filename[:-4].rsplit('.split', 1)
+        basehyps[basefile].append((open(os.path.join(wavlab, filename)).read().replace("\\'", "'"), num))
     o = open(outfile, 'w')
     for basefile in basehyps:
         content = sorted(basehyps[basefile], key=lambda x:int(x[1]))
         for (line, num) in content:
-            o.write(' '.join(line)+' ')
-        o.write(basefile+')\n')
+            o.write(line.strip()+' ')
+        o.write('('+basefile+')\n')
     o.close()
 
 def send_email(tasktype, receiver, filename, taskname):
@@ -73,12 +78,19 @@ def send_email(tasktype, receiver, filename, taskname):
         passfile = open('filepaths.txt').readlines()[1].split()[1]
         password = open(passfile).read().strip()
         sender = username+'@gmail.com'
-        subject = '{0}: Vowel Analysis Results for {1}'.format(tasktype, filename)
+
+        subjectmap = {'asr': 'Completely Automated Vowel Extraction',
+                      'txtalign': 'Alignment and Extraction',
+                      'boundalign': 'Alignment and Extraction',
+                      'extract': 'Formant Extraction'}
+        
+        subject = '{0}: Vowel Analysis Results for {1}'.format(subjectmap[tasktype], filename)
         body = 'The formant extraction results for your data are attached. (1) formants.csv contains detailed information on bandwidths, phonetic environments, and probabilities, (2) formants.fornorm.tsv can be uploaded to the NORM online tool (http://lvc.uoregon.edu/norm/index.php) for additional normalization and plotting options, (3) plot.pdf shows the F1/F2 vowel space of your speakers, (4) alignments.zip contains the TextGrids of the ASR transcriptions aligned with the audio'
-        if os.path.exists(taskname+'.hyp'):
+        if tasktype == 'asr' or tasktype == 'txtalign' or tasktype == 'boundalign':
             body += ', and (5) transcription.txt contains the ASR transcriptions.'
-            body += 'If you manually correct the transcriptions, you may re-upload your data with the new TextGrids to http://darla.dartmouth.edu/uploadtextgrid and receive revised formant measurements and plots. Alternately, you may upload corrected plaintext transcriptions to http://darla.dartmouth.edu/uploadtrans\n\n'
-            body += 'To edit the ASR transcriptions and re-run the alignment and extraction program, go to http://darla.dartmouth.edu:8080/main.py/asredit?taskname={0}\n\n'.format(os.path.basename(taskname))
+            body += 'If you manually correct the transcriptions, you may re-upload your data with the new TextGrids to http://darla.dartmouth.edu/uploadtextgrid and receive revised formant measurements and plots.\n\n'
+            body += 'To edit the ASR transcriptions and re-run the alignment and extraction program, go to http://darla.dartmouth.edu:8080/main.py/asredit?taskname={0} '.format(os.path.basename(taskname))
+            body += 'Alternately, you may upload corrected plaintext transcriptions to http://darla.dartmouth.edu/uploadtrans'
         else:
             body +='.'
         body += '\n\n'
@@ -100,15 +112,15 @@ def send_email(tasktype, receiver, filename, taskname):
                     message.attach(part) 
                 except:
                     send_error_email(receiver, filename, "Your job was not completed.")
-        if os.path.exists(taskname+'.hyp'): #send transcription if ASR task
+        if tasktype == 'asr' or tasktype == 'txtalign' or tasktype == 'boundalign': #send transcription 
             try:
-                consolidate_hyp(taskname+'.hyp', taskname+'.orderedhyp')
+                consolidate_hyp(taskname+'.wavlab', taskname+'.orderedhyp')
                 part = MIMEBase('application', "octet-stream")
                 part.set_payload( open(taskname+'.orderedhyp', "rb").read() )
                 part.add_header('Content-Disposition', 'attachment; filename=transcription.txt')
                 message.attach(part)
             except:
-                    send_error_email(receiver, filename, "")
+                    send_error_email(receiver, filename, "There was a problem attaching the transcription.")
         try:
                 server = smtplib.SMTP('smtp.gmail.com', 587)
                 server.starttls()
@@ -518,24 +530,23 @@ def gen_argfiles(datadir, taskname, uploadfilename, task, email, samprate=None, 
             options.update({'nfilt': '25',
                             'upperf': '6800'})
     
-            options.update({'cepdir': os.path.join(datadir, taskname+'.mfc'),
-                            'cepext': '.mfc',
-                            'dict': '/home/darla/prdicts/cmudict.nostress.txt',
-                            'fdict': os.path.join(hmm, 'noisedict'),
-                            'hmm': hmm, 
-                            'lm': '/home/darla/languagemodels/en-us.lm.dmp',
-                            'lw': str(lw), 
-                            'samprate': str(samprate), 
-                            'bestpath': 'no',
-                            'lowerf': '130',    #starting from here, echo the acoustic model
-                            'feat': '1s_c_d_dd',
-                            'transform': 'dct',
-                            'lifter': '22',
-                            'agc': 'none',
-                            'cmn': 'current',
-                            'varnorm': 'no',
-                            'cmninit': '40'})
-    
+        options.update({'cepdir': os.path.join(datadir, taskname+'.mfc'),
+                        'cepext': '.mfc',
+                        'dict': '/home/darla/prdicts/cmudict.nostress.txt',
+                        'fdict': os.path.join(hmm, 'noisedict'),
+                        'hmm': hmm, 
+                        'lm': '/home/darla/languagemodels/en-us.lm.dmp',
+                        'lw': str(lw), 
+                        'samprate': str(samprate), 
+                        'bestpath': 'no',
+                        'lowerf': '130',    #starting from here, echo the acoustic model
+                        'feat': '1s_c_d_dd',
+                        'transform': 'dct',
+                        'lifter': '22',
+                        'agc': 'none',
+                        'cmn': 'current',
+                        'varnorm': 'no',
+                        'cmninit': '40'})
     
         o = open(os.path.join(datadir, taskname+'.recognize_args'), 'w')
         options.update({'ctl': os.path.join(datadir, taskname+'.ctl'),
@@ -549,9 +560,9 @@ def gen_argfiles(datadir, taskname, uploadfilename, task, email, samprate=None, 
     o = open(os.path.join(datadir, taskname+'.alext_args'), 'w')
     o.write(uploadfilename+' ')
     if samprate==8000:
-            o.write('/home/darla/acousticmodels/prosodylab-8.zip ')
+            o.write('/home/darla/acousticmodels/htkpenn8kplp ')
     else:
-            o.write('/home/darla/acousticmodels/prosodylab-16.zip ')
+            o.write('/home/darla/acousticmodels/htkpenn16kplp ')
     o.write(email+' ')
     o.write(task+'\n')
     o.close()
