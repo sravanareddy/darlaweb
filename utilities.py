@@ -36,7 +36,9 @@ def send_init_email(tasktype, receiver, filename):
         subjectmap = {'asr': 'Completely Automated Vowel Extraction',
                       'txtalign': 'Alignment and Extraction',
                       'boundalign': 'Alignment and Extraction',
-                      'extract': 'Formant Extraction'}
+                      'extract': 'Formant Extraction',
+                      'asredit': 'Alignment and Extraction on Corrected Transcripts'}
+        
         subject = subjectmap[tasktype]+': Task Started for '+filename
         
         body = 'This is a confirmation to let you know that your job has been submitted. You will receive the results shortly.'
@@ -82,12 +84,13 @@ def send_email(tasktype, receiver, filename, taskname):
         subjectmap = {'asr': 'Completely Automated Vowel Extraction',
                       'txtalign': 'Alignment and Extraction',
                       'boundalign': 'Alignment and Extraction',
-                      'extract': 'Formant Extraction'}
+                      'extract': 'Formant Extraction',
+                      'asredit': 'Alignment and Extraction on Corrected Transcripts'}
         
         subject = '{0}: Vowel Analysis Results for {1}'.format(subjectmap[tasktype], filename)
         body = 'The formant extraction results for your data are attached. (1) formants.csv contains detailed information on bandwidths, phonetic environments, and probabilities, (2) formants.fornorm.tsv can be uploaded to the NORM online tool (http://lvc.uoregon.edu/norm/index.php) for additional normalization and plotting options, (3) plot.pdf shows the F1/F2 vowel space of your speakers, (4) alignments.zip contains the TextGrids of the ASR transcriptions aligned with the audio'
-        if tasktype == 'asr' or tasktype == 'txtalign' or tasktype == 'boundalign':
-            body += ', and (5) transcription.txt contains the ASR transcriptions.'
+        if tasktype == 'asr' or tasktype == 'asredit' or tasktype == 'boundalign':
+            body += ', and (5) transcription.txt contains the transcriptions.'
             body += 'If you manually correct the transcriptions, you may re-upload your data with the new TextGrids to http://darla.dartmouth.edu/uploadtextgrid and receive revised formant measurements and plots.\n\n'
             body += 'To edit the ASR transcriptions and re-run the alignment and extraction program, go to http://darla.dartmouth.edu:8080/main.py/asredit?taskname={0} '.format(os.path.basename(taskname))
             body += 'Alternately, you may upload corrected plaintext transcriptions to http://darla.dartmouth.edu/uploadtrans'
@@ -112,7 +115,7 @@ def send_email(tasktype, receiver, filename, taskname):
                     message.attach(part) 
                 except:
                     send_error_email(receiver, filename, "Your job was not completed.")
-        if tasktype == 'asr' or tasktype == 'txtalign' or tasktype == 'boundalign': #send transcription 
+        if tasktype == 'asr' or tasktype == 'asredit' or tasktype == 'boundalign': #send transcription 
             try:
                 consolidate_hyp(taskname+'.wavlab', taskname+'.orderedhyp')
                 part = MIMEBase('application', "octet-stream")
