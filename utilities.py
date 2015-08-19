@@ -327,23 +327,15 @@ def write_sentgrid_as_lab(datadir, taskname, filename, txtfile, cmudictfile):
                 allwords.add(word)
                 o.write(word+' ')
             o.write('\n')
-            if i==1 and chunks==[]:
+            if chunks==[]:
                 chunks.append([0, interval.maxTime])
             else:
                 chunks.append([interval.minTime, interval.maxTime])
             o.close()
             ctr+=1
-        elif interval.duration()<1 and i==len(sent_tier.intervals)-1:
+        elif len(chunks)>0:
             chunks[-1][1] = interval.maxTime
-        elif i>0:
-            o = open(os.path.join(datadir,
-                              taskname+'.wavlab',
-                                  filename+'.split{0:03d}.lab'.format(ctr)),
-                 'w')
-            o.write('sil\n')
-            chunks.append([interval.minTime, interval.maxTime])
-            ctr+=1
-    
+        
     g2p(os.path.join(datadir, taskname), allwords, cmudictfile)
     return chunks, ""
 
