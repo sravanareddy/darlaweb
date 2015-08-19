@@ -18,7 +18,7 @@ import asredit
 
 render = web.template.render('templates/', base='layout')
 
-urls = ('/', 'index', '/uploadsound', 'uploadsound', '/uploadtxttrans', 'uploadtxttrans', '/uploadboundtrans', 'uploadboundtrans', '/uploadtextgrid', 'uploadtextgrid', '/allpipeline', allpipeline.app_allpipeline, '/extract', extract.app_extract, '/alignextract', alignextract.app_alignextract, '/uploadeval', 'uploadeval', '/asredit', asredit.app_asredit)
+urls = ('/', 'index', '/cave', 'cave', '/semi', 'semi', '/uploadsound', 'uploadsound', '/uploadtxttrans', 'uploadtxttrans', '/uploadboundtrans', 'uploadboundtrans', '/uploadtextgrid', 'uploadtextgrid', '/allpipeline', allpipeline.app_allpipeline, '/extract', extract.app_extract, '/alignextract', alignextract.app_alignextract, '/uploadeval', 'uploadeval', '/asredit', asredit.app_asredit)
 
 app = web.application(urls, globals())
 web.config.debug = True
@@ -26,6 +26,14 @@ web.config.debug = True
 class index:
     def GET(self):
         return render.index()
+
+class cave:
+    def GET(self):
+        return render.cave()
+
+class semi:
+    def GET(self):
+        return render.semi()
 
 class uploadsound:
     MINDURATION = 30 #in minutes
