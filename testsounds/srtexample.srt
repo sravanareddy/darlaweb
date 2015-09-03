@@ -1,0 +1,556 @@
+1
+00:00:07,019 --> 00:00:09,091
+the
+
+2
+00:00:09,091 --> 00:00:11,700
+I'll
+
+3
+00:00:12,519 --> 00:00:14,581
+of
+
+4
+00:00:15,139 --> 00:00:19,228
+Ste
+
+5
+00:00:20,029 --> 00:00:26,077
+the ground ball room
+
+6
+00:00:26,509 --> 00:00:31,586
+so we've got a good time life
+
+7
+00:00:32,279 --> 00:00:39,279
+yeah
+
+8
+00:00:40,006 --> 00:00:47,006
+school
+
+9
+00:00:49,043 --> 00:00:50,101
+we come into this world
+
+10
+00:00:51,001 --> 00:00:54,059
+mean clue innate abilities to learn to
+interact
+
+11
+00:00:54,059 --> 00:00:58,067
+with you other ascension be what
+
+12
+00:00:58,067 --> 00:01:02,090
+pressured to interact with other people
+by writing little messages to them
+
+13
+00:01:02,009 --> 00:01:05,090
+be a real pain
+
+14
+00:01:06,071 --> 00:01:09,128
+and that's how we interact with
+computers it's much easier just to talk
+
+15
+00:01:10,028 --> 00:01:10,064
+to them
+
+16
+00:01:10,064 --> 00:01:15,403
+is just so much easier here if the
+computers can understand what we think
+
+17
+00:01:15,979 --> 00:01:19,960
+and polite you need really good speech
+recognition
+
+18
+00:01:19,096 --> 00:01:23,194
+the first speech recognition system was
+developed by Bell Laboratories in 1952
+
+19
+00:01:24,094 --> 00:01:27,163
+it can only recognize numbers spoken by
+one person
+
+20
+00:01:28,009 --> 00:01:31,098
+in the nineteen seventies karnicki
+nanking out harpy system which was able
+
+21
+00:01:31,899 --> 00:01:33,910
+to recognize over 1,000 words
+
+22
+00:01:34,009 --> 00:01:37,410
+and could recognize different
+pronunciations the same word
+
+23
+00:01:37,041 --> 00:01:40,094
+tomato Moda speech recognition continued
+
+24
+00:01:40,094 --> 00:01:44,129
+eighties the introduction hidden Markov
+model which used in more mathematical
+
+25
+00:01:45,029 --> 00:01:47,032
+approach to analyzing sound waves
+
+26
+00:01:47,032 --> 00:01:50,871
+and led to many the breakthroughs we
+have today you're taking in very raw
+
+27
+00:01:51,159 --> 00:01:52,164
+audio waveforms
+
+28
+00:01:52,659 --> 00:01:56,280
+like you got from mike von on your phone
+or whatever
+
+29
+00:01:56,028 --> 00:01:59,112
+we chop it into small pieces price
+
+30
+00:02:00,012 --> 00:02:03,051
+to identify which phoneme West spoken
+
+31
+00:02:03,051 --> 00:02:07,059
+in that loss d-sub speech for phoneme is
+the kind of primitive unit for
+
+32
+00:02:07,059 --> 00:02:07,898
+expressing
+
+33
+00:02:08,429 --> 00:02:11,750
+were ha I
+
+34
+00:02:11,075 --> 00:02:16,172
+home I'll tell and Mandy Moore won a
+stage those together into
+
+35
+00:02:17,072 --> 00:02:20,086
+likely words like Palo Alto speech
+recognition
+
+36
+00:02:20,086 --> 00:02:23,150
+today is quite good in transcribing what
+you've said what's the weather like to
+
+37
+00:02:24,005 --> 00:02:24,010
+pick a
+
+38
+00:02:25,000 --> 00:02:28,067
+you can talk about troubles you can talk
+about your contacts
+
+39
+00:02:28,067 --> 00:02:32,246
+like where can I get pizza journalistic
+how tall is Apple tower
+
+40
+00:02:32,849 --> 00:02:35,941
+our we've made tremendous improvements
+very quickly
+
+41
+00:02:36,769 --> 00:02:41,788
+who is the twenty first president to the
+United States Chester and there was a
+
+42
+00:02:41,959 --> 00:02:42,950
+totedaho
+
+43
+00:02:42,095 --> 00:02:46,122
+where's he from years ago you had to be
+an engineer in Iraq with computers
+
+44
+00:02:47,022 --> 00:02:50,931
+I'll I mean today everybody can interact
+1p know if
+
+45
+00:02:51,129 --> 00:02:54,720
+pill in the infancy is the understanding
+we need a far more sophisticated
+
+46
+00:02:54,072 --> 00:02:55,151
+language understanding model
+
+47
+00:02:56,051 --> 00:02:59,147
+understands what the standards means
+missed in a very long way from having
+
+48
+00:03:00,047 --> 00:03:07,047
+did 0 the
+
+49
+00:03:07,078 --> 00:03:10,109
+our ability to use language in wanted
+the in home
+
+50
+00:03:11,009 --> 00:03:15,098
+chins it's one of the things
+
+51
+00:03:15,098 --> 00:03:19,102
+company from one generation to another
+figuring out
+
+52
+00:03:20,038 --> 00:03:24,071
+about how the system language worms you
+know that seems like a really easy
+
+53
+00:03:24,071 --> 00:03:25,126
+problems
+
+54
+00:03:26,026 --> 00:03:31,027
+me one it's really hard but that every
+baby has managed by the time they're
+
+55
+00:03:31,036 --> 00:03:35,039
+years old %uh %um to our yell
+
+56
+00:03:35,039 --> 00:03:38,048
+I'll man's
+
+57
+00:03:38,048 --> 00:03:42,048
+language is extremely complex and
+sophisticated from the semantics irony
+
+58
+00:03:42,048 --> 00:03:45,124
+strong accent facial expressions human
+emotion is at Sparta
+
+59
+00:03:46,024 --> 00:03:51,073
+how we communicate humor I have to be
+careful not to offend the diameter
+
+60
+00:03:51,073 --> 00:03:54,077
+language has so many different layers
+and that's why it's such a difficult
+
+61
+00:03:54,077 --> 00:03:55,084
+problem
+
+62
+00:03:55,084 --> 00:03:59,096
+the present the human brain and the
+learning outcomes in human brains
+
+63
+00:03:59,096 --> 00:04:02,147
+far far better things I language
+understanding and this to a better
+
+64
+00:04:03,047 --> 00:04:03,056
+package
+
+65
+00:04:04,037 --> 00:04:07,081
+to whether or not we replicate exactly
+with the brain does
+
+66
+00:04:07,081 --> 00:04:10,162
+I to understand language and to
+understand speech
+
+67
+00:04:11,062 --> 00:04:16,131
+is still a questions
+
+68
+00:04:17,031 --> 00:04:20,037
+for many many years 0 we believe
+
+69
+00:04:20,037 --> 00:04:23,090
+good neural network should work better
+Rooney
+
+70
+00:04:23,009 --> 00:04:26,051
+dumb existing technology was basically
+just take a look at home
+
+71
+00:04:27,032 --> 00:04:30,053
+and then in 2009 to my students
+
+72
+00:04:30,053 --> 00:04:33,075
+with little input from me goaded
+
+73
+00:04:33,075 --> 00:04:36,111
+working better own first time it just
+went a little bit better but then it was
+
+74
+00:04:37,011 --> 00:04:40,056
+obvious that this could be developed
+somewhat much better
+
+75
+00:04:40,056 --> 00:04:43,059
+the brain has these millions in your
+arms all computing power
+
+76
+00:04:43,086 --> 00:04:47,145
+and all the knowledge in the brain
+within the strength to the connection
+
+77
+00:04:47,919 --> 00:04:48,400
+between your
+
+78
+00:04:48,004 --> 00:04:51,027
+what I mean by neural net is something
+mince
+
+79
+00:04:51,063 --> 00:04:55,071
+simulating a conventional computer but
+is designed to work
+
+80
+00:04:55,071 --> 00:04:58,156
+in very very rough in the same way as
+the bread
+
+81
+00:04:59,056 --> 00:05:02,075
+so until quite recently people go
+speeches by
+
+82
+00:05:02,075 --> 00:05:05,112
+and engineering they look good sign
+waving
+
+83
+00:05:06,012 --> 00:05:10,041
+did for reanalysis I may try to figure
+out what features should we feed to the
+
+84
+00:05:10,041 --> 00:05:11,047
+pattern recognition system
+
+85
+00:05:11,047 --> 00:05:14,140
+nothing on your own networks as they
+learn their own features in particular
+
+86
+00:05:15,004 --> 00:05:19,143
+they can on features and then they can
+and features a few chosen and features a
+
+87
+00:05:19,539 --> 00:05:20,580
+pink jersey features
+
+88
+00:05:20,058 --> 00:05:22,147
+my sleep with huge improvement in speed
+range
+
+89
+00:05:23,047 --> 00:05:26,047
+but you can also use them for language
+understanding past
+
+90
+00:05:26,047 --> 00:05:30,066
+and the way you do this is you represent
+words
+
+91
+00:05:30,066 --> 00:05:33,855
+be in very high-dimensional spaces we
+can now deal with analogies
+
+92
+00:05:34,449 --> 00:05:38,449
+where would his representatives and
+mister numbers so for example if i take
+
+93
+00:05:38,449 --> 00:05:39,110
+me
+
+94
+00:05:39,011 --> 00:05:42,053
+mister hundred-numbers the represents
+patterns
+
+95
+00:05:42,053 --> 00:05:46,059
+and I subtract from it brings and I had
+to indigent
+
+96
+00:05:47,013 --> 00:05:50,232
+and if I look at the numbers I'll the
+closest thing
+
+97
+00:05:50,349 --> 00:05:54,384
+is unlisted numbers eruptions romel for
+by first converting went into these
+
+98
+00:05:54,699 --> 00:05:56,370
+numbers using your own anymore
+
+99
+00:05:56,037 --> 00:05:59,068
+with you can actually do this and
+logical reasoning
+
+100
+00:05:59,068 --> 00:06:02,107
+the new I predict that in the next five
+years
+
+101
+00:06:03,007 --> 00:06:06,093
+would come clean these big did you know
+that works with the new learning
+
+102
+00:06:06,093 --> 00:06:07,202
+algorithms
+
+103
+00:06:08,039 --> 00:06:12,910
+again to give us much meddling regions
+
+104
+00:06:12,091 --> 00:06:15,160
+when we started out we thought that
+things like chap
+
+105
+00:06:15,979 --> 00:06:18,979
+for nap now ranks or our lodging
+
+106
+00:06:18,979 --> 00:06:22,690
+those are going to be the things that
+were really hard on back hard I mean we
+
+107
+00:06:22,069 --> 00:06:24,418
+can end up with the machine actually can
+
+108
+00:06:25,039 --> 00:06:28,520
+do chats as well as the ground after
+camp lejeune the things that we thought
+
+109
+00:06:28,052 --> 00:06:29,231
+were gonna be easy
+
+110
+00:06:29,699 --> 00:06:33,550
+for computer system like understanding
+language
+
+111
+00:06:33,055 --> 00:06:37,474
+things have turned out to be incredibly
+hard I can't even imagine
+
+112
+00:06:37,969 --> 00:06:41,960
+a though we've done it the moment might
+get just because there are so many
+
+113
+00:06:41,096 --> 00:06:44,205
+is this puzzled that around songs both
+
+114
+00:06:45,069 --> 00:06:49,116
+from a science my nephew on as well as
+come from a technical
+
+115
+00:06:49,539 --> 00:06:54,000
+nationwide there's a lot of unknowns
+those are the great revolution sir
+
+116
+00:06:54,000 --> 00:06:57,056
+not just when been a little with what we
+already know about when we discover
+
+117
+00:06:57,056 --> 00:06:59,405
+something completely new and unexpected
+
+118
+00:06:59,909 --> 00:07:02,984
+I think once you kind ever in the
+ballpark give him another
+
+119
+00:07:03,659 --> 00:07:07,560
+that will be the pretty remarkable
+
+120
+00:07:07,056 --> 00:07:12,064
+the I'll
+
+121
+00:07:13,036 --> 00:07:13,061
+ok
+
