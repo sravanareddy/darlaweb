@@ -1,7 +1,15 @@
 .appbox > h1 {
     font-size: 20pt;
     font-family: Copperplate, "Arial Black", Arial;
-    color: #990000;
+    color: #fff;
+    text-align: center;
+}
+
+.noappbox > h1 {
+    font-size: 20pt;
+    font-family: Copperplate, "Arial Black", Arial;
+    text-align: center;
+    color: #213B1C;
 }
 
 .appbox {
@@ -10,25 +18,38 @@
   height: 200px;
   margin: 1em;
   padding: 2em 0.5em 0em 0.5em;
-  border: 10px solid #990000; 
+  border: 10px solid #213B1C; 
   vertical-align: middle;
   text-align: center;
-
+  background-color: #213B1C;
 }
 
-.appbox > p {
-    font-size: 16pt;
-    color: #000;
+.noappbox {
+  display: inline-block;
+  width: 830px;
+  margin: 1em;
+  padding: 2em 0.5em 0em 0.5em;
+  border: 10px solid #213B1C; 
+  vertical-align: middle;
+  text-align: left;
+}
+
+.appbox > h2 {
+    font-size: 15pt;
+    color: #fff;
 }
 
 .appbox:hover{
-    border-color: #da2222;
+    border-color: #38672f;
+    background-color: #38672f;
 }
 
-.appbox:hover > h1 {
-    color: #da2222;
+.appbox > p{
+    font-family: "Times New Roman", "Times", serif;
+    color: #fff;
+    line-height: 1.5em;
+    font-size: 1em;
 }
-
 
 textarea {
    font-size: 16pt;
@@ -67,7 +88,7 @@ th{font-weight: normal; text-align: left;}
 }
 
 .breadcrumbs{
-    font-family: Arial, Helvetica, Sans-serif;
+    font-family: "Helvetica Neue", Arial, Helvetica, Sans-serif;
     font-size: 0.9em;
     padding-right: 10px;
     }
@@ -76,7 +97,7 @@ body
 {
 	margin: 0px;
 	padding: 0px;
-	font: 100%/1.5em Arial, Helvetica, Sans-serif;
+	font: 100%/1.5em "Helvetica Neue", Arial, Helvetica, Sans-serif;
 	background-color:#eee;
 	border-top: #38672f solid 5px;
 }
@@ -468,7 +489,7 @@ h1
 
 h2
 {
-	font-family: Arial, Helvetica, sans-serif;
+	font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
 	font-size: 20pt;
 }
 
@@ -486,10 +507,11 @@ h2.subhead
 
 h3
 {
-	font-family: Arial, Helvetica, Sans-serif;
+	font-family: "Helvetica Neue", Arial, Helvetica, Sans-serif;
 	font-size: 1.4em;
 	font-weight: normal;
 	line-height: 1.2em;
+	color: #213B1C;
 }
 
 h4
