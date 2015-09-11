@@ -109,7 +109,7 @@ class uploadsound:
                                     self.dialect, 
                                     self.lw, self.email, self.taskname, self.submit)
         form = uploadsound()
-        return render.uploadsound(form, "")
+        return render.speakerssound(form, "")
 
     def POST(self):
         uploadsound = myform.MyForm(self.uploadfile, 
@@ -122,14 +122,14 @@ class uploadsound:
         filenames = [] # for use in speaker form
         
         if not form.validates(): #not validated
-            return render.uploadsound(form, "")
+            return render.speakerssound(form, "")
 
         else:
             #make taskname                                                                              
             taskname, audiodir, error = utilities.make_task(self.datadir)
             if error!="":
                 form.note = error
-                return render.uploadsound(form, "")
+                return render.speakerssound(form, "")
             
             form.taskname.value = taskname
             
@@ -137,13 +137,13 @@ class uploadsound:
                 filename, error = utilities.youtube_wav(x.filelink, audiodir, taskname)
                 if error!="":
                     form.note = error
-                    return render.uploadsound(form, "")
+                    return render.speakerssound(form, "")
         
                 samprate, file_size, chunks, error = utilities.soxConversion(filename,
                                                                        audiodir, dochunk=20)
                 if error!="":
                     form.note = error
-                    return render.uploadsound(form, "")
+                    return render.speakerssound(form, "")
 
                 filenames = [(filename, x.filelink)]   #passed filename, display filename
                 utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+filename+'.chunks'))
@@ -155,7 +155,7 @@ class uploadsound:
 
                 if extension not in ['.wav', '.zip', '.mp3', '.gz', '.tgz', '.tar']:
                     form.note = "Please upload a .wav, .mp3, .zip, .tgz, or .tar file."
-                    return render.uploadsound(form, "")
+                    return render.speakerssound(form, "")
 
                 else:                
                     if extension in ['.zip', '.tar', '.tgz', '.gz']:
@@ -181,7 +181,7 @@ class uploadsound:
                         
                                 if subextension not in ['.wav', '.mp3']:
                                     form.note = "Extension incorrect for file {0} in the folder {1}{2}. Make sure your folder only contains .wav or .mp3 files.".format(subfilename+subextension, filename, extension)
-                                    return render.uploadsound(form, "")
+                                    return render.speakerssound(form, "")
                         
                                 else:
                                     if extension == '.zip':
@@ -191,7 +191,7 @@ class uploadsound:
                               
                                     if error!="":
                                         form.note = error
-                                        return render.uploadsound(form, "")
+                                        return render.speakerssound(form, "")
                               
                                     utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+subfilename+'.chunks'))
                             
@@ -200,7 +200,7 @@ class uploadsound:
                     
                         except:
                             form.note = "Could not read the archive file. Please check and upload again."
-                            return render.uploadsound(form, "")
+                            return render.speakerssound(form, "")
                   
                     else:  #will be mp3 or wav
                         samprate, file_size, chunks, error = utilities.process_audio(audiodir,
@@ -210,7 +210,7 @@ class uploadsound:
                     
                         if error!="":
                             form.note = error
-                            return render.uploadsound(form, "")
+                            return render.speakerssound(form, "")
                     
                         utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+filename+'.chunks'))
                     
