@@ -20,10 +20,12 @@ Upload your audio files with the corrected TextGrid to run formant extraction us
 
 <form name="uploadtextgrid" method="post" enctype="multipart/form-data"> 
 $if not form.valid: <p class="error">Correct the errors below.</p>
-$:form.render_disabled()
+$if not speakerform:
+     $:form.render()
 </form>
 
 $if speakerform:
+        $:form.render_disabled()
 	<h3>Enter speaker information</h3>
 	<span class="note">Does not affect the automatic transcription, but required for vowel extraction results.</span><p>
 	<form action="extract" name="extract" method="post" onsubmit="progress()">

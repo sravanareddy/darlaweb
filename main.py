@@ -531,7 +531,7 @@ class uploadtextgrid:
                                        self.email, self.taskname, self.submit,
                                        validators = self.soundvalid)
         form = uploadtextgrid()
-        return render.uploadtextgrid(form, "")
+        return render.speakerstextgrid(form, "")
 
     def POST(self):
         uploadtextgrid = myform.MyForm(self.uploadfile,
@@ -543,14 +543,14 @@ class uploadtextgrid:
         x = web.input(uploadfile={}, uploadTGfile={})  
 
         if not form.validates(): #not validated
-            return render.uploadtextgrid(form, "")
+            return render.speakerstextgrid(form, "")
 
         filenames = []
         tgfilename, tgextension = utilities.get_basename(x.uploadTGfile.filename)
         
         if tgextension != '.textgrid':
             form.note = 'Upload a file with a .TextGrid extension.'
-            return render.uploadtextgrid(form, "")
+            return render.speakerstextgrid(form, "")
 
         if 'uploadfile' in x:   
             #sanitize filename
@@ -558,14 +558,14 @@ class uploadtextgrid:
             
             if extension not in ['.wav', '.mp3']:
                 form.note = "Please upload a .wav or .mp3 file."
-                return render.uploadtextgrid(form, "")
+                return render.speakerstextgrid(form, "")
 
             else:
                 #create new task                                                               
                 taskname, audiodir, error = utilities.make_task(self.datadir)
                 if error!="":
                     form.note = error
-                    return render.uploadtextgrid(form, "")
+                    return render.speakerstextgrid(form, "")
                 
                 form.taskname.value = taskname
                 
@@ -576,7 +576,7 @@ class uploadtextgrid:
 
                 if error!="":
                     form.note = error
-                    return render.uploadtextgrid(form, "")
+                    return render.speakerstextgrid(form, "")
 
                 filenames.append((filename, filename))
         
@@ -586,7 +586,7 @@ class uploadtextgrid:
             taskname, audiodir, error = utilities.make_task(self.datadir)
             if error!="":
                     form.note = error
-                    return render.uploadtextgrid(form, "")
+                    return render.speakerstextgrid(form, "")
             
             form.taskname.value = taskname
 
@@ -594,7 +594,7 @@ class uploadtextgrid:
             samprate, file_size, chunks, error = utilities.soxConversion(filename, audiodir, dochunk=None)
             if error!="":
                 form.note = error
-                return render.uploadtextgrid(form, "")
+                return render.speakerstextgrid(form, "")
             
             filenames = [(filename, x.filelink)]
         
