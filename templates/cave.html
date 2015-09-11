@@ -1,13 +1,18 @@
 <div class="center-col">
 
-<h3><a href="uploadsound">Click here to run completely automated vowel
-  extraction</a> on your untranscribed audio files.</h3>
+<a href="uploadsound" class="appbox"><h1>Click here to run completely automated vowel
+  extraction on your untranscribed audio files.</h1>
 
-  <p>The tool provides the facility
+   <p>The system provides the facility
   to edit the transcripts produced by the speech recognizer and
   rerun the analysis.</p>
+  </a>
 
-  <p> It is recommended that you look through the discussion below on the system's functionality and limitations before you begin. </p>
+ 
+
+  <p>Automated data analysis requires a higher tolerance of potential noise in the alignment and formant extraction results. You can estimate this noise using <a href="uploadeval">our transcription evaluation tool</a>, which takes as input a manual transcription of a sample from your recording along with the ASR transcription of the same, and uses weighted <a href="https://en.wikipedia.org/wiki/Levenshtein_distance">Levenshtein distance</a> to compute error rates for words, phonemes, and stressed vowels.</p>
+  
+  <p> It is recommended that you look through the discussion below on the completely automated system's functionality and limitations before you begin. </p>
 
 <a name="why"></a><h2>Why completely automate vowel extraction?</h2>
 <p>In the last few years, sociolinguists have begun using semi-automated speech processing methods such as Penn's <a href="http://fave.ling.upenn.edu/index.html">FAVE</a> program to extract vowel formants. These systems have accelerated the pace of linguistic research, but require significant human effort to manually create sentence-level transcriptions. </p>
