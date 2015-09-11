@@ -20,10 +20,12 @@ $def with (form, speakerform)
 
 <form name="uploadboundtrans" method="post" enctype="multipart/form-data"> 
 $if not form.valid: <p class="error">Correct the errors below.</p>
-$:form.render_disabled()
+$if not speakerform:
+     $:form.render()
 </form>
 
-$if speakerform:
+  $if speakerform:
+        $:form.render_disabled()
 	<h3>Enter speaker information</h3>
 	<span class="note">Does not affect the automatic transcription, but required for vowel extraction results.</span><p>
 	<form action="alignextract" name="alignextract" method="post" onsubmit="progress()">

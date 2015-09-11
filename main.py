@@ -397,7 +397,7 @@ class uploadboundtrans:
                                     self.uploadboundfile,  
                                     self.email, self.taskname, self.submit)
         form = uploadboundtrans()
-        return render.uploadboundtrans(form, "")
+        return render.speakersboundtrans(form, "")
 
     def POST(self):
         uploadboundtrans = myform.MyForm(self.uploadfile,
@@ -409,14 +409,14 @@ class uploadboundtrans:
         x = web.input(uploadfile={}, uploadboundfile={})  
 
         if not form.validates(): #not validated
-            return render.uploadboundtrans(form, "")
+            return render.speakersboundtrans(form, "")
 
         filenames = []
         boundfilename, boundextension = utilities.get_basename(x.uploadboundfile.filename)
         
         if boundextension != '.textgrid':  
             form.note = 'Upload a transcript with a .TextGrid extension indicating sentence boundaries.'
-            return render.uploadboundtrans(form, "")
+            return render.speakersboundtrans(form, "")
         
         o = codecs.open(os.path.join(self.datadir, boundfilename+boundextension), 'w', 'utf8')
         o.write(x.uploadboundfile.file.read())
@@ -426,7 +426,7 @@ class uploadboundtrans:
         taskname, audiodir, error = utilities.make_task(self.datadir)
         if error!="":
             form.note = error
-            return render.uploadboundtrans(form, "")
+            return render.speakersboundtrans(form, "")
 
         form.taskname.value = taskname
 
@@ -436,12 +436,12 @@ class uploadboundtrans:
 
             if extension not in ['.wav', '.mp3']:
                 form.note = "Please upload a .wav or .mp3 file."
-                return render.uploadboundtrans(form, "")
+                return render.speakersboundtrans(form, "")
             else:
                 chunks, error = utilities.write_sentgrid_as_lab(self.datadir, form.taskname.value, filename, boundfilename+boundextension, 'cmudict.forhtk.txt')
                 if error!="":
                     form.note = error
-                    return render.uploadboundtrans(form, "")
+                    return render.speakersboundtrans(form, "")
                 
                 samprate, total_size, chunks, error = utilities.process_audio(audiodir,
                                              filename, extension,
@@ -449,7 +449,7 @@ class uploadboundtrans:
                     dochunk=chunks)
                 if error!="":
                     form.note = error
-                    return render.uploadboundtrans(form, "")
+                    return render.speakersboundtrans(form, "")
                 
                 filenames = [(filename, filename)]
 
@@ -460,12 +460,12 @@ class uploadboundtrans:
             chunks, error = utilities.write_sentgrid_as_lab(self.datadir, form.taskname.value, filename, boundfilename+boundextension, 'cmudict.forhtk.txt')
             if error!="":
                 form.note = error
-                return render.uploadboundtrans(form, "")
+                return render.speakersboundtrans(form, "")
             
             samprate, file_size, chunks, error = utilities.soxConversion(filename, audiodir, dochunk=chunks)
             if error!="":
                 form.note = error
-                return render.uploadboundtrans(form, "")
+                return render.speakersboundtrans(form, "")
             
             filenames = [(filename, x.filelink)]
           
