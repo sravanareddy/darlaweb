@@ -19,11 +19,13 @@ $def with (form, speakerform)
 <a href="uploadtxttrans"><small>Click here at any time to cancel or start over.</small></a><p>
 
 <form name="uploadtxttrans" method="post" enctype="multipart/form-data"> 
-$if not form.valid: <p class="error">Correct the errors below.</p>
-$:form.render_disabled()
+  $if not form.valid: <p class="error">Correct the errors below.</p>
+  $if not speakerform:
+     $:form.render()
 </form>
 
-$if speakerform:
+  $if speakerform:
+        $:form.render_disabled()
 	<h3>Enter speaker information</h3>
 	<span class="note">Does not affect the automatic transcription, but required for vowel extraction results.</span><p>
 	<form action="alignextract" name="alignextract" method="post" onsubmit="progress()">

@@ -277,7 +277,7 @@ class uploadtxttrans:
                                     self.uploadtxtfile,
                                     self.email, self.taskname, self.submit)
         form = uploadtxttrans()
-        return render.uploadtxttrans(form, "")
+        return render.speakerstxttrans(form, "")
 
     def POST(self):
         uploadtxttrans = myform.MyForm(self.uploadfile,
@@ -289,20 +289,20 @@ class uploadtxttrans:
         x = web.input(uploadfile={}, uploadtxtfile={})
 
         if not form.validates(): #not validated
-            return render.uploadtxttrans(form, "")
+            return render.speakerstxttrans(form, "")
 
         filenames = []
         txtfilename, txtextension = utilities.get_basename(x.uploadtxtfile.filename)
 
         if txtextension != '.txt':  #TODO: check plaintext validity                               
             form.note = 'Upload a transcript with a .txt extension.'
-            return render.uploadtxttrans(form, "")
+            return render.speakerstxttrans(form, "")
 
         #create new task                                                                                 
         taskname, audiodir, error = utilities.make_task(self.datadir)
         if error!="":
             form.note = error
-            return render.uploadtxttrans(form, "")
+            return render.speakerstxttrans(form, "")
 
         form.taskname.value = taskname
 
@@ -311,12 +311,12 @@ class uploadtxttrans:
             filename, extension = utilities.get_basename(x.uploadfile.filename)
             if extension not in ['.wav', '.mp3']:
                 form.note = "Please upload a .wav or .mp3 file."
-                return render.uploadboundtrans(form, "")
+                return render.speakerstxttrans(form, "")
             else:
                 error = utilities.write_hyp(self.datadir, form.taskname.value, filename, x.uploadtxtfile.file.read(), 'cmudict.forhtk.txt')
                 if error!="":
                     form.note = error
-                    return render.uploadtxttrans(form, "")
+                    return render.speakerstxttrans(form, "")
 
                 samprate, total_size, _, error = utilities.process_audio(audiodir,
                                              filename, extension,
@@ -324,7 +324,7 @@ class uploadtxttrans:
                 dochunk=None)
                 if error!="":
                     form.note = error
-                    return render.uploadtxttrans(form, "")
+                    return render.speakerstxttrans(form, "")
                 filenames = [(filename, filename)]
 
         elif x.filelink!='':
@@ -333,11 +333,11 @@ class uploadtxttrans:
             error = utilities.write_hyp(self.datadir, form.taskname.value, filename, x.uploadtxtfile.file.read(), 'cmudict.forhtk.txt')
             if error!="":
                 form.note = error
-                return render.uploadtxttrans(form, "")
+                return render.speakerttxttrans(form, "")
             samprate, file_size, chunks, error = utilities.soxConversion(filename, audiodir, dochunk=None)
             if error!="":
                 form.note = error
-                return render.uploadtxttrans(form, "")
+                return render.speakerstxttrans(form, "")
 
             filenames = [(filename, x.filelink)]
 
