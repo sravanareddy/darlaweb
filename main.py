@@ -313,7 +313,7 @@ class uploadtxttrans:
                 form.note = "Please upload a .wav or .mp3 file."
                 return render.speakerstxttrans(form, "")
             else:
-                error = utilities.write_hyp(self.datadir, form.taskname.value, filename, x.uploadtxtfile.file.read(), 'cmudict.forhtk.txt')
+                error = utilities.write_hyp(self.datadir, form.taskname.value, filename, utilities.read_textupload(x.uploadtxtfile.file.read()), 'cmudict.forhtk.txt')
                 if error!="":
                     form.note = error
                     return render.speakerstxttrans(form, "")
@@ -330,7 +330,7 @@ class uploadtxttrans:
         elif x.filelink!='':
 
             filename = utilities.youtube_wav(x.filelink, audiodir, taskname)
-            error = utilities.write_hyp(self.datadir, form.taskname.value, filename, x.uploadtxtfile.file.read(), 'cmudict.forhtk.txt')
+            error = utilities.write_hyp(self.datadir, form.taskname.value, filename, utilities.read_textupload(x.uploadtxtfile.file.read()), 'cmudict.forhtk.txt')
             if error!="":
                 form.note = error
                 return render.speakerttxttrans(form, "")
@@ -419,10 +419,10 @@ class uploadboundtrans:
             return render.speakersboundtrans(form, "")
         
         o = codecs.open(os.path.join(self.datadir, boundfilename+boundextension), 'w', 'utf8')
-        o.write(x.uploadboundfile.file.read().decode('utf-16'))
+        o.write(utilities.read_textupload(x.uploadboundfile.file.read()))
         o.close()
 
-        #create new task                                                                            
+        #create new task                                                                 
         taskname, audiodir, error = utilities.make_task(self.datadir)
         if error!="":
             form.note = error
@@ -598,7 +598,7 @@ class uploadtextgrid:
             
             filenames = [(filename, x.filelink)]
         
-        utilities.write_textgrid(self.datadir, form.taskname.value, filename, x.uploadTGfile.file.read()) 
+        utilities.write_textgrid(self.datadir, form.taskname.value, filename, utilities.read_textupload(x.uploadTGfile.file.read())) 
 
         utilities.gen_argfiles(self.datadir, form.taskname.value, filename, 'extract', form.email.value)
         
@@ -651,8 +651,8 @@ class uploadeval:
                     
                     numreflines, numhyplines = utilities.write_transcript(self.datadir,
                                                                           taskname,
-                                                                          x.reffile.file.read(),
-                                                                          x.hypfile.file.read(),
+                                                                          utilities.read_textupload(x.reffile.file.read()),
+                                                                          utilities.read_textupload(x.hypfile.file.read()),
                                                                           'cmudict.forhtk.txt')
                     if numreflines!=numhyplines:
                         form.note = 'Files should have the same number of lines, corresponding to each speech input. Please try again.'
