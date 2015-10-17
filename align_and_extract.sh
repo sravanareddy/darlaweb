@@ -4,7 +4,7 @@ taskname=$1
 hmm=$2
 task=$3
 
-favedir='/home/darla/applications/FAVE/FAVE-extract'
+favedir='/home/darla/applications/FAVE/FAVE-extract/'
 stressdict='cmudict.forhtk.txt'
 
 #convert ASR hypotheses to PL aligner .lab files

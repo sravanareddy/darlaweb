@@ -1,4 +1,4 @@
-args <-commandArgs(TRUE)
+args <- commandArgs(TRUE)
 csvfile <- args[1]
 tsvfile <- args[2]
 plotfile <- args[3]
