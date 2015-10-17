@@ -418,7 +418,7 @@ class uploadboundtrans:
             form.note = 'Upload a transcript with a .TextGrid extension indicating sentence boundaries.'
             return render.speakersboundtrans(form, "")
         
-        o = codecs.open(os.path.join(self.datadir, boundfilename+boundextension), 'w', 'utf8')
+        o = codecs.open(os.path.join(self.datadir, boundfilename+boundextension), 'w', 'utf16')
         o.write(x.uploadboundfile.file.read())
         o.close()
 
