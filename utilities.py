@@ -568,10 +568,17 @@ def gen_argfiles(datadir, taskname, uploadfilename, task, email, samprate=None, 
     """Align and extract"""
     o = open(os.path.join(datadir, taskname+'.alext_args'), 'w')
     o.write(uploadfilename+' ')
-    if samprate==8000:
-            o.write('/home/darla/acousticmodels/htkpenn8kplp ')
+    if task=='asr':
+        if samprate==8000:
+            o.write('/home/darla/acousticmodels/sphinx-16 ')
+        else:
+            o.write('/home/darla/acousticmodels/sphinx-8 ')
     else:
+        if samprate==8000:
+            o.write('/home/darla/acousticmodels/htkpenn8kplp ')
+        else:
             o.write('/home/darla/acousticmodels/htkpenn16kplp ')
+    
     o.write(email+' ')
     o.write(task+'\n')
     o.close()

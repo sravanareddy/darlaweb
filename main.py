@@ -139,7 +139,7 @@ class uploadsound:
                     form.note = error
                     return render.speakerssound(form, "")
         
-                samprate, file_size, chunks, error = utilities.soxConversion(filename,
+                samprate, total_size, chunks, error = utilities.soxConversion(filename,
                                                                        audiodir, dochunk=20)
                 if error!="":
                     form.note = error
@@ -334,7 +334,7 @@ class uploadtxttrans:
             if error!="":
                 form.note = error
                 return render.speakerttxttrans(form, "")
-            samprate, file_size, chunks, error = utilities.soxConversion(filename, audiodir, dochunk=None)
+            samprate, total_size, chunks, error = utilities.soxConversion(filename, audiodir, dochunk=None)
             if error!="":
                 form.note = error
                 return render.speakerstxttrans(form, "")
@@ -462,7 +462,7 @@ class uploadboundtrans:
                 form.note = error
                 return render.speakersboundtrans(form, "")
             
-            samprate, file_size, chunks, error = utilities.soxConversion(filename, audiodir, dochunk=chunks)
+            samprate, total_size, chunks, error = utilities.soxConversion(filename, audiodir, dochunk=chunks)
             if error!="":
                 form.note = error
                 return render.speakersboundtrans(form, "")
@@ -591,7 +591,7 @@ class uploadtextgrid:
             form.taskname.value = taskname
 
             filename = utilities.youtube_wav(x.filelink, audiodir, taskname)
-            samprate, file_size, chunks, error = utilities.soxConversion(filename, audiodir, dochunk=None)
+            samprate, total_size, chunks, error = utilities.soxConversion(filename, audiodir, dochunk=None)
             if error!="":
                 form.note = error
                 return render.speakerstextgrid(form, "")
