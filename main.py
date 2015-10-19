@@ -313,7 +313,7 @@ class uploadtxttrans:
                 form.note = "Please upload a .wav or .mp3 file."
                 return render.speakerstxttrans(form, "")
             else:
-                error = utilities.write_hyp(self.datadir, form.taskname.value, filename, utilities.read_textupload(x.uploadtxtfile.file.read()), 'cmudict.forhtk.txt')
+                error = utilities.write_hyp(self.datadir, form.taskname.value, filename, x.uploadtxtfile.file.read(), 'cmudict.forhtk.txt')
                 if error!="":
                     form.note = error
                     return render.speakerstxttrans(form, "")
@@ -330,7 +330,7 @@ class uploadtxttrans:
         elif x.filelink!='':
 
             filename = utilities.youtube_wav(x.filelink, audiodir, taskname)
-            error = utilities.write_hyp(self.datadir, form.taskname.value, filename, utilities.read_textupload(x.uploadtxtfile.file.read()), 'cmudict.forhtk.txt')
+            error = utilities.write_hyp(self.datadir, form.taskname.value, filename, x.uploadtxtfile.file.read(), 'cmudict.forhtk.txt')
             if error!="":
                 form.note = error
                 return render.speakerttxttrans(form, "")
@@ -651,8 +651,8 @@ class uploadeval:
                     
                     numreflines, numhyplines = utilities.write_transcript(self.datadir,
                                                                           taskname,
-                                                                          utilities.read_textupload(x.reffile.file.read()),
-                                                                          utilities.read_textupload(x.hypfile.file.read()),
+                                                                          x.reffile.file.read(),
+                                                                          x.hypfile.file.read(),
                                                                           'cmudict.forhtk.txt')
                     if numreflines!=numhyplines:
                         form.note = 'Files should have the same number of lines, corresponding to each speech input. Please try again.'

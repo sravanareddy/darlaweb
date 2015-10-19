@@ -169,7 +169,7 @@ def send_error_email(receiver, filename, message):
         msg = 'Error email already sent.'
 
 def read_textupload(data):
-    """read user form upload of text (textgrid or plain text transcriptions"""
+    """read user form upload of text (textgrid or plain text transcriptions)"""
     try:
         return data.decode('ASCII')
     except UnicodeDecodeError:
@@ -180,7 +180,7 @@ def read_textupload(data):
                 return data.decode('UTF-16')
             except UnicodeDecodeError:
                 print "Bad file format"
-    return
+    return 
 
 def read_prdict(dictfile):
     spam = map(lambda line: line.split(), open(dictfile).readlines())
