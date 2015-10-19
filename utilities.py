@@ -570,9 +570,9 @@ def gen_argfiles(datadir, taskname, uploadfilename, task, email, samprate=None, 
     o.write(uploadfilename+' ')
     if task=='asr':
         if samprate==8000:
-            o.write('/home/darla/acousticmodels/sphinx-16 ')
-        else:
             o.write('/home/darla/acousticmodels/sphinx-8 ')
+        else:
+            o.write('/home/darla/acousticmodels/sphinx-16 ')
     else:
         if samprate==8000:
             o.write('/home/darla/acousticmodels/htkpenn8kplp ')
