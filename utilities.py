@@ -171,13 +171,13 @@ def send_error_email(receiver, filename, message):
 def read_textupload(data):
     """read user form upload of text (textgrid or plain text transcriptions)"""
     try:
-        return data.decode('ASCII')
+        return data.decode('utf-8-sig')
     except UnicodeDecodeError:
         try:
-            return data.decode('UTF-8')
+            return data.decode('utf-16')
         except UnicodeDecodeError:
             try:
-                return data.decode('UTF-16')
+                return data.decode('latin-1')
             except UnicodeDecodeError:
                 print "Bad file format"
     return 
@@ -283,7 +283,7 @@ def process_usertext(inputstring):
     unimaketrans = string.maketrans(transfrom, transto)
     #MS line breaks and stylized characters that stupid TextEdit inserts. (is there an existing module that does this?)
     cleaned = string.translate(inputstring.lower(), 
-                            unimaketrans).replace("\xe2\x80\x93", " - ").replace('\xe2\x80\x94', " - ").replace('\xe2\x80\x99', "'").replace('\r\n', '\n').replace('\r', '\n').strip()
+                            unimaketrans).replace("\xe2\x80\x93", " - ").replace('\xe2\x80\x94', " - ").replace('\xe2\x80\x99', "'").replace('\xe2\x80\x9c', '"').replace('\xe2\x80\x9d', '"').replace('\r\n', '\n').replace('\r', '\n').strip()
     digitconverter = inflect.engine()
     returnstr = ''
     for line in cleaned.splitlines():
