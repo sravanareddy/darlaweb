@@ -141,7 +141,7 @@ class uploadsound:
                     return render.speakerssound(form, "")
         
                 samprate, total_size, chunks, error = utilities.soxConversion(filename,
-                                                                       audiodir, dochunk=20)
+                                                                              audiodir, dochunk=20)
                 if error!="":
                     form.note = error
                     return render.speakerssound(form, "")
@@ -280,7 +280,6 @@ class uploadyt:
 
             videofile = os.path.join(audiodir, filename+'.mp4')
             video_id, error = utilities.upload_youtube(form.taskname.value, videofile)
-            print video_id
             
             if error:
                 form.note = error
@@ -289,7 +288,6 @@ class uploadyt:
             time.sleep(100)   # give YT time to do ASR
             
             error = utilities.download_youtube(audiodir, filename, video_id)
-
             if error:
                 form.note = error
                 return render.speakersyt(form, "")

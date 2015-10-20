@@ -30,6 +30,19 @@ ERROR = 0
 class CustomException(Exception):
     pass 
 
+def read_textupload(data):
+    try:
+        return data.decode('utf-8-sig')
+    except UnicodeDecodeError:
+        try:
+            return data.decode('utf-16')
+        except UnicodeDecodeError:
+            try:
+                return data.decode('latin-1')
+            except:
+                pass
+    return
+
 def send_init_email(tasktype, receiver, filename):
         username = 'darla.dartmouth'
         passfile = open('filepaths.txt').readlines()[1].split()[1]
@@ -62,7 +75,7 @@ def send_init_email(tasktype, receiver, filename):
                 server.quit()
 
         except smtplib.SMTPException:
-                print 'Unable to send e-mail '
+                return 'Unable to send e-mail '
 
 def consolidate_hyp(wavlab, outfile):
     basehyps = defaultdict(list)
@@ -170,20 +183,6 @@ def send_error_email(receiver, filename, message):
                 print 'Unable to send e-mail '
     else:
         msg = 'Error email already sent.'
-
-def read_textupload(data):
-    """read user form upload of text (textgrid or plain text transcriptions)"""
-    try:
-        return data.decode('utf-8-sig')
-    except UnicodeDecodeError:
-        try:
-            return data.decode('utf-16')
-        except UnicodeDecodeError:
-            try:
-                return data.decode('latin-1')
-            except UnicodeDecodeError:
-                print "Bad file format"
-    return 
 
 def read_prdict(dictfile):
     spam = map(lambda line: line.split(), open(dictfile).readlines())
@@ -399,7 +398,6 @@ def upload_youtube(taskname, videofile):
                 upload_status = yt_service.CheckUploadStatus(new_entry)
                 return get_entry_id(new_entry.id), None
         except:
-                print sys.exc_info()
                 return 0, "Failed to upload to YouTube. Check your file and try again."
 
 def download_youtube(audiodir, filename, video_id):
@@ -408,7 +406,7 @@ def download_youtube(audiodir, filename, video_id):
         try:
                 email = 'darla.dartmouth@gmail.com'
                 password = open(passfile).read().strip()
-                os.system('youtube-dl --write-auto-sub --skip-download https://www.youtube.com/watch?v='+str(video_id)+' -u '+email+' -p '+password+' -o '+os.path.join(audiodir, filename+'.srt'))
+                subprocess.Popen(['youtube-dl', '--write-auto-sub', '--skip-download', 'https://www.youtube.com/watch?v='+str(video_id), ' -u ', email, ' -p ', password, ' -o ', os.path.join(audiodir, filename+'.srt')], stdout=subprocess.PIPE)
                 return None
         except:
                 return "YouTube did not generate ASR transcriptions. Sorry!"
@@ -446,8 +444,7 @@ def process_audio(audiodir, filename, extension, filecontent, dochunk):
                         
 def youtube_wav(url,audiodir, taskname):
     try:
-        tube = subprocess.Popen(shlex.split('youtube-dl '+url+' --extract-audio --audio-format wav --audio-quality 16k -o '+os.path.join(audiodir, 'ytvideo.m4a')), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        print tube.stdout.readlines()
+        tube = subprocess.Popen(shlex.split('youtube-dl '+url+' --extract-audio --audio-format wav --audio-quality 16k -o '+os.path.join(audiodir, 'ytvideo.%(ext)s')), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         return "ytvideo.wav", ""
     except:
         return "ytvideo.wav", "Could not convert youtube video to a .wav file."        
@@ -464,7 +461,7 @@ def soxConversion(filename, audiodir, dochunk=None):
     if retval != 0: 
         error_message = 'Could not process your audio file. Please check that the file is valid and not blank.'
         # print 'Could not call subprocess '
-        return sample_rate, file_size, error_message
+        return sample_rate, file_size, 0, error_message
 
     for line in sox.stdout.readlines():
         # print line
@@ -491,7 +488,7 @@ def soxConversion(filename, audiodir, dochunk=None):
         error_message = "Sample rate not high enough. Please upload files with minimum 8kHz sample rate."
         # return sample_rate, "sample rate not high enough"
         # raise CustomException("sample rate not high enough")
-        return sample_rate, file_size, error_message
+        return sample_rate, file_size, 0, error_message
         #TODO: actually make it work instead of break. Note: this is also a way to catch non-sound files that have been (maliciously?) uploaded using a .wav extension.
     
     #convert to 16-bit, signed, little endian as well as downsample                        
