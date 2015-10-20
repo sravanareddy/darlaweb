@@ -389,17 +389,9 @@ def process_audio(audiodir, filename, extension, filecontent, dochunk):
         # print 'converting', os.path.join(audiodir, filename+extension)  #TODO: try and except here
         os.system("mpg123 "+"-w "+os.path.join(audiodir, filename+'.wav')+' '+os.path.join(audiodir, filename+extension))
         #audio = subprocess.Popen(shlex.split("mpg123 "+"-w "+os.path.join(audiodir, filename+'.wav')+' '+os.path.join(audiodir, filename+extension)), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
-        #print audio.stdout.readlines()
         #retval = audio.wait()
 
-        #if retval != 0: 
-        #    print "Error converting from .mp3 to .wav "
-        #    error_message = 'Could not convert from .mp3 to .wav'
-        #    return 0, 0, error_message
-            
-        #os.system('lame --decode '+os.path.join(audiodir, filename+extension)+' '+os.path.join(audiodir, filename+'.wav'))  #TODO: use subprocess instead (it's getting stuck on lame for some reason)
         extension = '.wav'
-        # print "converted to", filename+extension
             
     #split and convert frequency
     samprate, filesize, chunks, soxerror = soxConversion(filename+extension, audiodir, dochunk)
@@ -581,16 +573,10 @@ def gen_argfiles(datadir, taskname, uploadfilename, task, email, samprate=None, 
     """Align and extract"""
     o = open(os.path.join(datadir, taskname+'.alext_args'), 'w')
     o.write(uploadfilename+' ')
-    if task=='asr':
-        if samprate==8000:
-            o.write('/home/darla/acousticmodels/sphinx-8 ')
-        else:
-            o.write('/home/darla/acousticmodels/sphinx-16 ')
+    if samprate==8000:
+        o.write('/home/darla/acousticmodels/htkpenn8kplp ')
     else:
-        if samprate==8000:
-            o.write('/home/darla/acousticmodels/htkpenn8kplp ')
-        else:
-            o.write('/home/darla/acousticmodels/htkpenn16kplp ')
+        o.write('/home/darla/acousticmodels/htkpenn16kplp ')
     
     o.write(email+' ')
     o.write(task+'\n')
