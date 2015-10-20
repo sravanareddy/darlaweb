@@ -11,14 +11,17 @@ $def with (form, speakerform)
 <script src="/static/js/progress.js"></script>
 
 
-<h2>Automated Alignment and Vowel Extraction with Manual Transcriptions</h2><p><p>
+<h2>Automated Vowel Extraction with Transcriptions from YouTube Closed
+  Captioning</h2><p><p>
 
-<span class="note">Upload your audio files with manual transcriptions to run
-  forced alignment using ProsodyLab Aligner, followed by formant extraction with FAVE-extract. </span><p>
+<span class="note">Upload your audio file to convert it to a "video"
+  for uploading to YouTube, and then follow our instructions to extract
+  automatically generated transcriptions from YouTube.
+  </span><p>
 
-<a href="uploadtxttrans"><small>Click here at any time to cancel or start over.</small></a><p>
+<a href="uploadsrttrans"><small>Click here at any time to cancel or start over.</small></a><p>
 
-<form name="uploadtxttrans" method="post" enctype="multipart/form-data"> 
+<form name="uploadsrttrans" method="post" enctype="multipart/form-data"> 
   $if not form.valid: <p class="error">Correct the errors below.</p>
   $if not speakerform:
      $:form.render()

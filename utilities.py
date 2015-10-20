@@ -353,6 +353,19 @@ def write_sentgrid_as_lab(datadir, taskname, filename, txtfile, cmudictfile):
     g2p(os.path.join(datadir, taskname), allwords, cmudictfile)
     return chunks, ""
 
+def convert_to_video(audiodir, filename, extension, audiofilecontent):
+    #write contents
+    try:
+        audiofile = os.path.join(audiodir, filename+extension)
+        o = open(audiofile, 'w')
+        o.write(audiofilecontent)
+        o.close()
+    
+        videofile = os.path.join(audiodir, filename+'.mp4')
+        os.system('ffmpeg -loop 1 -i static/images/shield.jpg -i '+audiofile+' -strict experimental -b:a 192k -shortest '+videofile)
+    except:
+        return "Error reading or converting your audio file."
+    
 def write_textgrid(datadir, taskname, filename, tgfilecontent):
     #TODO: validate TextGrid
     os.system('mkdir -p '+os.path.join(datadir, taskname+'.mergedtg'))

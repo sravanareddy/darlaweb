@@ -18,7 +18,7 @@ import asredit
 
 render = web.template.render('templates/', base='layout')
 
-urls = ('/', 'index', '/cave', 'cave', '/semi', 'semi', '/uploadsound', 'uploadsound', '/uploadtxttrans', 'uploadtxttrans', '/uploadboundtrans', 'uploadboundtrans', '/uploadtextgrid', 'uploadtextgrid', '/allpipeline', allpipeline.app_allpipeline, '/extract', extract.app_extract, '/alignextract', alignextract.app_alignextract, '/uploadeval', 'uploadeval', '/asredit', asredit.app_asredit)
+urls = ('/', 'index', '/cave', 'cave', '/semi', 'semi', '/uploadsound', 'uploadsound', '/uploadtxttrans', 'uploadtxttrans', '/uploadboundtrans', 'uploadboundtrans', '/uploadtextgrid', 'uploadtextgrid', '/allpipeline', allpipeline.app_allpipeline, '/extract', extract.app_extract, '/alignextract', alignextract.app_alignextract, '/uploadeval', 'uploadeval', '/asredit', asredit.app_asredit, '/uploadsrttrans', 'uploadsrttrans')
 
 app = web.application(urls, globals())
 web.config.debug = True
@@ -226,6 +226,58 @@ class uploadsound:
             #show speaker form by adding fields to existing form and re-rendering
             return self.speaker_form(form, filenames, taskname)
 
+class uploadsrttrans:
+    uploadfile = myform.MyFile('uploadfile',
+                               post='Your uploaded file is stored temporarily on the Dartmouth servers in order to process your job, and deleted after.',
+                               description='Your .wav or .mp3 file, to be converted to a video for YouTube upload:')
+    email = form.Textbox('email',
+                         form.notnull,
+                         form.regexp(r'^[\w.+-]+@[\w.+-]+\.[\w.+-]+$',
+                                     'Please enter a valid email address'),
+                                     post='We will not store or distribute your address.',
+                                     description='Your e-mail address:')
+    taskname = form.Hidden('taskname')
+    submit = form.Button('submit', type='submit', description='Submit')
+    soundvalid = [form.Validator('Please upload a sound file.',
+                                 lambda x:x.uploadfile)]
+
+    datadir = open('filepaths.txt').readline().split()[1]
+
+    def GET(self):
+        uploadsrttrans = myform.MyForm(self.uploadfile,
+                                    self.email, self.taskname, self.submit)
+        form = uploadsrttrans()
+        return render.speakerssrttrans(form, "")
+
+    def POST(self):
+        uploadsrttrans = myform.MyForm(self.uploadfile,
+                                    self.email, self.taskname, self.submit)
+        form = uploadsrttrans()
+        x = web.input(uploadfile={})
+
+        if not form.validates(): #not validated
+            return render.speakerstxttrans(form, "")
+
+        #create new task                                                                                 
+        taskname, audiodir, error = utilities.make_task(self.datadir)
+        if error!="":
+            form.note = error
+            return render.speakersrttrans(form, "")
+
+        form.taskname.value = taskname
+
+        #sanitize filename                                                                        
+        filename, extension = utilities.get_basename(x.uploadfile.filename)
+        if extension not in ['.wav', '.mp3']:
+            form.note = "Please upload a .wav or .mp3 file."
+            return render.speakerstxttrans(form, "")
+        else:
+            error = utilities.convert_to_video(audiodir, filename, extension, x.uploadfile.file.read())
+            if error:
+                form.note = error
+                return render.speakerssrttrans(form, "")
+            
+        
 class uploadtxttrans:
     uploadfile = myform.MyFile('uploadfile',
                                post='Your uploaded files are stored temporarily on the Dartmouth servers in order to process your job, and deleted after.',
