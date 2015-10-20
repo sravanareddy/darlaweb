@@ -11,22 +11,25 @@ $def with (form, speakerform)
 <script src="/static/js/progress.js"></script>
 
 
-<h2>Automated Vowel Extraction with Transcriptions from YouTube Closed
-  Captioning</h2><p><p>
+<h2>Completely Automated Vowel Extraction with Transcriptions from
+  YouTube Closed Captioning: Alignment and Extraction</h2><p><p>
 
-<span class="note">Upload your audio file to convert it to a "video"
-  for uploading to YouTube, and then follow our instructions to extract
-  automatically generated transcriptions from YouTube.
-  </span><p>
+<span class="note">Enter your taskname and video ID to check whether
+  YouTube has generated ASR transcriptions. (Allow 4-5 hours after
+  your sound upload). If transcriptions are available, we will
+  automatically access them and run
+  forced alignment using ProsodyLab Aligner, followed by formant extraction with FAVE-extract. </span><p>
 
-<a href="uploadsrttrans"><small>Click here at any time to cancel or start over.</small></a><p>
+<a href="downloadsrttrans"><small>Click here at any time to cancel or start over.</small></a><p>
 
-<form name="uploadsrttrans" method="post" enctype="multipart/form-data"> 
+<form name="downloadsrttrans" method="post" enctype="multipart/form-data"> 
   $if not form.valid: <p class="error">Correct the errors below.</p>
   $if not speakerform:
-     $:form.render()
-</form>
-
+  $:form.render()
+  </form>
+  <span class="note">Please stay on this page while we try to download
+  the captions from YouTube</span>
+  
   $if speakerform:
         $:form.render_disabled()
 	<h3>Enter speaker information</h3>
@@ -36,10 +39,7 @@ $def with (form, speakerform)
 	$:speakerform.render()
 	<input type="submit" />
 	</form>
-	<div id="loading" style="display: none;">
-	  <span class="note">Task processing. You may now close this window and we will email you the results.</span>
-	<img src="/static/images/ajax-loader.gif"></img>
-	</div>
+
 	<br>
 
 </div>

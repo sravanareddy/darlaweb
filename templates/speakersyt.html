@@ -11,7 +11,7 @@ $def with (form, speakerform)
 <script src="/static/js/progress.js"></script>
 
 
-<h2>Completely Automated Vowel Extraction with Transcriptions from YouTube Closed Captioning</h2><p><p>
+<h2>Completely Automated Vowel Extraction with Transcriptions from YouTube Closed Captioning: Upload</h2><p><p>
 
 <span class="note">Upload your audio file to get automated
   ASR from YouTube, followed by automated alignment and extraction.
@@ -25,19 +25,6 @@ $def with (form, speakerform)
      $:form.render()
 </form>
 
-  $if speakerform:
-        $:form.render_disabled()
-	<h3>Enter speaker information</h3>
-	<span class="note">Does not affect the automatic transcription, but required for vowel extraction results.</span><p>
-	<form action="alignextract" name="alignextract" method="post" onsubmit="progress()">
-	$if not speakerform.valid: <p class="error">Correct the errors below.</p>
-	$:speakerform.render()
-	<input type="submit" />
-	</form>
-	<div id="loading" style="display: none;">
-	  <span class="note">Task processing. You may now close this window and we will email you the results.</span>
-	<img src="/static/images/ajax-loader.gif"></img>
-	</div>
 	<br>
 
 </div>

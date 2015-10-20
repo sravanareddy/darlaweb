@@ -19,7 +19,7 @@ import time
 
 render = web.template.render('templates/', base='layout')
 
-urls = ('/', 'index', '/cave', 'cave', '/semi', 'semi', '/uploadsound', 'uploadsound', '/uploadtxttrans', 'uploadtxttrans', '/uploadboundtrans', 'uploadboundtrans', '/uploadtextgrid', 'uploadtextgrid', '/allpipeline', allpipeline.app_allpipeline, '/extract', extract.app_extract, '/alignextract', alignextract.app_alignextract, '/uploadeval', 'uploadeval', '/asredit', asredit.app_asredit, '/uploadyt', 'uploadyt')
+urls = ('/', 'index', '/cave', 'cave', '/semi', 'semi', '/uploadsound', 'uploadsound', '/uploadtxttrans', 'uploadtxttrans', '/uploadboundtrans', 'uploadboundtrans', '/uploadtextgrid', 'uploadtextgrid', '/allpipeline', allpipeline.app_allpipeline, '/extract', extract.app_extract, '/alignextract', alignextract.app_alignextract, '/uploadeval', 'uploadeval', '/asredit', asredit.app_asredit, '/uploadyt', 'uploadyt', '/downloadsrttrans', 'downloadsrttrans')
 
 app = web.application(urls, globals())
 web.config.debug = True
@@ -285,19 +285,64 @@ class uploadyt:
                 form.note = error
                 return render.speakersyt(form, "")
 
-            time.sleep(100)   # give YT time to do ASR
-            
-            error = utilities.download_youtube(audiodir, filename, video_id)
+            error = utilities.send_ytupload_email(video_id, form.taskname.value, form.email.value, filename)
             if error:
-                form.note = error
-                return render.speakersyt(form, "")
+                return 'YouTube video successfully uploaded and processing. Your job ID is '+video_id+' and your taskname ID is '+form.taskname.value+' . Please save these IDs, and after about 5 hours, visit our YouTube CC processor (http://darla.dartmouth.edu:8080/main.py/downloadsrttrans) to check if YouTube has generated the ASR captions. You can then run alignment and extraction with these captions.'
 
-            try:
-                return open(os.path.join(audiodir, filename+'.srt')).read()
-            except IOError:
-                form.note = 'YouTube did not generate ASR transcriptions for your file. It may be too long or noisy. Try our <a href="uploadsound">in-house ASR system insead</a>.'
-                return render.speakersyt(form, "")
-            
+            return 'Successfully uploaded! Please check your e-mail.'
+
+class downloadsrttrans:
+    taskname = form.Textbox('taskname',
+                            form.notnull,
+                            description='The taskname ID sent to your e-mail')
+    video_id = form.Textbox('video_id',
+                            form.notnull,
+                            description='The video ID sent to your e-mail')
+    email = form.Textbox('email',
+                         form.notnull,
+                         form.regexp(r'^[\w.+-]+@[\w.+-]+\.[\w.+-]+$',
+                                     'Please enter a valid email address'),
+                                     post='We will not store or distribute your address.',
+                                     description='Your e-mail address:')
+    
+    submit = form.Button('submit', type='submit', description='Submit')
+    soundvalid = [form.Validator('Please enter a taskname and video ID to continue with your job',
+                  lambda x: (x.taskname!='' and x.video_id!=''))]
+
+    datadir = open('filepaths.txt').readline().split()[1]
+
+    def GET(self):
+        downloadstrtrans = myform.MyForm(self.taskname,
+                                        self.video_id,
+                                        self.email,
+                                        self.submit)
+        form = downloadstrtrans()
+        return render.speakerssrttrans(form, "")
+
+    def POST(self):
+        downloadstrtrans = myform.MyForm(self.taskname,
+                                        self.video_id,
+                                        self.email,
+                                        self.submit)
+        form = downloadstrtrans()
+        
+        if not form.validates(): #not validated
+            return render.speakerssrttrans(form, "")
+
+        
+        audiodir = os.path.join(self.datadir, form.taskname.value+'.audio')
+        error = utilities.download_youtube(audiodir, 'ytresults', form.video_id.value)
+        
+        if error:
+            form.note = error
+            return render.speakerssrttrans(form, "")
+
+        try:
+            return open(os.path.join(audiodir, 'ytresults.en.srt')).read()
+        
+        except IOError:
+            form.note = 'YouTube did not generate ASR transcriptions for your file. Wait a bit longer and try again. If it has been at least 4-5 hours after your uploaded your audio, the file may be too long or noisy. Try our <a href="uploadsound">in-house ASR system insead</a>.'
+            return render.speakerssrttrans(form, "")
             
 class uploadtxttrans:
     uploadfile = myform.MyFile('uploadfile',
