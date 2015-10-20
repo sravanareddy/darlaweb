@@ -13,6 +13,7 @@ import subprocess
 import shlex
 import re
 import smtplib
+import sys
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
@@ -21,6 +22,8 @@ from email import encoders
 from collections import defaultdict
 import inflect
 from textgrid.textgrid import TextGrid
+import gdata.youtube
+import gdata.youtube.service
 
 ERROR = 0
 
@@ -365,7 +368,51 @@ def convert_to_video(audiodir, filename, extension, audiofilecontent):
         os.system('ffmpeg -loop 1 -i static/images/shield.jpg -i '+audiofile+' -strict experimental -b:a 192k -shortest '+videofile)
     except:
         return "Error reading or converting your audio file."
-    
+
+def get_entry_id(url):
+        """YouTube video id from a URL"""
+        return str(url).split('/')[-2][:-1]
+
+def upload_youtube(taskname, videofile):
+        passfile = open('filepaths.txt').readlines()[1].split()[1]
+        
+        try:
+                yt_service = gdata.youtube.service.YouTubeService()
+                yt_service.ssl = True
+                yt_service.developer_key = open('youtubekey.txt').read().strip()
+                yt_service.email = 'darla.dartmouth@gmail.com'
+                yt_service.password = open(passfile).read().strip()
+                yt_service.source = 'DARLA'
+                yt_service.ProgrammaticLogin()
+
+                my_media_group = gdata.media.Group(title=gdata.media.Title(text='Darla sociophonetics sample '+taskname),
+                                        description=gdata.media.Description(description_type='plain',
+                                                                            text='My description '+taskname), 
+                                       keywords=gdata.media.Keywords(text='sociophonetics'), 
+                                       category=[gdata.media.Category(text='Education', scheme='http://gdata.youtube.com/schemas/2007/categories.cat', label='Education')], 
+                                       player=None, 
+                                      private=gdata.media.Private())
+
+                video_entry = gdata.youtube.YouTubeVideoEntry(media=my_media_group)
+                new_entry = yt_service.InsertVideoEntry(video_entry, videofile)
+
+                upload_status = yt_service.CheckUploadStatus(new_entry)
+                return get_entry_id(new_entry.id), None
+        except:
+                print sys.exc_info()
+                return 0, "Failed to upload to YouTube. Check your file and try again."
+
+def download_youtube(audiodir, filename, video_id):
+        passfile = open('filepaths.txt').readlines()[1].split()[1]
+        
+        try:
+                email = 'darla.dartmouth@gmail.com'
+                password = open(passfile).read().strip()
+                os.system('youtube-dl --write-auto-sub --skip-download https://www.youtube.com/watch?v='+str(video_id)+' -u '+email+' -p '+password+' -o '+os.path.join(audiodir, filename+'.srt'))
+                return None
+        except:
+                return "YouTube did not generate ASR transcriptions. Sorry!"
+         
 def write_textgrid(datadir, taskname, filename, tgfilecontent):
     #TODO: validate TextGrid
     os.system('mkdir -p '+os.path.join(datadir, taskname+'.mergedtg'))

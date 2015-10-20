@@ -15,10 +15,11 @@ import extract
 import alignextract
 from evaluate import run_evaluation
 import asredit
+import time
 
 render = web.template.render('templates/', base='layout')
 
-urls = ('/', 'index', '/cave', 'cave', '/semi', 'semi', '/uploadsound', 'uploadsound', '/uploadtxttrans', 'uploadtxttrans', '/uploadboundtrans', 'uploadboundtrans', '/uploadtextgrid', 'uploadtextgrid', '/allpipeline', allpipeline.app_allpipeline, '/extract', extract.app_extract, '/alignextract', alignextract.app_alignextract, '/uploadeval', 'uploadeval', '/asredit', asredit.app_asredit, '/uploadsrttrans', 'uploadsrttrans')
+urls = ('/', 'index', '/cave', 'cave', '/semi', 'semi', '/uploadsound', 'uploadsound', '/uploadtxttrans', 'uploadtxttrans', '/uploadboundtrans', 'uploadboundtrans', '/uploadtextgrid', 'uploadtextgrid', '/allpipeline', allpipeline.app_allpipeline, '/extract', extract.app_extract, '/alignextract', alignextract.app_alignextract, '/uploadeval', 'uploadeval', '/asredit', asredit.app_asredit, '/uploadyt', 'uploadyt')
 
 app = web.application(urls, globals())
 web.config.debug = True
@@ -88,7 +89,7 @@ class uploadsound:
                          pre="File Name: "+filenames[index][1],
                          description='Speaker ID')
         sex = myform.MyRadio('sex'+str(index),
-                        [('M','Male', 'M'+str(index)),('F','Female', 'F'+str(index)),('C','Child', 'C'+str(index))],
+                        [('M','Male', 'M'+str(index)),('F','Female', 'F'+str(index)),('F','Child', 'C'+str(index))],
                         description='Sex'
                         )
 
@@ -226,10 +227,11 @@ class uploadsound:
             #show speaker form by adding fields to existing form and re-rendering
             return self.speaker_form(form, filenames, taskname)
 
-class uploadsrttrans:
+class uploadyt:
+    
     uploadfile = myform.MyFile('uploadfile',
                                post='Your uploaded file is stored temporarily on the Dartmouth servers in order to process your job, and deleted after.',
-                               description='Your .wav or .mp3 file, to be converted to a video for YouTube upload:')
+                               description='Your .wav or .mp3 file:')
     email = form.Textbox('email',
                          form.notnull,
                          form.regexp(r'^[\w.+-]+@[\w.+-]+\.[\w.+-]+$',
@@ -244,25 +246,23 @@ class uploadsrttrans:
     datadir = open('filepaths.txt').readline().split()[1]
 
     def GET(self):
-        uploadsrttrans = myform.MyForm(self.uploadfile,
-                                    self.email, self.taskname, self.submit)
-        form = uploadsrttrans()
-        return render.speakerssrttrans(form, "")
+        uploadyt = myform.MyForm(self.uploadfile, self.email, self.taskname, self.submit)
+        form = uploadyt()
+        return render.speakersyt(form, "")
 
     def POST(self):
-        uploadsrttrans = myform.MyForm(self.uploadfile,
-                                    self.email, self.taskname, self.submit)
-        form = uploadsrttrans()
+        uploadyt = myform.MyForm(self.uploadfile, self.email, self.taskname, self.submit)
+        form = uploadyt()
         x = web.input(uploadfile={})
 
         if not form.validates(): #not validated
-            return render.speakerstxttrans(form, "")
+            return render.speakersyt(form, "")
 
         #create new task                                                                                 
         taskname, audiodir, error = utilities.make_task(self.datadir)
         if error!="":
             form.note = error
-            return render.speakersrttrans(form, "")
+            return render.speakersyt(form, "")
 
         form.taskname.value = taskname
 
@@ -270,14 +270,37 @@ class uploadsrttrans:
         filename, extension = utilities.get_basename(x.uploadfile.filename)
         if extension not in ['.wav', '.mp3']:
             form.note = "Please upload a .wav or .mp3 file."
-            return render.speakerstxttrans(form, "")
+            return render.speakersyt(form, "")
         else:
+            
             error = utilities.convert_to_video(audiodir, filename, extension, x.uploadfile.file.read())
             if error:
                 form.note = error
-                return render.speakerssrttrans(form, "")
+                return render.speakersyt(form, "")
+
+            videofile = os.path.join(audiodir, filename+'.mp4')
+            video_id, error = utilities.upload_youtube(form.taskname.value, videofile)
+            print video_id
             
-        
+            if error:
+                form.note = error
+                return render.speakersyt(form, "")
+
+            time.sleep(100)   # give YT time to do ASR
+            
+            error = utilities.download_youtube(audiodir, filename, video_id)
+
+            if error:
+                form.note = error
+                return render.speakersyt(form, "")
+
+            try:
+                return open(os.path.join(audiodir, filename+'.srt')).read()
+            except IOError:
+                form.note = 'YouTube did not generate ASR transcriptions for your file. It may be too long or noisy. Try our <a href="uploadsound">in-house ASR system insead</a>.'
+                return render.speakersyt(form, "")
+            
+            
 class uploadtxttrans:
     uploadfile = myform.MyFile('uploadfile',
                                post='Your uploaded files are stored temporarily on the Dartmouth servers in order to process your job, and deleted after.',
@@ -315,7 +338,7 @@ class uploadtxttrans:
                          pre="File Name: "+filenames[0][1],
                          description='Speaker ID')
         sex = myform.MyRadio('sex0',
-                        [('M','Male', 'M0'),('F','Female', 'F0'),('C','Child', 'C0')],
+                        [('M','Male', 'M0'),('F','Female', 'F0'),('F','Child', 'C0')],
                         description='Sex'
                         )
         input_list.extend([speaker_name,sex,filename])
@@ -435,7 +458,7 @@ class uploadboundtrans:
                          pre="File Name: "+filenames[0][1],
                          description='Speaker ID')
         sex = myform.MyRadio('sex0',
-                        [('M','Male', 'M0'),('F','Female', 'F0'),('C','Child', 'C0')],
+                        [('M','Male', 'M0'),('F','Female', 'F0'),('F','Child', 'C0')],
                         description='Sex'
                         )
         input_list.extend([speaker_name,sex,filename])
@@ -565,7 +588,7 @@ class uploadtextgrid:
                                     pre="File Name: "+filenames[0][1],
                                     description='Speaker ID')
         sex = myform.MyRadio('sex0',
-                             [('M','Male', 'M0'),('F','Female', 'F0'),('C','Child', 'C0')],
+                             [('M','Male', 'M0'),('F','Female', 'F0'),('F','Child', 'C0')],
                              description='Sex'
                              )
 
