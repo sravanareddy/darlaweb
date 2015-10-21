@@ -23,64 +23,67 @@ def clean(text):
     '''Gets rid of double quotes so they don't cause textgrid problems'''
     return(re.sub('"',"'",text))
 
-# Examine arguments from command line
-args = sys.argv
-assert len(args) == 2, "Needs a srt file as an argument."
+def convert(srtfile):
+    # Read in data from srt file
+    f = open(args[1], 'r')
 
-# Read in data from srt file
-f = open(args[1], 'r')
+    # Go through line by line, converting to (start, end, text) tuples.
+    transcriptions = []
 
-# Go through line by line, converting to (start, end, text) tuples.
-transcriptions = []
+    srtlines = f.read().splitlines() 
 
-srtlines = f.read().splitlines() 
+    i = 0
 
-i = 0
-
-while i < len(srtlines) - 2:
-    # Skip number line
-    i+=1
-    # Get time information, convert
-    timestamps = srtlines[i]    
-    start, end = time_to_seconds(timestamps[:12]), time_to_seconds(timestamps[17:])
-    i+=1
-    # Get transcription
-    text = srtlines[i]
-    i+=1
-    # Get additional lines of transcription if any
-    while srtlines[i]:          
-        text += ' ' + srtlines[i]
+    while i < len(srtlines) - 2:
+        # Skip number line
         i+=1
-    # Delete all blank lines
-    while (i<len(srtlines) and not srtlines[i]):
+        # Get time information, convert
+        timestamps = srtlines[i]    
+        start, end = time_to_seconds(timestamps[:12]), time_to_seconds(timestamps[17:])
         i+=1
-    # Update transcriptions
-    transcriptions.append((start,end,text))
+        # Get transcription
+        text = srtlines[i]
+        i+=1
+        # Get additional lines of transcription if any
+        while srtlines[i]:          
+            text += ' ' + srtlines[i]
+            i+=1
+        # Delete all blank lines
+        while (i<len(srtlines) and not srtlines[i]):
+            i+=1
+        # Update transcriptions
+        transcriptions.append((start,end,text))
 
-# Open output TextGrid file
-destination = args[1][:-4] + ".TextGrid"
-f = open(destination, 'w')
+    # Open output TextGrid file
+    destination = args[1][:-4] + ".TextGrid"
+    f = open(destination, 'w')
     
-# Write header information to TextGrid file"
-f.write('File type = "ooTextFile"\n')
-f.write('Object class = "TextGrid"\n\n')
-f.write('xmin = 0 \n')
-f.write('xmax = ' + transcriptions[-1][1] + ' \n')    
-f.write('tiers? <exists> \nsize = 1 \nitem []: \n')
-f.write('    item [1]:\n')
-f.write('        class = "IntervalTier" \n')    
-f.write('        name = "utterances" \n') 
-f.write('        xmin = 0 \n') 
-f.write('        xmax = ' + transcriptions[-1][1] + ' \n') 
-f.write('        intervals: size = ' + str(len(transcriptions)) + ' \n')
+    # Write header information to TextGrid file"
+    f.write('File type = "ooTextFile"\n')
+    f.write('Object class = "TextGrid"\n\n')
+    f.write('xmin = 0 \n')
+    f.write('xmax = ' + transcriptions[-1][1] + ' \n')    
+    f.write('tiers? <exists> \nsize = 1 \nitem []: \n')
+    f.write('    item [1]:\n')
+    f.write('        class = "IntervalTier" \n')    
+    f.write('        name = "utterances" \n') 
+    f.write('        xmin = 0 \n') 
+    f.write('        xmax = ' + transcriptions[-1][1] + ' \n') 
+    f.write('        intervals: size = ' + str(len(transcriptions)) + ' \n')
 
-# Write content to TextGrid file
-i = 0
-for (start,end,text) in transcriptions:
-    i += 1
-    f.write('        intervals [' + str(i) + ']:\n')
-    f.write('            xmin = ' + start + ' \n')
-    f.write('            xmax = ' + end + ' \n')
-    f.write('            text = "' + clean(text) + '" \n')
+    # Write content to TextGrid file
+    i = 0
+    for (start,end,text) in transcriptions:
+        i += 1
+        f.write('        intervals [' + str(i) + ']:\n')
+        f.write('            xmin = ' + start + ' \n')
+        f.write('            xmax = ' + end + ' \n')
+        f.write('            text = "' + clean(text) + '" \n')
 
-print "\nConverted and written to", destination
+    f.close()
+
+if __name__=='__main__':
+    # Examine arguments from command line 
+    args = sys.argv
+    assert len(args) == 2, "Needs a srt file as an argument."
+    convert(args[1])
