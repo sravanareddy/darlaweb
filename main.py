@@ -148,6 +148,7 @@ class uploadsound:
                     return render.speakerssound(form, "")
 
                 filenames = [(filename, x.filelink)]   #passed filename, display filename
+                filename = os.path.splitext(filename)[0]
                 utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+filename+'.chunks'))
                 
             elif 'uploadfile' in x:  
