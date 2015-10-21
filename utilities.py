@@ -51,7 +51,7 @@ def send_ytupload_email(video_id, taskname, receiver, filename):
 
     subject = 'Completely Automated Vowel Extraction with YouTube ASR: Task Started for '+filename
         
-    body = 'YouTube video successfully uploaded and processing. Your video ID is '+video_id+' and your taskname ID is '+taskname+' . Please save these IDs, and after about 5 hours, visit our YouTube CC processor (http://darla.dartmouth.edu:8080/main.py/downloadsrttrans) to check if YouTube has generated the ASR captions. You can then run alignment and extraction with these captions.'
+    body = 'YouTube video successfully uploaded and processing. Your video ID is '+video_id+' and your taskname ID is '+taskname+' . Please save these IDs, and after about 5 hours, visit our YouTube CC processor (http://darla.dartmouth.edu/downloadsrttrans) to check if YouTube has generated the ASR captions. You can then run alignment and extraction with these captions.'
 
     message = MIMEMultipart()
     message['From'] = 'DARLA <'+sender+'>'
@@ -136,8 +136,8 @@ def send_email(tasktype, receiver, filename, taskname):
         if tasktype == 'asr' or tasktype == 'asredit' or tasktype == 'boundalign':
             body += ', and (5) transcription.txt contains the transcriptions.'
             body += 'If you manually correct the transcriptions, you may re-upload your data with the new TextGrids to http://darla.dartmouth.edu/uploadtextgrid and receive revised formant measurements and plots.\n\n'
-            body += 'To edit the ASR transcriptions and re-run the alignment and extraction program, go to http://darla.dartmouth.edu:8080/main.py/asredit?taskname={0} '.format(os.path.basename(taskname))
-            body += 'Alternately, you may upload corrected plaintext transcriptions to http://darla.dartmouth.edu/uploadtrans'
+            body += 'To edit the ASR transcriptions and re-run the alignment and extraction program, go to http://darla.dartmouth.edu/asredit?taskname={0} '.format(os.path.basename(taskname))
+            body += 'Alternately, you may upload corrected plaintext transcriptions to http://darla.dartmouth.edu/uploadtxttrans'
         else:
             body +='.'
         body += '\n\n'
