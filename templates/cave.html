@@ -1,20 +1,34 @@
 <div class="center-col">
 
-<a href="uploadsound" class="appbox"><h1>Click here to run completely automated vowel
-  extraction on your untranscribed audio files.</h1>
+  <h2>Completely Automated Alignment and Vowel Extraction</h2>
+  
+  <p>Our automated system allows the user to upload audio files and returns ASR transcription, alignments, and vowel formants. We provide two options:</p>
 
-   <p>The system provides the facility
-  to edit the transcripts produced by the speech recognizer and
+  <ul>
+    <li><a href="uploadsound">Audio with transcriptions provided by our automatic speech recognition system</a>
+    <p>
+    This system uses ASR built upon the CMU Sphinx framework to transcribe your data and then runs it through automated alignment and extraction.
+    It also provides the facility to edit the transcripts produced by the speech recognizer and
   rerun the analysis.</p>
-  </a>
+    
 
- 
+          <li><a href="uploadyt">Audio with transcriptions provided by YouTube Closed Captioning</a>
+    <p>
+    Speech recognition developed by Google for YouTube captioning is much more accurate than the research-level ASR that we developed for DARLA. Unfortunately, Google does not provide an API to access its speech recognizer. However, one way to transcribe your audio files is to upload them as "videos" to YouTube, download the automatically generated closed captions, and then upload these captions to our system for forced alignment and extraction. </p>
+
+    <p>The quality of transcriptions is usually better than our in-built ASR, but there may be issues with reliability, since YouTube does not generate transcriptions for all uploaded videos. In addition, its spam detector sometimes rejects video uploads.
+    </p>
+
+    </ul>
+
 
   <p>Automated data analysis requires a higher tolerance of potential noise in the alignment and formant extraction results. You can estimate this noise using <a href="uploadeval">our transcription evaluation tool</a>, which takes as input a manual transcription of a sample from your recording along with the ASR transcription of the same, and uses weighted <a href="https://en.wikipedia.org/wiki/Levenshtein_distance">Levenshtein distance</a> to compute error rates for words, phonemes, and stressed vowels.</p>
   
-  <p> It is recommended that you look through the discussion below on the completely automated system's functionality and limitations before you begin. </p>
+    <p> It is recommended that you look through the discussion below on the completely automated system's functionality and limitations before you begin. </p>
 
-<a name="why"></a><h2>Why completely automate vowel extraction?</h2>
+    <hr>
+
+<a name="why"></a><h3>Why completely automate vowel extraction?</h3>
 <p>In the last few years, sociolinguists have begun using semi-automated speech processing methods such as Penn's <a href="http://fave.ling.upenn.edu/index.html">FAVE</a> program to extract vowel formants. These systems have accelerated the pace of linguistic research, but require significant human effort to manually create sentence-level transcriptions. </p>
 
 <p>We believe that sociolinguistics is on the brink of an even more
@@ -24,7 +38,7 @@
   from hours of recordings, including YouTube and vast audio
   archives. DARLA takes a step in this direction. </p>
 
-  <a name="how"></a><h2>How does it work?</h2>
+  <a name="how"></a><h3>How does it work?</h3>
 
 <p>While ASR is far from perfect, we believe sociophoneticians do not need to wait for years to take advantage of speech recognition. Unlike applications like dictation software where accurate word recognition is the primary goal, sociophonetics typically focuses on a much narrower objective: extracting a representative vowel space for speakers, based on stressed vowel tokens.
 For example, it would usually not be crucial to know that the stressed vowel in the word "turning" was extracted from "turn it" rather than "turning", or that "tack" was wrongly transcribed as "sack".  Such differences will have little effect on the speaker's vowel space for many sociophonetic questions. </p>
@@ -38,7 +52,7 @@ Of course, there will be instances of vowel error, but the effect of these error
 
 <p>See our <a href="http://cs.wellesley.edu/~sravana/papers/darla_naacl.pdf" target="_blank">NAACL paper</a> for more information.</p>
 
-<a name="limits"></a><h2>Limitations</h2>
+<a name="limits"></a><h3>Limitations</h3>
 
 <p> This system cannot provide perfect transcriptions or perfect formant measurements. The automatic transcriptions typically contain a very large number of errors, especially in free speech data. Current ASR technology simply cannot match the accuracy of human manual transcriptions.</p>
 
