@@ -2,11 +2,10 @@ $def with (form, speakerform)
 
 <div class="left-col">
 
-<span class="breadcrumbs"><a href="/"  target="_blank">Darla
-  Home</a></span>
-<span class="breadcrumbs"><a href="semi"
-  target="_blank">Semiautomated Home</a></span> 
+<span class="breadcrumbs"><a href="/" target="_blank">Darla Home</a></span>
+<span class="breadcrumbs"><a href="/cave#why" target="_blank">About Complete Automation</a></span>
 <span class="breadcrumbs"><a href="/#cite" target="_blank">How to Cite</a></span>
+
 <script src="/static/js/speakerInfo.js"></script>
 <script src="/static/js/progress.js"></script>
 
@@ -22,25 +21,25 @@ $def with (form, speakerform)
 
 <a href="downloadsrttrans"><small>Click here at any time to cancel or start over.</small></a><p>
 
-<form name="downloadsrttrans" method="post" enctype="multipart/form-data"> 
-  $if not form.valid: <p class="error">Correct the errors below.</p>
-  $if not speakerform:
-  $:form.render()
-  </form>
-  <span class="note">Please stay on this page while we try to download
-  the captions from YouTube</span>
-  
+<form name="downloadsrttrans" method="post" enctype="multipart/form-data">
+$if not form.valid: <p class="error">Correct the errors below.</p>
+$if not speakerform:
+     $:form.render()
+<span class="note">Please stay on this page until we finish downloading the data from YouTube.</span>
+</form>
+
   $if speakerform:
         $:form.render_disabled()
-	<h3>Enter speaker information</h3>
-	<span class="note">Does not affect the automatic transcription, but required for vowel extraction results.</span><p>
-	<form action="alignextract" name="alignextract" method="post" onsubmit="progress()">
-	$if not speakerform.valid: <p class="error">Correct the errors below.</p>
-	$:speakerform.render()
-	<input type="submit" />
-	</form>
-
-	<br>
-
+        <h3>Enter speaker information</h3>
+        <span class="note">Does not affect the automatic transcription, but required for vowel extraction results.</span><p>
+        <form action="alignextract" name="alignextract" method="post" onsubmit="progress()">
+        $if not speakerform.valid: <p class="error">Correct the errors below.</p>
+        $:speakerform.render()
+        <input type="submit" />
+        </form>
+        <div id="loading" style="display: none;">
+          <span class="note">Task processing. You may now close this window and we will email you the results.</span>
+          <img src="/static/images/ajax-loader.gif"></img>
+        </div>
+        <br>
 </div>
-

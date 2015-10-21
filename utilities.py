@@ -51,7 +51,7 @@ def send_ytupload_email(video_id, taskname, receiver, filename):
 
     subject = 'Completely Automated Vowel Extraction with YouTube ASR: Task Started for '+filename
         
-    body = 'YouTube video successfully uploaded and processing. Your job ID is '+video_id+' and your taskname ID is '+taskname+' . Please save these IDs, and after about 5 hours, visit our YouTube CC processor (http://darla.dartmouth.edu:8080/main.py/downloadsrttrans) to check if YouTube has generated the ASR captions. You can then run alignment and extraction with these captions.'
+    body = 'YouTube video successfully uploaded and processing. Your video ID is '+video_id+' and your taskname ID is '+taskname+' . Please save these IDs, and after about 5 hours, visit our YouTube CC processor (http://darla.dartmouth.edu:8080/main.py/downloadsrttrans) to check if YouTube has generated the ASR captions. You can then run alignment and extraction with these captions.'
 
     message = MIMEMultipart()
     message['From'] = 'DARLA <'+sender+'>'
@@ -69,7 +69,7 @@ def send_ytupload_email(video_id, taskname, receiver, filename):
         server.quit()
 
     except smtplib.SMTPException:
-        return 'Unable to send a confirmation e-mail.'
+        return 'Unable to send a confirmation e-mail. Please check your address. '+body
             
 def send_init_email(tasktype, receiver, filename):
         username = 'darla.dartmouth'
@@ -424,9 +424,9 @@ def upload_youtube(taskname, videofile):
                 new_entry = yt_service.InsertVideoEntry(video_entry, videofile)
 
                 upload_status = yt_service.CheckUploadStatus(new_entry)
-                if upload_status:
-                    print upload_status
-                    
+                if "duplicate" in upload_status:
+                    return 0, "Failed to upload to YouTube. If you tried uploading the same or similar file recently, YouTube's spam detector probably rejected your upload." 
+                
                 return get_entry_id(new_entry.id), None
         except:
                 return 0, "Failed to upload to YouTube. Check your file and try again. If you tried uploading the same or similar file recently, YouTube's spam detector probably rejected your upload."
@@ -437,10 +437,14 @@ def download_youtube(audiodir, filename, video_id):
         try:
                 email = 'darla.dartmouth@gmail.com'
                 password = open(passfile).read().strip()
-                print email, password
-                print ' '.join(['youtube-dl', '--write-auto-sub', '--skip-download', 'https://www.youtube.com/watch?v='+str(video_id), ' -u ', email, ' -p ', password, ' -o ', os.path.join(audiodir, filename+'.srt')])
-                subprocess.check_call(shlex.split('youtube-dl --write-auto-sub --skip-download https://www.youtube.com/watch?v='+str(video_id)+' -u '+email+' -p '+password+' -o '+os.path.join(audiodir, filename+'.srt')))
-                return None
+                dl = subprocess.Popen(shlex.split('youtube-dl --write-auto-sub --skip-download https://www.youtube.com/watch?v='+str(video_id)+' -u '+email+' -p '+password+' -o '+os.path.join(audiodir, filename+'.srt')), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                r = dl.wait()
+                
+                if os.path.exists(os.path.join(audiodir, filename+'.en.srt')):
+                    return None
+                else:
+                    return 'YouTube did not generate ASR transcriptions for your file. Wait a bit longer and try again. If it has been at least 4-5 hours after your uploaded your audio, the file may be too long or noisy.'
+        
         except:
                 return 'YouTube did not generate ASR transcriptions for your file. Wait a bit longer and try again. If it has been at least 4-5 hours after your uploaded your audio, the file may be too long or noisy.'
          

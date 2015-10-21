@@ -16,6 +16,7 @@ import alignextract
 from evaluate import run_evaluation
 import asredit
 import time
+import srt_to_textgrid
 
 render = web.template.render('templates/', base='layout')
 
@@ -287,8 +288,9 @@ class uploadyt:
 
             error = utilities.send_ytupload_email(video_id, form.taskname.value, form.email.value, filename)
             if error:
-                return 'YouTube video successfully uploaded and processing. Your job ID is '+video_id+' and your taskname ID is '+form.taskname.value+' . Please save these IDs, and after about 5 hours, visit our YouTube CC processor (http://darla.dartmouth.edu:8080/main.py/downloadsrttrans) to check if YouTube has generated the ASR captions. You can then run alignment and extraction with these captions.'
-
+                form.note = error
+                return render.speakersyt(form, "")
+            
             return 'Successfully uploaded! Please check your e-mail.'
 
 class downloadsrttrans:
@@ -311,39 +313,80 @@ class downloadsrttrans:
 
     datadir = open('filepaths.txt').readline().split()[1]
 
+    def speaker_form(self, completed_form, filenames): #send in the completed form too                
+        input_list = []
+        taskname = form.Hidden(name="taskname",value=completed_form.taskname.value)
+        numfiles = form.Hidden(name="numfiles",value=len(filenames))
+        input_list.extend([taskname,numfiles])
+        #TODO: no need to generalize to multiple speakers                                                       
+        filename = form.Hidden(value=filenames[0][0],name='filename0')
+        speaker_name = form.Textbox('name0',
+                         form.notnull,
+                         pre="File Name: "+filenames[0][1],
+                         description='Speaker ID')
+        sex = myform.MyRadio('sex0',
+                        [('M','Male', 'M0'),('F','Female', 'F0'),('F','Child', 'C0')],
+                        description='Sex'
+                        )
+        input_list.extend([speaker_name,sex,filename])
+        speakers = myform.ListToForm(input_list)
+        s = speakers()
+        return render.speakerssrttrans(completed_form, s)
+    
     def GET(self):
-        downloadstrtrans = myform.MyForm(self.taskname,
+        downloadsrttrans = myform.MyForm(self.taskname,
                                         self.video_id,
                                         self.email,
                                         self.submit)
-        form = downloadstrtrans()
+        form = downloadsrttrans()
         return render.speakerssrttrans(form, "")
 
     def POST(self):
-        downloadstrtrans = myform.MyForm(self.taskname,
+        downloadsrttrans = myform.MyForm(self.taskname,
                                         self.video_id,
                                         self.email,
                                         self.submit)
-        form = downloadstrtrans()
+        form = downloadsrttrans()
         
         if not form.validates(): #not validated
             return render.speakerssrttrans(form, "")
 
+        taskname = form.taskname.value
         
-        audiodir = os.path.join(self.datadir, form.taskname.value+'.audio')
-        error = utilities.download_youtube(audiodir, 'ytresults', form.video_id.value)
+        audiodir = os.path.join(self.datadir, taskname+'.audio')
+
+        srtfile = os.path.join(audiodir, 'ytresults.en.srt')
         
-        if error:
+        if not os.path.exists(srtfile):
+            #try to download it
+            error = utilities.download_youtube(audiodir, 'ytresults', form.video_id.value)
+            if error:
+                form.note = error                                                                                
+                return render.speakerssrttrans(form, "")
+                        
+        srt_to_textgrid.convert(srtfile)
+
+        filename = [filename for filename in os.listdir(audiodir) if not filename.startswith('converted') and (filename.endswith('wav') or filename.endswith('mp3'))][0]   #name of audio file (TODO: this is hacky)
+        
+        filename, extension = os.path.splitext(filename)
+        
+        # now run same code as uploadboundtrans (TODO later: abstract away)
+        chunks, error = utilities.write_sentgrid_as_lab(self.datadir, taskname, filename, os.path.join(audiodir, 'ytresults.en.TextGrid'), 'cmudict.forhtk.txt')
+        if error!="":
             form.note = error
             return render.speakerssrttrans(form, "")
 
-        try:
-            return open(os.path.join(audiodir, 'ytresults.en.srt')).read()
-        
-        except IOError:
-            form.note = 'YouTube did not generate ASR transcriptions for your file. Wait a bit longer and try again. If it has been at least 4-5 hours after your uploaded your audio, the file may be too long or noisy. Try our <a href="uploadsound">in-house ASR system insead</a>.'
+        samprate, filesize, chunks, error = utilities.soxConversion(filename+extension, audiodir, dochunk=chunks)
+        if error!="":
+            form.note = error
             return render.speakerssrttrans(form, "")
-            
+
+        filenames = [(filename, filename)]
+
+        utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+filename+'.chunks'))
+        utilities.gen_argfiles(self.datadir, taskname, filename, 'boundalign', form.email.value, samprate)
+        return self.speaker_form(form, filenames)
+
 class uploadtxttrans:
     uploadfile = myform.MyFile('uploadfile',
                                post='Your uploaded files are stored temporarily on the Dartmouth servers in order to process your job, and deleted after.',

@@ -25,7 +25,7 @@ def clean(text):
 
 def convert(srtfile):
     # Read in data from srt file
-    f = open(args[1], 'r')
+    f = open(srtfile, 'r')
 
     # Go through line by line, converting to (start, end, text) tuples.
     transcriptions = []
@@ -55,7 +55,7 @@ def convert(srtfile):
         transcriptions.append((start,end,text))
 
     # Open output TextGrid file
-    destination = args[1][:-4] + ".TextGrid"
+    destination = srtfile[:-4] + ".TextGrid"
     f = open(destination, 'w')
     
     # Write header information to TextGrid file"
@@ -66,7 +66,7 @@ def convert(srtfile):
     f.write('tiers? <exists> \nsize = 1 \nitem []: \n')
     f.write('    item [1]:\n')
     f.write('        class = "IntervalTier" \n')    
-    f.write('        name = "utterances" \n') 
+    f.write('        name = "sentence" \n') 
     f.write('        xmin = 0 \n') 
     f.write('        xmax = ' + transcriptions[-1][1] + ' \n') 
     f.write('        intervals: size = ' + str(len(transcriptions)) + ' \n')
