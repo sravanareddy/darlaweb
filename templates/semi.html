@@ -8,7 +8,7 @@ This system runs FAVE-style semi-automated analysis using both the audio and man
   </p>
 
   <ul>
-    <li><a href="uploadtxttrans">Audio with transcriptions in a plaintext file</a>
+    <li id="txtinst"><a href="uploadtxttrans">Audio with transcriptions in a plaintext file</a>
 <p>
 This option lets you upload a plaintext (.txt) file with a transcription along with your audio file. The transcription could be your own manual transcription or a transcription from any ASR method (DARLA, Nuance Dragon, etc.). </p>
 <p>If you want to make corrections on the aligned TextGrid file, upload it to the <a href="uploadtextgrid">TextGrid input interface</a> and re-run formant extraction.</p>
@@ -18,8 +18,9 @@ This option lets you upload a plaintext (.txt) file with a transcription along w
 
 
     
-</li>
-<li><a href="uploadboundtrans">Audio with transcriptions showing sentence or breath group boundaries (as TextGrids)</a></li>
+    </li>
+    
+<li id="boundinst"><a href="uploadboundtrans">Audio with transcriptions showing sentence or breath group boundaries (as TextGrids)</a></li>
 
 <p>This option is designed to make it possible to easily upload a TextGrid with simple paired boundaries around each sentence, and receive alignment and formant extraction results. To produce the boundaries annotations:</p>
 
@@ -29,6 +30,7 @@ This option lets you upload a plaintext (.txt) file with a transcription along w
   <li>For "Which of these are point tiers?", just leave it blank. Click OK.
   <li>Now highlight both the audio file and the TextGrid file (hold down Cmd or Ctrl on the keyboard). Click "View & Edit".
   <li>Use the mouse to select a sentence or clause, hit Return. A pair of boundaries (blue) should appear on either side of your sentence.
+  <li>Transcribe the sentence inside that pair of boundaries
   <li>Move on to the next sentence and create a pair of boundaries in the same way. When finished with the whole audio file, click "File", then "Save TextGrid as..." 
 </ol>
 </p>
