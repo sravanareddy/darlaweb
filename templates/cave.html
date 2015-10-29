@@ -4,7 +4,7 @@
   
   <p class="lead">Our automated system takes uploaded audio files and returns ASR transcriptions, alignments, and vowel formant measurements.</p>
 
-      <p> It is recommended that you look through the <a href="#discussion"> discussion below</a> on the completely automated system's functionality and limitations before you begin. </p>
+      <p> It is recommended that you look through the <a href="about">discussion</a> on the completely automated system's functionality and limitations before you begin. </p>
 
   <ul class="list-group">
     <li class="list-group-item">
@@ -21,7 +21,12 @@
 
           <li class="list-group-item"><h3>Audio with transcriptions provided by YouTube closed captioning</h3>
     <p>
-    Speech recognition developed by Google for YouTube captioning is much more accurate than the research-level ASR that we developed for DARLA. Unfortunately, Google does not provide an API to access its speech recognizer. However, one way to transcribe your audio files is to upload them as "videos" to YouTube, download the automatically generated closed captions, and then upload these captions to our system for forced alignment and extraction. </p>
+    Speech recognition developed by Google for YouTube captioning is much more accurate than the research-level ASR that we developed for DARLA.</p>
+
+    <p>Just upload your audio to at the link below, receive an email
+    with some information from us, wait a few hours for YouTube to
+    process the captions, and then revisit DARLA to input the codes
+    sent to your e-mail. DARLA will automatically extract YouTube captions (if available), and run your job through for forced alignment and extraction.</p>
 
     <p>The quality of transcriptions is usually better than our in-built ASR, but there may be issues with reliability, since YouTube does not generate transcriptions for all uploaded videos. In addition, its spam detector sometimes rejects video uploads.</p>
 
@@ -42,49 +47,7 @@
     </li>
   
   </ul>
-
-  <div id="discussion">
-<br>
-    <br>
-    <br>
     
-    <h3 id="why">Why (completely) automate vowel extraction?</h3>
-<p>In the last few years, sociolinguists have begun using semi-automated speech processing methods such as Penn's <a href="http://fave.ling.upenn.edu/index.html">FAVE</a> program to extract vowel formants. These systems have accelerated the pace of linguistic research, but require significant human effort to manually create sentence-level transcriptions. </p>
-
-<p>We believe that sociolinguistics is on the brink of an even more
-  transformative technology: large-scale, completely automated vowel
-  extraction without any need for human transcription. This technology
-  would make it possible to quickly extract pronunciation features
-  from hours of recordings, including YouTube and vast audio
-  archives. DARLA takes a step in this direction. </p>
-
-<h3 id="how">How does it work?</h4>
-
-<p>While ASR is far from perfect, we believe sociophoneticians do not need to wait for years to take advantage of speech recognition. Unlike applications like dictation software where accurate word recognition is the primary goal, sociophonetics typically focuses on a much narrower objective: extracting a representative vowel space for speakers, based on stressed vowel tokens.
-For example, it would usually not be crucial to know that the stressed vowel in the word "turning" was extracted from "turn it" rather than "turning", or that "tack" was wrongly transcribed as "sack".  Such differences will have little effect on the speaker's vowel space for many sociophonetic questions. </p>
-
-<p>It turns out that most ASR errors affect the identity of the <i>words</i> but not the identity of the <i>vowels</i> (especially stressed vowels), making it an ideal technology for automated vowel analysis. 
-Of course, there will be instances of vowel error, but the effect of these errors is reduced by the large amount of data with hundreds or thousands of vowel tokens.</p>
-
-<p>Important contrasts like "cot" versus "caught" tend to be handled by ASR's modeling of grammatical plausibility (using a <a href="http://en.wikipedia.org/wiki/Language_model">language model</a>). The system would be unlikely to transcribe "I caught the ball" as "I cot the ball" since the latter would be improbable under an English language model.</p>
-
-<p>Finally, since DARLA shows probabilities for the phonetic environment around each vowel (e.g., obstruent+vowel+nasal consonant), researchers can examine contrasts like pin/pen versus pit/pet.</p>
-
-<p>See our <a href="http://cs.wellesley.edu/~sravana/papers/darla_naacl.pdf">NAACL paper</a> for more information on the system.</p>
-
-<h3 id="limits">Limitations</h3>
-
-<p> This system cannot provide perfect transcriptions or perfect formant measurements. The automatic transcriptions typically contain a very large number of errors, especially in free speech data. Current ASR technology simply cannot match the accuracy of human manual transcriptions.</p>
-
-<p>DARLA's automated approach to sociophonetics may help open the way
-toward large-scale audio analysis, but there is a tradeoff. As with
-many other sciences, automated processing necessitates error-reporting
-in the measurements, not just in the statistical modeling. We find
-that the system can be useful for extracting a representative vowel space for sociophonetic purposes, as long as error levels are considered and reported. In other words, fast large-scale data analysis requires a higher tolerance of noise in the data.</p>
-
-<p> <a class="btn btn-xs btn-default" href="#top" role="button">Back to
-top</a></p>
-
-</div> <!-- end discussion --->
+   
 
 </div> <!-- ends container -->

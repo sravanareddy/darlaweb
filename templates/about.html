@@ -1,0 +1,245 @@
+<div class="container">
+  
+  <h2>FAQs</h2>
+
+  
+  <ol class="list-group">
+    <li class="list-group-item">
+    <a href="#" data-toggle="collapse" data-target="#whatbody"><h3
+    id="what">
+    What is DARLA?</h3></a>
+
+    <div id="whatbody" class="collapse">
+      <p>DARLA is a web application providing two main functionalities for vowel
+    extraction from speech: completely
+    automated and semi-automated.</p>
+    
+<p>The completely automated system transcribes the input
+    speech data using automatic speech recognition (ASR), and then
+    runs it through forced alignment and formant extraction.</p>
+    
+    <p>The semi-automated system is a <a
+    href="http://fave.ling.upenn.edu/">FAVE-based</a> approach that
+    aligns and extracts vowel formants from speech with manual
+      transcriptions.</p></div>
+      </li>
+
+      <li class="list-group-item">
+
+      <a href="#" data-toggle="collapse" data-target="#outputbody"><h3 id="output">What is the system's output?</h3></a>
+
+       <div id="outputbody" class="collapse">
+<p>We e-mail a set of files to you: a vowel plot showing the mean of stressed vowels
+after filtering out grammatical function words, a spreadsheet with
+both unnormalized and Lobanov-normalized formant measurements
+(pre-filtered to remove grammatical function words and tokens with
+high bandwidths for F1 or F2), the same spreadsheet formatted for
+convenient uploading to <a
+href="http://lvc.uoregon.edu/norm/about_norm1.php">NORM</a>, the
+alignments, and the transcriptions. </p>
+
+<p>If you are using the completely automated feature, you also have the option of
+editing the transcriptions online, and seamlessly re-running your task
+	 through the system.</p>
+       </div>
+       
+    </li>
+    
+    <li class="list-group-item">
+    <a href="#" data-toggle="collapse" data-target="#asrbody">
+    <h3 id="asr">What ASR do you use for the completely automated feature?</h3></a>
+
+     <div id="asrbody" class="collapse">
+    <p>We give you two options: our in-house ASR, and YouTube's
+    closed captioning.</p>
+
+    <ul>
+      <li>
+      <p>The in-house ASR is a research system built with the <a
+    href="http://cmusphinx.sourceforge.net/">CMU Sphinx</a> toolkit.
+    It is the fastest method, and works reasonably well for some kinds
+    of recordings.
+    However, the results often have a fair number of transcription
+      errors, since we don't have the resources to match the commercial
+   state-of-the-art.</p>
+      
+    <p>For this reason, we have added a convenient option to make manual
+    corrections: the initial results e-mailed to you 
+    include a link to an online playback tool which divides your
+    recording and ASR transcription into 20-second audio chunks that
+    can be corrected and then directly resubmitted to DARLA. </p></li>
+    
+<li> The other option uses Google's state-of-the-art ASR through
+    YouTube's Closed Captioning. Your audio is uploaded to YouTube (to a private secure
+    account), and the transcriptions are extracted.</p>
+
+      <p>One drawback is that YouTube often takes 5+ hours to
+    produce captions. (The transcriptions are typically quite good,
+    so it's worth the wait.) Note that you don't have to upload anything to
+    YouTube or convert your audio into a video yourself; DARLA takes care of
+    that for you! See the <a href="cave">system page</a> for details.</p>
+ 
+    
+  
+    </li>
+  </ul>
+     </div>
+
+  <li class="list-group-item">
+  <a href="#tech" data-toggle="collapse" data-target="#techbody">
+      <h3 id="tech">What do you use for alignment and extraction?</h3></a>
+
+  <div id="techbody" class="collapse">
+<p>We use the same methods as FAVE. Our forced alignment is done with the
+  <a href="http://prosodylab.org/tools/aligner/">ProsodyLab
+  Aligner</a>, and formant measurement with<a
+  href="https://github.com/JoFrhwld/FAVE/tree/master/FAVE-extract">FAVE-extract</a>.
+  We also use the <a href="http://cran.r-project.org/web/packages/vowels/index.html" target="_blank">R vowels package</a> for plotting.</p>
+
+
+    <li class="list-group-item">
+    <a href="#why" data-toggle="collapse" data-target="#whybody">
+    <h3 id="why">Why completely automate vowel extraction?</h3>
+    </a>
+
+     <div class="collapse" id="whybody">
+<p>In the last few years, sociolinguists have begun using semi-automated speech processing methods such as Penn's <a href="http://fave.ling.upenn.edu/index.html">FAVE</a> program to extract vowel formants. These systems have accelerated the pace of linguistic research, but require significant human effort to manually create sentence-level transcriptions. </p>
+
+<p>We believe that sociolinguistics is on the brink of an even more
+  transformative technology: large-scale, completely automated vowel
+  extraction without any need for human transcription. This technology
+  would make it possible to quickly extract pronunciation features
+  from hours of recordings, including YouTube and vast audio
+    archives. DARLA takes a step in this direction. </p>
+  </div>
+  
+      </li>
+      
+      <li class="list-group-item">
+<a href="#errors" data-toggle="collapse" data-target="#errorsbody">
+      <h3 id="errors">How do we deal with ASR errors?</h3></a>
+
+      <div class="collapse" id="errorsbody">
+<p>While ASR is far from perfect, we believe sociophoneticians do not need to wait for years to take advantage of speech recognition. Unlike applications like dictation software where accurate word recognition is the primary goal, sociophonetics typically focuses on a much narrower objective: extracting a representative vowel space for speakers, based on stressed vowel tokens.
+For example, it would usually not be crucial to know that the stressed vowel in the word "turning" was extracted from "turn it" rather than "turning", or that "tack" was wrongly transcribed as "sack".  Such differences will have little effect on the speaker's vowel space for many sociophonetic questions. </p>
+
+<p>It turns out that most ASR errors affect the identity of the <i>words</i> but not the identity of the <i>vowels</i> (especially stressed vowels), making it an ideal technology for automated vowel analysis. 
+Of course, there will be instances of vowel error, but the effect of these errors is reduced by the large amount of data with hundreds or thousands of vowel tokens.</p>
+
+<p>Important contrasts like "cot" versus "caught" tend to be handled by ASR's modeling of grammatical plausibility (using a <a href="http://en.wikipedia.org/wiki/Language_model">language model</a>). The system would be unlikely to transcribe "I caught the ball" as "I cot the ball" since the latter would be improbable under an English language model.</p>
+
+<p>Finally, since DARLA shows probabilities for the phonetic
+	environment around each vowel (e.g., obstruent+vowel+nasal
+	consonant), researchers can examine contrasts like pin/pen
+	versus pit/pet.</p>
+      </div>
+      </li>
+
+      <li class="list-group-item">
+
+      <a href="#limits" data-toggle="collapse" data-target="#limitsbody">
+      <h3 id="limits">Sounds great! What's the catch?</h3></a>
+
+       <div class="collapse" id="limitsbody">  
+<p> DARLA's completely automated system cannot provide perfect transcriptions. The automatic
+transcriptions typically contain a very large number of errors,
+especially in free speech data, even using YouTube's ASR. Current technology simply cannot match the accuracy of human manual transcriptions.</p>
+
+<p>DARLA's automated approach to sociophonetics may help open the way
+toward large-scale audio analysis, but there is a tradeoff. As with
+many other sciences, automated processing necessitates error-reporting
+in the measurements, not just in the statistical modeling. We find
+that the system can be useful for extracting a representative vowel
+	 space for sociophonetic purposes, as long as error levels are
+	 considered and reported. In other words, fast large-scale
+	 data analysis requires a higher tolerance of noise in the
+	 data.</p>
+       </div>
+       
+       </li>
+       
+
+       <li class="list-group-item">
+       <a href="#semi" data-toggle="collapse" data-target="#semibody">
+       <h3 id="semi">What is the semi-automated functionality?</h3></a>
+
+       <div class="collapse" id="semibody">  
+<p>This is designed for research that requires accurate human
+transcription.
+It builds upon <a href="http://fave.ling.upenn.edu/index.html">FAVE</a>, but with a
+different interface and output options.</p>
+
+<p>Our system allows you to upload your transcriptins in different
+formats: as plaintext files, or as a TextGrid with a pair of
+boundaries around each transcribed sentence (the "Boundaries" option).
+You can also upload manually aligned/corrected TextGrids for formant
+	 extraction only.</p>
+
+
+<p> For research requiring perfect transcriptions, we recommend either
+using either the "Boundaries" option OR using the
+YouTubeClosedCaptions ASR as a first pass and then correcting it
+online with our playback tool. The plaintext
+method works just as well, but you will need to delete noises,
+laughter, interviewer's voice, etc. With the Boundaries method, such
+deletions aren't necessary since you are simply putting boundaries
+around the parts of the recording that you want.</p>
+
+       </div>
+
+        <li class="list-group-item">
+       <a href="#cite" data-toggle="collapse" data-target="#citebody">
+       <h3 id="cite">How do I cite DARLA?</h3></a>
+
+       <div class="collapse" id="citebody">
+	 
+       <p>The application is designed and implemented by <a href="http://cs.wellesley.edu/~sravana/">Sravana Reddy</a> and <a href="http://linguistics.dartmouth.edu/people/james-n-stanford">James Stanford</a>, with programming assistance from Irene Feng, and is supported by the <a href="http://neukom.dartmouth.edu" target="_blank">Neukom Institute for Computational Science</a>.</p>
+
+<p>Suggested in-text citation for the completely automated functions:
+DARLA (Reddy & Stanford 2015), using Prosodylab-Aligner (Gorman et
+al. 2011), FAVE-Extract (Rosenfelder et al. 2014),
+and the Vowels R package (Kendall & Thomas 2010).</p>
+
+<p>Suggested in-text citation for the semi-automated functions:
+FAVE-Extract (Rosenfelder et al. 2014) and Prosodylab-Aligner (Gorman
+et al. 2011) using the DARLA web interface (Reddy & Stanford 2015) and the Vowels R package
+(Kendall & Thomas 2010).</p>
+
+<h4>Bibliographic entries:</h4>
+
+<ul>
+  <li>Gorman, Kyle, Jonathan Howell and Michael Wagner. 2011. Prosodylab-Aligner: A Tool for Forced Alignment of Laboratory Speech. Canadian Acoustics. 39.3. 192–193.
+
+<li>Kendall, Tyler and Erik R. Thomas. 2010. Vowels: vowel manipulation, normalization, and 
+  plotting in R. R package. <a href="http://cran.r-project.org/web/packages/vowels/index.html" target="_blank">cran.r-project.org/web/packages/vowels/index.html</a>.
+
+  <li>Reddy, Sravana and James Stanford. 2015. <a href="http://www.degruyter.com/view/j/lingvan.ahead-of-print/lingvan-2015-0002/lingvan-2015-0002.xml">Toward completely automated vowel extraction: 
+  Introducing DARLA.</a> <i>Linguistics Vanguard</i>. 
+
+<li>Rosenfelder, Ingrid; Fruehwald, Josef; Evanini, Keelan; Seyfarth,
+  Scott; Gorman, Kyle; Prichard, Hilary; Yuan, Jiahong; 2014. FAVE
+  (Forced Alignment and Vowel Extraction) Program Suite v1.2.2
+  10.5281/zenodo.22281. 
+</ul>
+</p>
+
+<p>In addition, if you use the <a
+href="http://lvc.uoregon.edu/norm/about_norm1.php"
+target="_blank">NORM online interface</a> for custom normalization and plotting of the vowel space, please also cite:</p>
+
+<ul>
+<li>Thomas, Erik R. and Tyler Kendall. 2007. NORM: The vowel normalization and plotting suite. Online Resource. <a href="http://lvc.uoregon.edu/norm/index.php" target="_blank">lvc.uoregon.edu/norm/index.php</a>
+</ul>
+
+</div>
+
+</li>
+
+
+
+
+    </ul>   <!-- ends list-group ul -->
+    
+    
+
+</div>   <!-- ends container -->

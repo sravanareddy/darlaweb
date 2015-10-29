@@ -4618,13 +4618,15 @@ fieldset[disabled] .navbar-inverse .btn-link:hover,
 fieldset[disabled] .navbar-inverse .btn-link:focus {
   color: #444;
 }
+
 .breadcrumb {
   padding: 8px 15px;
   margin-bottom: 20px;
   list-style: none;
-  background-color: #f5f5f5;
+  background-color: #f5f5f5;   
   border-radius: 4px;
 }
+
 .breadcrumb > li {
   display: inline-block;
 }
@@ -4632,7 +4634,7 @@ fieldset[disabled] .navbar-inverse .btn-link:focus {
 .breadcrumb > li + li:before {
   padding: 0 5px;
   color: #ccc;
-  content: "o\00a0";   /* changed this */
+  content: "/\00a0";   
 }
 .breadcrumb > .active {
   color: #777;

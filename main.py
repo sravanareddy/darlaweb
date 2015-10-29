@@ -18,7 +18,7 @@ import srt_to_textgrid
 
 render = web.template.render('templates/', base='layout')
 
-urls = ('/', 'index', '/index', 'index', '/cite', 'cite', '/cave', 'cave', '/semi', 'semi', '/uploadsound', 'uploadsound', '/uploadtxttrans', 'uploadtxttrans', '/uploadboundtrans', 'uploadboundtrans', '/uploadtextgrid', 'uploadtextgrid', '/allpipeline', allpipeline.app_allpipeline, '/extract', extract.app_extract, '/alignextract', alignextract.app_alignextract, '/uploadeval', 'uploadeval', '/asredit', asredit.app_asredit, '/uploadyt', 'uploadyt', '/downloadsrttrans', 'downloadsrttrans')
+urls = ('/', 'index', '/index', 'index', '/cite', 'cite', '/about', 'about', '/cave', 'cave', '/semi', 'semi', '/uploadsound', 'uploadsound', '/uploadtxttrans', 'uploadtxttrans', '/uploadboundtrans', 'uploadboundtrans', '/uploadtextgrid', 'uploadtextgrid', '/allpipeline', allpipeline.app_allpipeline, '/extract', extract.app_extract, '/alignextract', alignextract.app_alignextract, '/uploadeval', 'uploadeval', '/asredit', asredit.app_asredit, '/uploadyt', 'uploadyt', '/downloadsrttrans', 'downloadsrttrans')
 
 app = web.application(urls, globals())
 web.config.debug = True
@@ -30,7 +30,11 @@ class index:
 class cite:
     def GET(self):
         return render.cite()
-    
+
+class about:
+    def GET(self):
+        return render.about()
+
 class cave:
     def GET(self):
         return render.cave()
