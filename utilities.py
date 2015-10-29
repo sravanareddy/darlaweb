@@ -136,7 +136,7 @@ def send_email(tasktype, receiver, filename, taskname):
         if tasktype == 'asr' or tasktype == 'asredit' or tasktype == 'boundalign':
             body += ', and (5) transcription.txt contains the transcriptions.'
             body += 'If you manually correct the transcriptions, you may re-upload your data with the new TextGrids to http://darla.dartmouth.edu/uploadtextgrid and receive revised formant measurements and plots.\n\n'
-            body += 'To edit the ASR transcriptions and re-run the alignment and extraction program, go to http://darla.dartmouth.edu/asredit?taskname={0} '.format(os.path.basename(taskname))
+            body += 'To use our online playback tool to edit the ASR transcriptions (in 20-second clips) and then re-run the alignment and extraction program, go to http://darla.dartmouth.edu/asredit?taskname={0} '.format(os.path.basename(taskname))
             body += 'Alternately, you may upload corrected plaintext transcriptions to http://darla.dartmouth.edu/uploadtxttrans'
         else:
             body +='.'
