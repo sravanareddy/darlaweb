@@ -1,26 +1,34 @@
-<div class="center-col">
+<div class="container">
 
   <h2>Semi-Automated Alignment and Vowel Extraction</h2>
 
-<p>
-This system runs FAVE-style semi-automated analysis using both the audio and manual transcriptions, with three different transcription types.
- All three return results in convenient formats for quick plotting and analysis: a basic vowel plot, spreadsheets with raw and Lobanov-normalized data, a spreadsheet formatted for the online NORM system (which has other plotting and normalization options), the transcription, and the aligned TextGrid file.
+<p class="lead">
+This system runs FAVE-style semi-automated analysis using both the
+  audio and manual transcriptions, with three different transcription
+  types.
+  </p>
+  
+ <p>The returned results are in formats convenient for quick analysis: a basic vowel plot, spreadsheets with raw and Lobanov-normalized data, a spreadsheet formatted for the online NORM system (which has other plotting and normalization options), the transcription, and the aligned TextGrid file.
   </p>
 
-  <ul>
-    <li id="txtinst"><a href="uploadtxttrans">Audio with transcriptions in a plaintext file</a>
+  <ul class="list-group">
+    <li class="list-group-item" id="txtinst"><h3>Audio with transcriptions in a plaintext file</h3>
 <p>
 This option lets you upload a plaintext (.txt) file with a transcription along with your audio file. The transcription could be your own manual transcription or a transcription from any ASR method (DARLA, Nuance Dragon, etc.). </p>
-<p>If you want to make corrections on the aligned TextGrid file, upload it to the <a href="uploadtextgrid">TextGrid input interface</a> and re-run formant extraction.</p>
+<p>If you want to make corrections on the aligned TextGrid file,
+    upload it to the <a href="uploadtextgrid">TextGrid input
+    interface</a> and re-run formant extraction.</p>
 
 <p>For best results, we recommend that you first delete noises, loud breaths, other voices, etc., from your audio file (in Praat, select the noise and use Cmd-X or Ctrl-X to delete). As for the plaintext file, we recommend creating this file using Notepad or TextEdit (with "smart replace" turned off) or emacs or an other plaintext editor. Transcripts created by "rich text" editors like Word may contain markup that will interfere with your results.
 </p>
+
+          <p> <a class="btn btn-xs btn-success" href="uploadtxttrans" role="button">Try it out</a></p>
 
 
     
     </li>
     
-<li id="boundinst"><a href="uploadboundtrans">Audio with transcriptions showing sentence or breath group boundaries (as TextGrids)</a></li>
+<li class="list-group-item" id="boundinst"><h3>Audio with transcriptions showing sentence or breath group boundaries (as TextGrids)</h3>
 
 <p>This option is designed to make it possible to easily upload a TextGrid with simple paired boundaries around each sentence, and receive alignment and formant extraction results. To produce the boundaries annotations:</p>
 
@@ -35,8 +43,16 @@ This option lets you upload a plaintext (.txt) file with a transcription along w
 </ol>
 </p>
 
-        <li><a href="uploadtextgrid">Audio with aligned TextGrids, for formant extraction only</a></li>
+          <p> <a class="btn btn-xs btn-success" href="uploadtxttrans" role="button">Try it out</a></p>
+
+</li>
+
+        <li class="list-group-item"><h3>Audio with aligned TextGrids, for formant extraction only</a></h3>
 	<p>With the other options on this website, the system produces an automatically aligned TextGrid. This option is designed to give you the opportunity to upload a hand-corrected alignment and re-run it through the formant extraction step.
-	</p>
+</p>
+
+         <p> <a class="btn btn-xs btn-success" href="uploadtextgrid"
+role="button">Try it out</a></p>
+
 </ul>
 </div>

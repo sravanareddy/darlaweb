@@ -1,6 +1,7 @@
 $def with (content)
 
 <html><head>
+<!--
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>DARLA: Completely Automated Vowel Extraction</title>
 <link rel="shortcut icon" href="/static/favicon.ico" type="image/vnd.microsoft.icon">
@@ -8,18 +9,114 @@ $def with (content)
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 
 </head><body>
-<div id="header">
-<div class="left">DARLA</div>
-<div class="right">
-<a href="http://linguistics.dartmouth.edu" target="_blank">Dartmouth Linguistics</a><br> 
-<a href="http://neukom.dartmouth.edu" target="_blank">The Neukom Institute</a> 
-</div>
-<div style="clear: both;"></div>
-</div>
+-->
 
-<img src="/static/images/shield.jpg" id="shield" />
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
 
+<title>DARLA: Completely Automated Vowel Extraction</title>
+<link rel="shortcut icon" href="/static/favicon.ico" type="image/vnd.microsoft.icon">
+
+    <!-- Bootstrap Core CSS -->
+    <link href="/static/css/bootstrap.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="/static/css/darla.css" rel="stylesheet">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- jQuery -->
+    <script src="/static/js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="/static/js/bootstrap.min.js"></script>
+
+    <!-- Scrolling Nav JavaScript -->
+    <script src="/static/js/jquery.easing.min.js"></script>
+    <script src="/static/js/scrolling-nav.js"></script>
+
+<!-- Our JS -->
+<script src="/static/js/speakerInfo.js"></script>
+<script src="/static/js/progress.js"></script>
+
+</head>
+
+<!-- The #page-top ID is part of the scrolling feature - the data-spy and data-target are part of the built-in Bootstrap scrollspy function -->
+<body id="page-top" data-spy="scroll" data-target=".navbar-fixed-top">
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand page-scroll" href="/">DARLA</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse navbar-ex1-collapse">
+                <ul class="nav navbar-nav">
+                    <!-- Hidden li included to remove active class from about link when scrolled up past about section -->
+                    <li class="hidden">
+                        <a class="page-scroll" href="/"></a>
+                    </li>
+                    <li>
+                        <a class="page-scroll" href="/cave">Completely
+            Automated</a>
+                    </li>
+                    <li>
+                        <a class="page-scroll" href="/semi">Semi-Automated</a>
+                    </li>
+		    <li><a class="page-scroll" href="/cite">Cite</a></li>
+                   
+                </ul>
+
+		<ul class="nav navbar-nav navbar-right">
+		 <li> <a class="page-scroll"
+		 href="http://linguistics.dartmouth.edu">Dartmouth
+		  Linguistics</a>
+		  <li> <a class="page-scroll"
+		 href="http://neukom.dartmouth.edu">The Neukom Institute
+		 </a>
+		 </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+<section class="main-section">
 $:content
+
+</section>
+
+	
+	
+	<!-- Start of StatCounter Code -->
+<script type="text/javascript">
+var sc_project=10248963; 
+var sc_invisible=1; 
+var sc_security="c97556ae"; 
+var scJsHost = (("https:" == document.location.protocol) ? "https://secure." : "http://www.");
+document.write("<sc"+"ript type='text/javascript' src='" + scJsHost+"statcounter.com/counter/counter.js'></"+"script>");
+</script>
+
+<noscript><div class="statcounter"><a title="web analytics" href="http://statcounter.com/" target="_blank"><img class="statcounter" src="http://c.statcounter.com/10248963/0/c97556ae/1/" alt="web analytics"></a></div>
+</noscript>
+
+<!-- End of StatCounter Code for Default Guide -->
 
 </body>
 </html>

@@ -1,93 +1,59 @@
-<div class="center-col">
 
-<h3><em>DARLA, short for Dartmouth Linguistic Automation, provides a suite of automated vowel formant extraction tools tailored to research questions in sociophonetics.</em>
-</h3>
 
-<a class="appbox landingapp" href="cave"><h1>Completely Automated Vowel Extraction</h1>
-<h2>Audio &#x2192; Formants</h2>
-<p>This completely automated method is designed for "big data" research projects where getting a general vowel space is prioritized over word-level transcription accuracy.</p>
-</a>
+ <div class="jumbotron">
+      <div class="container">
+        <h1>Dartmouth Linguistic Automation</h1>
+        <p>DARLA is a suite of vowel formant
+      extraction tools tailored to research questions in
+	sociophonetics.</p>
+      </div>
+    </div>
 
-<a class="appbox landingapp" href="semi"><h1>Semi-Automated Alignment and Extraction</h1>
-<h2>Audio + Transcriptions &#x2192; Formants</h2>
- <p>Equivalent to the FAVE pipeline, with additional input and output
+    <div class="container">
+      
+    <div class="row">
+      
+    <div class="col-lg-6">
+          <h2>Completely Automated Vowel Extraction</h2>
+          <p class="text-success">Audio &#x2192; Formants</p>
+          <p>This automated method is designed for "big data" research projects where a general vowel space is prioritized over word-level transcription accuracy. </p>
+          <p><a class="btn btn-success" href="cave" role="button">See details &raquo;</a></p>
+	</div>
+	
+	<div class="col-lg-6">
+	  <h2>Semi-Automated Alignment and Extraction</h2>
+	  <p class="text-success">Audio + Transcriptions &#x2192; Formants</p>
+          <p>Equivalent to the FAVE pipeline, with additional input and output
   options.
-  Designed for convenient semi-automated
-  processing for research goals that require very accurate transcriptions.</p>
-</a>
+  Designed for research goals that require very accurate transcriptions. </p>
+          <p><a class="btn btn-success" href="semi" role="button">See
+	    details &raquo;</a></p>
+	  </div>
+	  
+	    </div>  <!-- ends row -->
+        
 
-<div class="noappbox"><h1>System Output</h1>
-<p><ol>
-  <li>aligned TextGrids
-<li> formant plots representing the speakers' vowel space
-<li> tables of vowel formant measurements
-<li> probabilities for the preceding and following phonetic
-  environments of each vowel token
-  <li>options for manually correcting the transcriptions and alignments
-</ol>
-</p>
-</div> 
+<div class="row">
+	    <div class="col-lg-12">
+	      <h2>System Output</h2>
+	      <ol class="breadcrumb">
+		<li>Aligned TextGrids</li>
+		<li>Formant plots representing the speakers' vowel
+	    space </li>
+	      <li> Vowel formant measurements </li>
+<li>Probabilities for the phonetic environments of each vowel token </li>
+  <li>Options for manually correcting the transcriptions and
+	    alignments</li>
+	    </ol>
+  </div>
+  
+</div>   <!-- ends row -->
 
-<a name="contact"></a><h2>Contact</h2>
-<p>Please e-mail <a href="mailto:darla.dartmouth@gmail.com">darla.dartmouth@gmail.com</a> with questions or suggestions.</p>
+<footer>
+Questions, issues, comments? Contact <a
+href="mailto:darla.dartmouth@gmail.com">darla.dartmouth@gmail.com</a>
+</footer>
 
-<a name="cite"></a><h2> How to cite</h2> 
-<p>DARLA is designed and implemented by <a href="http://cs.wellesley.edu/~sravana/">Sravana Reddy</a> and <a href="http://linguistics.dartmouth.edu/people/james-n-stanford">James Stanford</a>, with programming assistance from Irene Feng, and is supported by the <a href="http://neukom.dartmouth.edu" target="_blank">Neukom Institute for Computational Science</a>.</p>
+</div>  <!-- ends container -->
 
-<p>The completely automated system transcribes and aligns the input speech data using automatic speech recognition (ASR) techniques using the <a href="http://cmusphinx.sourceforge.net/">CMU Sphinx</a> toolkit.
-We use the <a href="http://prosodylab.org/tools/aligner/">ProsodyLab Aligner</a> for alignment, the <a href="https://github.com/JoFrhwld/FAVE/tree/master/FAVE-extract">FAVE-extract code</a> for formant measurement, and the <a href="http://cran.r-project.org/web/packages/vowels/index.html" target="_blank">R vowels package</a> for plotting.</p>
 
-<p>Suggested in-text citation for the completely automated functions:
-DARLA (Reddy & Stanford 2015), using Prosodylab-Aligner (Gorman et
-al. 2011), FAVE-Extract (Rosenfelder et al. 2014),
-and the Vowels R package (Kendall & Thomas 2010).</p>
-
-<p>Suggested in-text citation for the semi-automated functions:
-FAVE-Extract (Rosenfelder et al. 2014) and Prosodylab-Aligner (Gorman
-et al. 2011) using the DARLA web interface (Reddy & Stanford 2015) and the Vowels R package
-(Kendall & Thomas 2010).</p>
-
-<h3>Bibliographic entries:</h3>
-
-<ul>
-  <li>Gorman, Kyle, Jonathan Howell and Michael Wagner. 2011. Prosodylab-Aligner: A Tool for Forced Alignment of Laboratory Speech. Canadian Acoustics. 39.3. 192–193.
-
-<li>Kendall, Tyler and Erik R. Thomas. 2010. Vowels: vowel manipulation, normalization, and 
-  plotting in R. R package. <a href="http://cran.r-project.org/web/packages/vowels/index.html" target="_blank">cran.r-project.org/web/packages/vowels/index.html</a>.
-
-  <li>Reddy, Sravana and James Stanford. 2015. <a href="http://www.degruyter.com/view/j/lingvan.ahead-of-print/lingvan-2015-0002/lingvan-2015-0002.xml">Toward completely automated vowel extraction: 
-  Introducing DARLA.</a> <i>Linguistics Vanguard</i>. 
-
-<li>Rosenfelder, Ingrid; Fruehwald, Josef; Evanini, Keelan; Seyfarth,
-  Scott; Gorman, Kyle; Prichard, Hilary; Yuan, Jiahong; 2014. FAVE
-  (Forced Alignment and Vowel Extraction) Program Suite v1.2.2
-  10.5281/zenodo.22281
-
-</ul>
-
-<p></p>
-<p>In addition, if you use the <a
-href="http://lvc.uoregon.edu/norm/about_norm1.php"
-target="_blank">NORM online interface</a> for custom normalization and plotting of the vowel space, please also cite:</p>
-
-<ul>
-<li>Thomas, Erik R. and Tyler Kendall. 2007. NORM: The vowel normalization and plotting suite. Online Resource. <a href="http://lvc.uoregon.edu/norm/index.php" target="_blank">lvc.uoregon.edu/norm/index.php</a>
-</ul>
-
-<p></p>
-
-</div>
-
-<!-- Start of StatCounter Code -->
-<script type="text/javascript">
-var sc_project=10248963; 
-var sc_invisible=1; 
-var sc_security="c97556ae"; 
-var scJsHost = (("https:" == document.location.protocol) ? "https://secure." : "http://www.");
-document.write("<sc"+"ript type='text/javascript' src='" + scJsHost+"statcounter.com/counter/counter.js'></"+"script>");
-</script>
-
-<noscript><div class="statcounter"><a title="web analytics" href="http://statcounter.com/" target="_blank"><img class="statcounter" src="http://c.statcounter.com/10248963/0/c97556ae/1/" alt="web analytics"></a></div>
-</noscript>
-
-<!-- End of StatCounter Code for Default Guide -->

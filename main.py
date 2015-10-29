@@ -20,7 +20,7 @@ import srt_to_textgrid
 
 render = web.template.render('templates/', base='layout')
 
-urls = ('/', 'index', '/cave', 'cave', '/semi', 'semi', '/uploadsound', 'uploadsound', '/uploadtxttrans', 'uploadtxttrans', '/uploadboundtrans', 'uploadboundtrans', '/uploadtextgrid', 'uploadtextgrid', '/allpipeline', allpipeline.app_allpipeline, '/extract', extract.app_extract, '/alignextract', alignextract.app_alignextract, '/uploadeval', 'uploadeval', '/asredit', asredit.app_asredit, '/uploadyt', 'uploadyt', '/downloadsrttrans', 'downloadsrttrans')
+urls = ('/', 'index', '/cite', 'cite', '/cave', 'cave', '/semi', 'semi', '/uploadsound', 'uploadsound', '/uploadtxttrans', 'uploadtxttrans', '/uploadboundtrans', 'uploadboundtrans', '/uploadtextgrid', 'uploadtextgrid', '/allpipeline', allpipeline.app_allpipeline, '/extract', extract.app_extract, '/alignextract', alignextract.app_alignextract, '/uploadeval', 'uploadeval', '/asredit', asredit.app_asredit, '/uploadyt', 'uploadyt', '/downloadsrttrans', 'downloadsrttrans')
 
 app = web.application(urls, globals())
 web.config.debug = True
@@ -29,6 +29,10 @@ class index:
     def GET(self):
         return render.index()
 
+class cite:
+    def GET(self):
+        return render.cite()
+    
 class cave:
     def GET(self):
         return render.cave()
@@ -41,7 +45,7 @@ class uploadsound:
     MINDURATION = 30 #in minutes
     uploadfile = myform.MyFile('uploadfile',
                            post='Longer recordings (of at least {0} minutes) are recommended. Your uploaded files are stored temporarily on the Dartmouth servers in order to process your job, and deleted after.'.format(MINDURATION),
-                           description='Upload a .wav or .mp3 file. You may also upload a .zip or tar archive with multiple recordings.')
+                           description='Upload a .wav or .mp3 file:')
     filelink = form.Textbox('filelink',
                             form.regexp(r'^$|https\://www\.youtube\.com/watch\?v\=\S+', 'Check your link. It should start with https://www.youtube.com/watch?v='),
                               post='Long, single-speaker videos with no music work best.',
@@ -50,8 +54,8 @@ class uploadsound:
                          [('standard', 'Standard American '),
                           ('southern', 'Southern ')],
                          value = 'standard',
-                         post='Selecting the appropriate dialect for the acoustic model may increase transcription accuracy. If your data contains speakers of multiple dialects, select Standard American. Other dialects may be added in the future.',
-                         description='Dialect of the majority of speakers:')
+                         post='Selecting the closest appropriate dialect for the acoustic model may increase transcription accuracy. Other dialects may be added in the future.',
+                         description='Dialect of the speaker:')
     lw = form.Radio('lw',
                     [('7', 'Free speech or reading passage '),
                      ('3', 'Word list ')],

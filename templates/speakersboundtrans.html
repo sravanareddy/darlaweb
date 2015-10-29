@@ -1,26 +1,17 @@
 $def with (form, speakerform)
 
-<div class="left-col">
-
-<span class="breadcrumbs"><a href="/"  target="_blank">Darla
-  Home</a></span>
-<span class="breadcrumbs"><a href="semi"
-  target="_blank">Semiautomated Home</a></span> 
-<span class="breadcrumbs"><a href="/#cite" target="_blank">How to Cite</a></span>
-<script src="/static/js/speakerInfo.js"></script>
-<script src="/static/js/progress.js"></script>
-
+<div class="container">
 
   <h2>Automated Vowel Extraction with Manual Transcriptions and Utterance Boundaries</h2><p><p>
 
-<span class="note">Upload your audio files and manual transcriptions
+<p class="lead">Upload your audio files and manual transcriptions
   (with sentence or breath group boundaries annotated <a href="semi#boundinst">as described here</a> to run
-  forced alignment using ProsodyLab Aligner, followed by formant extraction with FAVE-extract. </span><p>
+  forced alignment using ProsodyLab Aligner, followed by formant extraction with FAVE-extract.</p>
 
-<a href="uploadboundtrans"><small>Click here at any time to cancel or start over.</small></a><p>
+<p><a href="uploadboundtrans"><small>Click here at any time to cancel or start over.</small></a></p>
 
 <form name="uploadboundtrans" method="post" enctype="multipart/form-data"> 
-$if not form.valid: <p class="error">Correct the errors below.</p>
+$if not form.valid: <p class="alert alert-danger">Correct the errors below.</p>
 $if not speakerform:
      $:form.render()
 </form>
@@ -30,7 +21,7 @@ $if not speakerform:
 	<h3>Enter speaker information</h3>
 	<span class="note">Does not affect the automatic transcription, but required for vowel extraction results.</span><p>
 	<form action="alignextract" name="alignextract" method="post" onsubmit="progress()">
-	$if not speakerform.valid: <p class="error">Correct the errors below.</p>
+	$if not speakerform.valid: <p class="alert alert-danger">Correct the errors below.</p>
 	$:speakerform.render()
 	<input type="submit" />
 	</form>

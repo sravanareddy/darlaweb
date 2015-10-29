@@ -42,41 +42,50 @@ class MyFile(web.form.File):
 
 class MyForm(web.form.Form):
         """Modify default rendering behavior"""
-        def rendernote(self, note, disabled = False):
-                if note: 
-                        return '<span class="error"> {0}</span>'.format(note)
+        def rendernote(self, note, attached_to_form = False):
+                if note:
+                        css_class = ''
+                        if attached_to_form:  #main form note at top
+                                if note.startswith('Warning'):
+                                        css_class="alert alert-warning"
+                                else:
+                                        css_class="alert alert-danger"
+                                return '<p class="{0}"> {1}</p>'.format(css_class, note)
+                        else:
+                                css_class="text-danger"
+                                return '<span class="{0}"> {1}</span>'.format(css_class, note)
                 else: 
                         return ''
 
         def render(self):
                 out = [] 
-                out.append(self.rendernote(self.note))
+                out.append(self.rendernote(self.note, attached_to_form = True))
                 for i in self.inputs:
                         if not i.is_hidden():
-				out.append('<p>')
+                                out.append('<p>')
                                 out.append(i.description+' ')
                         out.append(i.render())
                         if not i.is_hidden():
-				out.append(self.rendernote(i.note))
-				out.append('<br><span class="note">{0}</span>'.format(i.post))
-				out.append('</p>\n')
+                            out.append(self.rendernote(i.note))
+                            out.append('<br><span class="note">{0}</span>'.format(i.post))
+                            out.append('</p>\n')
                 return ''.join(out) 
 
         def render_disabled(self):  
                 out = []
-                out.append(self.rendernote(self.note))
+                out.append(self.rendernote(self.note, attached_to_form = True))
                 for i in self.inputs:
-			if i.name=='submit':  #don't show submit button here
-				continue
-                        if not i.is_hidden():
-				out.append('<p class="dis">')
-				out.append(i.description+' ')
-			i.attrs['disabled'] = True
-                        out.append(i.render())
-                        if not i.is_hidden():
-				out.append(self.rendernote(i.note))
-				out.append('<br><span class="disnote">{0}</span>'.format(i.post))
-				out.append('</p>\n')
+                    if i.name=='submit':  #don't show submit button here
+                        continue
+                    if not i.is_hidden():
+                        out.append('<p class="dis">')
+                        out.append(i.description+' ')
+                    i.attrs['disabled'] = True
+                    out.append(i.render())
+                    if not i.is_hidden():
+                        out.append(self.rendernote(i.note))
+                        out.append('<br><span class="disnote">{0}</span>'.format(i.post))
+                        out.append('</p>\n')
                 return ''.join(out)
 
 class ListToForm(web.form.Form):
@@ -89,7 +98,7 @@ class ListToForm(web.form.Form):
 
         def rendernote(self, note):
                 if note: 
-                        return '<span class="error"> {0}</span>'.format(note)
+                        return '<span class="text-danger"> {0}</span>'.format(note)
                 else: 
                         return ''
 
@@ -115,15 +124,4 @@ class ListToForm(web.form.Form):
 
                 return ''.join(out) 
 
-        # def render_disabled(self):
-        #         out = []
-        #         out.append(self.rendernote(self.note))
-        #         for i in self.inputs:
-        #                 out.append('<p>')
-        #                 out.append(i.description+': ')
-        #                 out.append(i.render())
-        #                 out.append(self.rendernote(i.note))
-        #                 out.append('<span class="note">dis{0}</span>'.format(i.post))
-        #                 out.append('</p>\n')
-        #         return ''.join(out)
 
