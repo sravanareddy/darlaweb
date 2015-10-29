@@ -1,19 +1,14 @@
 $def with (form)
 
-<div class="left-col">
-
-<span class="breadcrumbs"><a href="http://darla.dartmouth.edu"
-  target="_blank">Darla Home</a></span>
-<span class="breadcrumbs"><a href="http://darla.dartmouth.edu#cite" target="_blank">How to Cite</a></span><p>
+<div class="container">
 
 <h2>Compare transcription quality</h2><p><p>
 
-<span class="note">This is an interface to an edit distance program 
+<p class="lead">This is an interface to an edit distance program 
 for evaluating ASR transcription error rates at the word and phoneme level. You may also
-  use this tool to compare two different manual transcriptions.</span>
-<p>
+  use this tool to compare two different manual transcriptions.</p>
   
-<a href="uploadeval"><small>Click here at any time to cancel or start over.</small></a><p>
+<p><a href="uploadeval"><small>Click here at any time to cancel or start over.</small></a></p>
 
 <form action="uploadeval" name="uploadeval" method="post" enctype="multipart/form-data">
 $if not form.valid: <p class="error">Correct the errors below.</p>

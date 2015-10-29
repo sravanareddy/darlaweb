@@ -8,8 +8,6 @@ import os
 from web import form
 import myform
 import utilities
-import zipfile
-import tarfile
 import allpipeline
 import extract
 import alignextract
@@ -41,6 +39,18 @@ class semi:
     def GET(self):
         return render.semi()
 
+def speaker_form(completed_form, filename, taskname): #send in the completed form too
+  input_list = []
+  taskname = form.Hidden(name="taskname", value=taskname)
+  speaker_name = form.Textbox('name', form.notnull, description='Speaker ID: ')
+  sex = myform.MyRadio('sex', [('M','Male ', 'M'), ('F','Female ', 'F'), ('F','Child ', 'C')], description='Sex: ')
+  filename = form.Hidden(value=filename, name='filename')
+  speakers = myform.MyForm(taskname,
+                           speaker_name,
+                           sex,
+                           filename)
+  return render.speakerssound(completed_form, speakers())
+    
 class uploadsound:
     MINDURATION = 30 #in minutes
     uploadfile = myform.MyFile('uploadfile',
@@ -75,37 +85,6 @@ class uploadsound:
                                  lambda x: (x.filelink!='' or x.uploadfile) and not (x.uploadfile and x.filelink!=''))]
     
     datadir = open('filepaths.txt').readline().split()[1]
-    
-    def speaker_form(self, completed_form, filenames, taskname): #send in the completed form too
-      input_list = []
-      numfiles = form.Hidden(name="numfiles",value=len(filenames))
-      taskname = form.Hidden(name="taskname",value=taskname)
-      input_list.extend([numfiles,taskname])
-      for index in range(0, len(filenames)):
-
-        if index!=0:
-          checkBox = form.Checkbox(str(index),
-                      class_='copy',
-                      post='Check if speaker below is same as above')
-          input_list.append(checkBox)
-        filename = form.Hidden(value=filenames[index][0],name='filename'+str(index))
-        speaker_name = form.Textbox('name'+str(index),
-                         form.notnull,
-                         pre="File Name: "+filenames[index][1],
-                         description='Speaker ID')
-        sex = myform.MyRadio('sex'+str(index),
-                        [('M','Male', 'M'+str(index)),('F','Female', 'F'+str(index)),('F','Child', 'C'+str(index))],
-                        description='Sex'
-                        )
-
-        input_list.extend([speaker_name,sex,filename])
-
-      speakers = myform.ListToForm(input_list)
-      s = speakers()
-      # s.taskname.value = completed_form.taskname.value
-      # s.filenames.value = len(filenames)
-
-      return render.speakerssound(completed_form, s)
       
     def GET(self):
         self.dialect.value = 'standard'
@@ -151,8 +130,8 @@ class uploadsound:
                     form.note = error
                     return render.speakerssound(form, "")
 
-                filenames = [(filename, x.filelink)]   #passed filename, display filename
                 filename = os.path.splitext(filename)[0]
+                
                 utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+filename+'.chunks'))
                 
             elif 'uploadfile' in x:  
@@ -160,78 +139,31 @@ class uploadsound:
                 #sanitize filename
                 filename, extension = utilities.get_basename(x.uploadfile.filename)
 
-                if extension not in ['.wav', '.zip', '.mp3', '.gz', '.tgz', '.tar']:
-                    form.note = "Please upload a .wav, .mp3, .zip, .tgz, or .tar file."
+                if extension not in ['.wav', '.mp3']:
+                    form.note = "Please upload a .wav or .mp3 audio file."
                     return render.speakerssound(form, "")
 
                 else:                
-                    if extension in ['.zip', '.tar', '.tgz', '.gz']:
-                        try:
-                            if extension == '.zip':
-                                z = zipfile.ZipFile(x.uploadfile.file)
-                            else:
-                                z = tarfile.open(fileobj=x.uploadfile.file)
-
-                            total_size = 0.0
-
-                            namelist = []
-                            if extension == '.zip':
-                                namelist = z.namelist()
-                            else:
-                                namelist = z.getnames()
-                        
-                            for subname in namelist:
-                                subfilename, subextension = utilities.get_basename(subname)
-                        
-                                if subfilename in ['', '__MACOSX', '.DS_Store', '._']:
-                                    continue
-                        
-                                if subextension not in ['.wav', '.mp3']:
-                                    form.note = "Extension incorrect for file {0} in the folder {1}{2}. Make sure your folder only contains .wav or .mp3 files.".format(subfilename+subextension, filename, extension)
-                                    return render.speakerssound(form, "")
-                        
-                                else:
-                                    if extension == '.zip':
-                                        samprate, file_size, chunks, error = utilities.process_audio(audiodir, subfilename, subextension, z.open(subname).read(), dochunk=20)
-                                    else:
-                                        samprate, file_size, chunks, error = utilities.process_audio(audiodir, subfilename, subextension, z.extractfile(subname).read(), dochunk=20)
-                              
-                                    if error!="":
-                                        form.note = error
-                                        return render.speakerssound(form, "")
-                              
-                                    utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+subfilename+'.chunks'))
-                            
-                                    filenames.append((subfilename, subfilename))
-                                    total_size += file_size
+                    samprate, total_size, chunks, error = utilities.process_audio(audiodir,
+                                                                                 filename,
+                                                                                 extension,
+                                                                                 x.uploadfile.file.read(),
+                                                                                 dochunk=20)
                     
-                        except:
-                            form.note = "Could not read the archive file. Please check and upload again."
-                            return render.speakerssound(form, "")
-                  
-                    else:  #will be mp3 or wav
-                        samprate, file_size, chunks, error = utilities.process_audio(audiodir,
-                                             filename, extension,
-                                                                                     x.uploadfile.file.read(),
-                                                                                     dochunk=20)
+                    if error!="":
+                        form.note = error
+                        return render.speakerssound(form, "")
                     
-                        if error!="":
-                            form.note = error
-                            return render.speakerssound(form, "")
-                    
-                        utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+filename+'.chunks'))
-                    
-                        filenames.append((filename, filename))
-                        total_size = file_size
+                    utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+filename+'.chunks'))
                 
             if total_size < self.MINDURATION:  
-                form.note = "Warning: Your files total only {:.2f} minutes of speech. We recommend at least {:.0f} minutes for best results.".format(total_size, self.MINDURATION)
+                form.note = "Warning: Your file totals only {:.2f} minutes of speech. We recommend at least {:.0f} minutes for best results.".format(total_size, self.MINDURATION)
                     
             #generate argument files
             utilities.gen_argfiles(self.datadir, form.taskname.value, filename, 'asr', form.email.value, samprate, form.lw.value, form.dialect.value)
                     
             #show speaker form by adding fields to existing form and re-rendering
-            return self.speaker_form(form, filenames, taskname)
+            return speaker_form(form, filename, taskname)
 
 class uploadyt:
     
