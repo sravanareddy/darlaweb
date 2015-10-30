@@ -30,21 +30,19 @@ class alignextract:
 			parameters[split[0]] = split[1]
 
 		taskname = parameters["taskname"]
-		numfiles = int(parameters["numfiles"])
-                
+		        
 		if not (os.path.isdir(os.path.join(datadir, taskname+".speakers"))):
 			os.mkdir(os.path.join(datadir, taskname+".speakers"))
 			os.system('chmod g+w '+os.path.join(datadir, taskname+".speakers"))
 
-		for i in range(0, numfiles):
-			i = str(i)
-			filename = parameters["filename"+i]
-			if filename=='ytvideo.wav':
-				filename='ytvideo'
+		filename = parameters["filename"]
+		if filename=='ytvideo.wav':
+			filename='ytvideo'
+
 		try:
 			o = open(os.path.join(datadir, taskname+'.speakers/converted_'+filename+'.speaker'), 'w')
-			name = parameters["name"+i]
-			sex = parameters["sex"+i]
+			name = parameters["name"]
+			sex = parameters["sex"]
 			o.write('--name='+name+'\n--sex='+sex+'\n')
 			o.close()
 		except IOError:
