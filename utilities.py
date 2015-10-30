@@ -24,6 +24,7 @@ import inflect
 from textgrid.textgrid import TextGrid
 import gdata.youtube
 import gdata.youtube.service
+from datetime import datetime 
 
 ERROR = 0
 
@@ -255,14 +256,18 @@ def get_basename(filename):
     return basename, extension.lower()
 
 def randomname(fnamelen):
-    fname = ''
+    timenow = datetime.now()
+    fname = '_'.join(map(str, [timenow.year,
+                               timenow.month,
+                               timenow.day,
+                               timenow.hour]))+'_'
     for _ in range(fnamelen):
         fname+=random.choice(string.letters)
     return fname
 
 def make_task(datadir):
     try:
-        taskname = randomname(30)
+        taskname = randomname(5)
         audiodir = os.path.join(datadir, taskname+'.audio')
         if os.path.exists(audiodir): #check if taskname exists
             make_task(datadir) #make a new taskname
