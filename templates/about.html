@@ -83,8 +83,24 @@ editing the transcriptions online, and seamlessly re-running your task
   
     </li>
   </ul>
-     </div>
+     </div></li>
 
+       <li class="list-group-item">
+  <a href="#eval" data-toggle="collapse" data-target="#evalbody">
+      <h3 id="eval">How can I evaluate the accuracy of the ASR transcriptions?</h3></a>
+
+  <div id="evalbody" class="collapse">
+    <p>
+    <a href="uploadeval">Our online transcription evaluation tool</a>
+    uses the weighted Levenshtein distance algorithm to compute
+   transcription error rates for words, phonemes, and stressed vowels. Simply
+    upload the ASR transcription and the manual transcription in
+    plaintext format.</p>
+    
+</div></li>
+
+
+     
   <li class="list-group-item">
   <a href="#tech" data-toggle="collapse" data-target="#techbody">
       <h3 id="tech">What do you use for alignment and extraction?</h3></a>
@@ -92,10 +108,10 @@ editing the transcriptions online, and seamlessly re-running your task
   <div id="techbody" class="collapse">
 <p>We use the same methods as FAVE. Our forced alignment is done with the
   <a href="http://prosodylab.org/tools/aligner/">ProsodyLab
-  Aligner</a>, and formant measurement with<a
+  Aligner</a>, and formant measurement with <a
   href="https://github.com/JoFrhwld/FAVE/tree/master/FAVE-extract">FAVE-extract</a>.
   We also use the <a href="http://cran.r-project.org/web/packages/vowels/index.html">R vowels package</a> for plotting.</p>
-
+</div></li>
 
     <li class="list-group-item">
     <a href="#why" data-toggle="collapse" data-target="#whybody">
@@ -134,7 +150,7 @@ Of course, there will be instances of vowel error, but the effect of these error
 	versus pit/pet.</p>
       </div>
       </li>
-
+      
       <li class="list-group-item">
 
       <a href="#limits" data-toggle="collapse" data-target="#limitsbody">
@@ -187,57 +203,28 @@ around the parts of the recording that you want.</p>
 
        </div>
 
-        <li class="list-group-item">
-       <a href="#cite" data-toggle="collapse" data-target="#citebody">
-       <h3 id="cite">How do I cite DARLA?</h3></a>
+            <li class="list-group-item">
 
-       <div class="collapse" id="citebody">
-	 
-       <p>The application is designed and implemented by <a href="http://cs.wellesley.edu/~sravana/">Sravana Reddy</a> and <a href="http://linguistics.dartmouth.edu/people/james-n-stanford">James Stanford</a>, with programming assistance from Irene Feng, and is supported by the <a href="http://neukom.dartmouth.edu" target="_blank">Neukom Institute for Computational Science</a>.</p>
+      <a href="#noise" data-toggle="collapse" data-target="#noisebody">
+      <h3 id="noise">What about noise or multiple voices in the recording?</h3></a>
 
-<p>Suggested in-text citation for the completely automated functions:
-DARLA (Reddy & Stanford 2015), using Prosodylab-Aligner (Gorman et
-al. 2011), FAVE-Extract (Rosenfelder et al. 2014),
-and the Vowels R package (Kendall & Thomas 2010).</p>
+       <div class="collapse" id="noisebody">
 
-<p>Suggested in-text citation for the semi-automated functions:
-FAVE-Extract (Rosenfelder et al. 2014) and Prosodylab-Aligner (Gorman
-et al. 2011) using the DARLA web interface (Reddy & Stanford 2015) and the Vowels R package
-(Kendall & Thomas 2010).</p>
+	 <p>The system cannot currently handle recordings with
+	 multiple speakers in an automated way (though this is an idea
+	 for future work). ASR and forced alignment also have trouble with noise, laughter, loud breaths, background
+	 voices, music, etc. </p>
 
-<h4>Bibliographic entries:</h4>
+	<p> For this reason, we recommend that you "pre-clean" the
+	recording by manually deleting extraneous sounds and
+	voices. This is easy to do in Praat (select the noise and
+	click Cmd+X or Ctrl+X). </p>
 
-<ul>
-  <li>Gorman, Kyle, Jonathan Howell and Michael Wagner. 2011. Prosodylab-Aligner: A Tool for Forced Alignment of Laboratory Speech. Canadian Acoustics. 39.3. 192–193.
+	<p>When DARLA processes a recording with such noise, the
+      alignment is likely to be incorrect, as the system will wrongly think that it should align those noises with words from the transcription. If your recording would require a great deal of pre-cleaning, you might want to consider manually transcribing with the semi-automated method rather than the completely automated one.</p>
+      </div>
 
-<li>Kendall, Tyler and Erik R. Thomas. 2010. Vowels: vowel manipulation, normalization, and 
-  plotting in R. R package. <a href="http://cran.r-project.org/web/packages/vowels/index.html" target="_blank">cran.r-project.org/web/packages/vowels/index.html</a>.
-
-  <li>Reddy, Sravana and James Stanford. 2015. <a href="http://www.degruyter.com/view/j/lingvan.ahead-of-print/lingvan-2015-0002/lingvan-2015-0002.xml">Toward completely automated vowel extraction: 
-  Introducing DARLA.</a> <i>Linguistics Vanguard</i>. 
-
-<li>Rosenfelder, Ingrid; Fruehwald, Josef; Evanini, Keelan; Seyfarth,
-  Scott; Gorman, Kyle; Prichard, Hilary; Yuan, Jiahong; 2014. FAVE
-  (Forced Alignment and Vowel Extraction) Program Suite v1.2.2
-  10.5281/zenodo.22281. 
-</ul>
-</p>
-
-<p>In addition, if you use the <a
-href="http://lvc.uoregon.edu/norm/about_norm1.php"
-target="_blank">NORM online interface</a> for custom normalization and plotting of the vowel space, please also cite:</p>
-
-<ul>
-<li>Thomas, Erik R. and Tyler Kendall. 2007. NORM: The vowel normalization and plotting suite. Online Resource. <a href="http://lvc.uoregon.edu/norm/index.php" target="_blank">lvc.uoregon.edu/norm/index.php</a>
-</ul>
-
-</div>
-
-</li>
-
-
-
-
+      
     </ul>   <!-- ends list-group ul -->
     
     

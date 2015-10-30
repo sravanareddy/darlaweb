@@ -27,14 +27,14 @@ class index:
     def GET(self):
         return render.index()
 
-class cite:
-    def GET(self):
-        return render.cite()
-
 class about:
     def GET(self):
         return render.about()
 
+class cite:
+    def GET(self):
+        return render.cite()
+    
 class cave:
     def GET(self):
         return render.cave()
@@ -43,7 +43,7 @@ class semi:
     def GET(self):
         return render.semi()
 
-def speaker_form(completed_form, filename, taskname): #send in the completed form too
+def speaker_form(filename, taskname): 
   input_list = []
   taskname = form.Hidden(name="taskname", value=taskname)
   speaker_name = form.Textbox('name', form.notnull, description='Speaker ID: ')
@@ -53,7 +53,7 @@ def speaker_form(completed_form, filename, taskname): #send in the completed for
                            speaker_name,
                            sex,
                            filename)
-  return render.speakerssound(completed_form, speakers())
+  return speakers()
     
 class uploadsound:
     MINDURATION = 30 #in minutes
@@ -167,7 +167,8 @@ class uploadsound:
             utilities.gen_argfiles(self.datadir, form.taskname.value, filename, 'asr', form.email.value, samprate, form.lw.value, form.dialect.value)
                     
             #show speaker form by adding fields to existing form and re-rendering
-            return speaker_form(form, filename, taskname)
+            speakers = speaker_form(filename, form.taskname.value)
+            return render.speakerssound(form, speakers)
 
 class uploadyt:
     
@@ -253,26 +254,6 @@ class downloadsrttrans:
                   lambda x: (x.taskname!='' and x.video_id!=''))]
 
     datadir = open('filepaths.txt').readline().split()[1]
-
-    def speaker_form(self, completed_form, filenames): #send in the completed form too                
-        input_list = []
-        taskname = form.Hidden(name="taskname",value=completed_form.taskname.value)
-        numfiles = form.Hidden(name="numfiles",value=len(filenames))
-        input_list.extend([taskname,numfiles])
-        #TODO: no need to generalize to multiple speakers                                                       
-        filename = form.Hidden(value=filenames[0][0],name='filename0')
-        speaker_name = form.Textbox('name0',
-                         form.notnull,
-                         pre="File Name: "+filenames[0][1],
-                         description='Speaker ID')
-        sex = myform.MyRadio('sex0',
-                        [('M','Male', 'M0'),('F','Female', 'F0'),('F','Child', 'C0')],
-                        description='Sex'
-                        )
-        input_list.extend([speaker_name,sex,filename])
-        speakers = myform.ListToForm(input_list)
-        s = speakers()
-        return render.speakerssrttrans(completed_form, s)
     
     def GET(self):
         downloadsrttrans = myform.MyForm(self.taskname,
@@ -326,7 +307,10 @@ class downloadsrttrans:
 
         utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+filename+'.chunks'))
         utilities.gen_argfiles(self.datadir, taskname, filename, 'boundalign', form.email.value, samprate)
-        return self.speaker_form(form, filenames)
+        
+        speakers = speaker_form(filename, taskname)
+        
+        return self.speakerssrttrans(form, speakers)
 
 class uploadtxttrans:
     uploadfile = myform.MyFile('uploadfile',
@@ -352,26 +336,6 @@ class uploadtxttrans:
                                  lambda x: (x.filelink!='' or x.uploadfile) and not (x.uploadfile and x.filelink!=''))]
 
     datadir = open('filepaths.txt').readline().split()[1]
-
-    def speaker_form(self, completed_form, filenames, taskname): #send in the completed form too           
-        input_list = []
-        taskname = form.Hidden(name="taskname",value=taskname)
-        numfiles = form.Hidden(name="numfiles",value=len(filenames))
-        input_list.extend([taskname, numfiles])
-        #TODO: no need to generalize to multiple speakers                                                  
-        filename = form.Hidden(value=filenames[0][0],name='filename0')
-        speaker_name = form.Textbox('name0',
-                         form.notnull,
-                         pre="File Name: "+filenames[0][1],
-                         description='Speaker ID')
-        sex = myform.MyRadio('sex0',
-                        [('M','Male', 'M0'),('F','Female', 'F0'),('F','Child', 'C0')],
-                        description='Sex'
-                        )
-        input_list.extend([speaker_name,sex,filename])
-        speakers = myform.ListToForm(input_list)
-        s = speakers()
-        return render.speakerstxttrans(completed_form, s)
 
     def GET(self):
         uploadtxttrans = myform.MyForm(self.uploadfile,
@@ -445,7 +409,9 @@ class uploadtxttrans:
 
         utilities.gen_argfiles(self.datadir, form.taskname.value, filename, 'txtalign', form.email.value, samprate)
 
-        return self.speaker_form(form, filenames, taskname)
+        speakers = speaker_form(filename, taskname)
+
+        return render.speakerstxttrans(form, speakers)
 
 class uploadboundtrans:
     uploadfile = myform.MyFile('uploadfile',
@@ -472,26 +438,6 @@ class uploadboundtrans:
                                  lambda x: (x.filelink!='' or x.uploadfile) and not (x.uploadfile and x.filelink!=''))]
 
     datadir = open('filepaths.txt').readline().split()[1]
-    
-    def speaker_form(self, completed_form, filenames, taskname): #send in the completed form too           
-        input_list = []
-        taskname = form.Hidden(name="taskname",value=taskname)
-        numfiles = form.Hidden(name="numfiles",value=len(filenames))
-        input_list.extend([taskname, numfiles])
-        #TODO: no need to generalize to multiple speakers                                                  
-        filename = form.Hidden(value=filenames[0][0],name='filename0')
-        speaker_name = form.Textbox('name0',
-                         form.notnull,
-                         pre="File Name: "+filenames[0][1],
-                         description='Speaker ID')
-        sex = myform.MyRadio('sex0',
-                        [('M','Male', 'M0'),('F','Female', 'F0'),('F','Child', 'C0')],
-                        description='Sex'
-                        )
-        input_list.extend([speaker_name,sex,filename])
-        speakers = myform.ListToForm(input_list)
-        s = speakers()
-        return render.speakersboundtrans(completed_form, s)
     
     def GET(self):
         uploadboundtrans = myform.MyForm(self.uploadfile,
@@ -574,7 +520,9 @@ class uploadboundtrans:
         utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+filename+'.chunks'))
         utilities.gen_argfiles(self.datadir, form.taskname.value, filename, 'boundalign', form.email.value, samprate)
         
-        return self.speaker_form(form, filenames, taskname)
+        speakers = speaker_form(filename, taskname)
+
+        return render.speakersboundtrans(form, speakers)
 
 class uploadtextgrid:
     uploadfile = myform.MyFile('uploadfile',
@@ -601,30 +549,6 @@ class uploadtextgrid:
                                  lambda x: (x.filelink!='' or x.uploadfile) and not (x.uploadfile and x.filelink!=''))]
     
     datadir = open('filepaths.txt').readline().split()[1]    
-    
-    def speaker_form(self, completed_form, filenames, taskname): #send in the completed form too   
-        input_list = []
-        taskname = form.Hidden(name="taskname",value=taskname)
-        numfiles = form.Hidden(name="numfiles",value=len(filenames))
-        input_list.extend([taskname, numfiles])
-
-        #TODO: no need to generalize to multiple speakers                                          
-        filename = form.Hidden(value=filenames[0][0],name='filename0')
-        speaker_name = form.Textbox('name0',
-                                    form.notnull,
-                                    pre="File Name: "+filenames[0][1],
-                                    description='Speaker ID')
-        sex = myform.MyRadio('sex0',
-                             [('M','Male', 'M0'),('F','Female', 'F0'),('F','Child', 'C0')],
-                             description='Sex'
-                             )
-
-        input_list.extend([speaker_name,sex,filename])
-
-        speakers = myform.ListToForm(input_list)
-        s = speakers()
-
-        return render.speakerstextgrid(completed_form, s)
     
     def GET(self):
         uploadtextgrid = myform.MyForm(self.uploadfile,
@@ -703,8 +627,10 @@ class uploadtextgrid:
         utilities.write_textgrid(self.datadir, form.taskname.value, filename, utilities.read_textupload(x.uploadTGfile.file.read())) 
 
         utilities.gen_argfiles(self.datadir, form.taskname.value, filename, 'extract', form.email.value)
-        
-        return self.speaker_form(form, filenames, taskname)
+
+        speakers = speaker_form(filename, taskname)
+
+        return render.speakerstextgrid(form, speakers)
 
 class uploadeval:
     reffile = myform.MyFile('reffile',
