@@ -212,16 +212,43 @@ around the parts of the recording that you want.</p>
 
 	 <p>The system cannot currently handle recordings with
 	 multiple speakers in an automated way (though this is an idea
-	 for future work). ASR and forced alignment also have trouble with noise, laughter, loud breaths, background
-	 voices, music, etc. </p>
+	 for future work). </p>
 
-	<p> For this reason, we recommend that you "pre-clean" the
-	recording by manually deleting extraneous sounds and
-	voices. This is easy to do in Praat (select the noise and
+	 	<p>When DARLA processes a recording with noise, laughter, loud breaths, background
+	 voices, music, etc., the ASR transcriptions or
+      alignments are likely to be incorrect.
+	 If your recording would require a great deal of pre-cleaning,
+      you might want to consider manually transcribing with the
+      semi-automated method rather than the completely automated
+	 one.</p>
+	 
+	<p>However, it is easy to manually delete extraneous sounds and
+	voices in Praat (select the noise and
 	click Cmd+X or Ctrl+X). </p>
 
-	<p>When DARLA processes a recording with such noise, the
-      alignment is likely to be incorrect, as the system will wrongly think that it should align those noises with words from the transcription. If your recording would require a great deal of pre-cleaning, you might want to consider manually transcribing with the semi-automated method rather than the completely automated one.</p>
+	<p> If your recording includes an interviewer who doesn't have
+	 a microphone, this quiet background voice can cause confusion
+	 for the ASR and aligner.
+	 The best solution is to delete the interviewer voice (see
+	 above), but here are some other options:
+	 <ol>
+	   <li> Try "smoothing out" the amplitude of all voices on the
+	 recording: Load your file in Audacity, then click Effects >
+	   Compressor.
+	   That feature is a dynamic range adjuster which tries to
+	   make all voices approximately the same
+	   (pull the slider all the way to the left for the strongest effect). </li>
+<li> Try reducing the amplitude of the whole recording (in Audacity,
+	 click Effects > Amplify) so that the quieter voice is
+	   non-existent.</li>
+	   This may help remove quiet background voices that would be a problem for the aligner. 
+<li> You can also try increasing the amplitude of all voices so that
+	 the ASR transcription can "hear" all of them clearly: In
+	   Audacity, click Effects > Amplify.</li>
+	   </ul>
+
+	   </p>
+	 
       </div>
 
       
