@@ -18,12 +18,12 @@ def featurize_recognize(taskname):
         args = "/usr/local/bin/sphinx_fe -argfile "+taskname+".featurize_args"
         audio = os.system(args)
         if audio != 0 and receiver!='none':
-                send_error_email(receiver, "", "sphinx_fe processing")
+                send_error_email(receiver, filename, "There was a problem extracting acoustic features for ASR. Please check your file and try again.")
                 return False
         args = "/usr/local/bin/pocketsphinx_batch -argfile "+taskname+".recognize_args"
         audio = os.system(args)
         if audio != 0 and receiver!='none':
-                send_error_email(receiver, "", "pocketsphinx_batch processing")
+                send_error_email(receiver, filename, "There was a problem running ASR. Please check your file and try again.")
                 return False               
         return True
 

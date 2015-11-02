@@ -1,8 +1,13 @@
 $def with(error,uploadlink)
 
-<div class="left-col">
+<div class="container">
 
-<p class="error">An error occured. Here is a short description of what happened: </p>
-<p>$error</p>
-<a href=$uploadlink><small>Click here to start over and try again.</small></a>
+    <h2>Oh, no!</h2>
+
+<p class="alert alert-danger">
+  $error</p>
+  
+<a href=$uploadlink><small>Click here to start over and try
+  again.</small></a>
+  
 </div>

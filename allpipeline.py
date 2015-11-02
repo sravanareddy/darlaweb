@@ -67,6 +67,6 @@ class allpipeline:
         else:
             align_extract(os.path.join(datadir, taskname))
                 
-	return "You may now close this window and we will email you the results. Thank you!" 
+	return render.success()
 
 app_allpipeline = web.application(urls, locals())
