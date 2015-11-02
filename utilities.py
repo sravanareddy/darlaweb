@@ -467,10 +467,11 @@ def write_chunks(chunks, filepath):
     o.close()
 
 def process_audio(audiodir, filename, extension, filecontent, dochunk):
-    #write contents of file
-    o = open(os.path.join(audiodir, filename+extension), 'w')
-    o.write(filecontent)
-    o.close()
+    
+    if filecontent:
+        o = open(os.path.join(audiodir, filename+extension), 'w')
+        o.write(filecontent)
+        o.close()
 
     if extension == '.mp3':
         # print 'converting', os.path.join(audiodir, filename+extension)  #TODO: try and except here
@@ -543,7 +544,7 @@ def soxConversion(filename, audiodir, dochunk=None):
     if retval != 0:
         error_message = 'Could not downsample file'
         # print error_message
-        return sample_rate, file_size, error_message
+        return sample_rate, file_size, 0, error_message
     
     #split into chunks as specified. TODO: split on silence
     chunks = []

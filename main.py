@@ -298,7 +298,7 @@ class downloadsrttrans:
             form.note = error
             return render.speakerssrttrans(form, "")
 
-        samprate, filesize, chunks, error = utilities.soxConversion(filename+extension, audiodir, dochunk=chunks)
+        samprate, filesize, chunks, error = utilities.process_audio(audiodir, filename, extension, None, chunks)
         if error!="":
             form.note = error
             return render.speakerssrttrans(form, "")
@@ -310,7 +310,7 @@ class downloadsrttrans:
         
         speakers = speaker_form(filename, taskname)
         
-        return self.speakerssrttrans(form, speakers)
+        return render.speakerssrttrans(form, speakers)
 
 class uploadtxttrans:
     uploadfile = myform.MyFile('uploadfile',
