@@ -67,6 +67,6 @@ class allpipeline:
         else:
             align_extract(os.path.join(datadir, taskname))
                 
-	return render.success()
+	return render.success('')
 
 app_allpipeline = web.application(urls, locals())

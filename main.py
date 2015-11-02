@@ -191,7 +191,7 @@ class uploadyt:
     def GET(self):
         uploadyt = myform.MyForm(self.uploadfile, self.email, self.taskname, self.submit)
         form = uploadyt()
-        return render.speakersyt(form, "")
+        return render.speakersyt(form)
 
     def POST(self):
         uploadyt = myform.MyForm(self.uploadfile, self.email, self.taskname, self.submit)
@@ -199,13 +199,13 @@ class uploadyt:
         x = web.input(uploadfile={})
 
         if not form.validates(): #not validated
-            return render.speakersyt(form, "")
+            return render.speakersyt(form)
 
         #create new task                                                                                 
         taskname, audiodir, error = utilities.make_task(self.datadir)
         if error!="":
             form.note = error
-            return render.speakersyt(form, "")
+            return render.speakersyt(form)
 
         form.taskname.value = taskname
 
@@ -213,35 +213,36 @@ class uploadyt:
         filename, extension = utilities.get_basename(x.uploadfile.filename)
         if extension not in ['.wav', '.mp3']:
             form.note = "Please upload a .wav or .mp3 file."
-            return render.speakersyt(form, "")
+            return render.speakersyt(form)
         else:
             
             error = utilities.convert_to_video(audiodir, filename, extension, x.uploadfile.file.read())
             if error:
                 form.note = error
-                return render.speakersyt(form, "")
+                return render.speakersyt(form)
 
             videofile = os.path.join(audiodir, filename+'.mp4')
             video_id, error = utilities.upload_youtube(form.taskname.value, videofile)
+
+            o = open(os.path.join(audiodir, 'video_id.txt'), 'w')
+            o.write(video_id)
+            o.close()
             
             if error:
                 form.note = error
-                return render.speakersyt(form, "")
+                return render.speakersyt(form)
 
             error = utilities.send_ytupload_email(video_id, form.taskname.value, form.email.value, filename)
             if error:
                 form.note = error
-                return render.speakersyt(form, "")
+                return render.speakersyt(form)
             
-            return 'Successfully uploaded! Please check your e-mail.'
+            return render.success("Successfully uploaded! Please check your e-mail and re-visit the site in a few hours.")
 
 class downloadsrttrans:
     taskname = form.Textbox('taskname',
                             form.notnull,
                             description='The taskname ID sent to your e-mail')
-    video_id = form.Textbox('video_id',
-                            form.notnull,
-                            description='The video ID sent to your e-mail')
     email = form.Textbox('email',
                          form.notnull,
                          form.regexp(r'^[\w.+-]+@[\w.+-]+\.[\w.+-]+$',
@@ -257,7 +258,6 @@ class downloadsrttrans:
     
     def GET(self):
         downloadsrttrans = myform.MyForm(self.taskname,
-                                        self.video_id,
                                         self.email,
                                         self.submit)
         form = downloadsrttrans()
@@ -265,7 +265,6 @@ class downloadsrttrans:
 
     def POST(self):
         downloadsrttrans = myform.MyForm(self.taskname,
-                                        self.video_id,
                                         self.email,
                                         self.submit)
         form = downloadsrttrans()
@@ -281,7 +280,8 @@ class downloadsrttrans:
         
         if not os.path.exists(srtfile):
             #try to download it
-            error = utilities.download_youtube(audiodir, 'ytresults', form.video_id.value)
+            video_id = open(os.path.join(audiodir, 'video_id.txt')).read().strip()
+            error = utilities.download_youtube(audiodir, 'ytresults', video_id)
             if error:
                 form.note = error                                                                                
                 return render.speakerssrttrans(form, "")

@@ -10,6 +10,8 @@ import os
 import sys
 from featrec import align_extract
 
+render = web.template.render('templates/', base='layout')
+
 if celeryon:
 	from celery import group
 
@@ -56,6 +58,6 @@ class alignextract:
 		else:
 			align_extract(os.path.join(datadir, taskname))
 
-		return render.success()
+		return render.success('')
     
 app_alignextract = web.application(urls, locals())

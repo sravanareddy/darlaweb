@@ -1,8 +1,14 @@
+$def with(message)
+
 <div class="container">
 
   <h2>Success!</h2>
-  
-<p>You may now close this window and we will email you the
-  results. Thank you! Feel free to upload other jobs while you wait.</p>
+
+<p class="alert alert-success">
+  $if message=='':
+      You may now close this window or go to another page. We will email you the results. Thank you!
+  $else:
+      $message
+  </p>
   
 </div>

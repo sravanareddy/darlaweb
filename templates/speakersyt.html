@@ -1,4 +1,4 @@
-$def with (form, speakerform)
+$def with (form)
 
 <div class="container">
 
@@ -10,12 +10,16 @@ $def with (form, speakerform)
 
 <a href="uploadyt"><small>Click here at any time to cancel or start over.</small></a><p>
 
-<form name="uploadyt" method="post" enctype="multipart/form-data"> 
+<form name="uploadyt" method="post" enctype="multipart/form-data" onsubmit="progress()"> 
   $if not form.valid: <p class="alert alert-danger">Correct the errors below.</p>
-  $if not speakerform:
-     $:form.render()
+  $:form.render()
 </form>
 
+  <div id="loading" style="display: none;">
+	  <span class="note">Task processing. You may now close this window and we will email you the results.</span>
+	<img src="/static/images/ajax-loader.gif"></img>
+	</div>
+	
 	<br>
 
 </div>

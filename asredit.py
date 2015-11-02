@@ -91,6 +91,6 @@ class asredit:
                                 pass
                 else:
                         align_extract(os.path.join(self.datadir, taskname))
-                return render.success()
+                return render.success('')
             
 app_asredit = web.application(urls, locals())

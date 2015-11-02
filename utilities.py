@@ -52,7 +52,7 @@ def send_ytupload_email(video_id, taskname, receiver, filename):
 
     subject = 'Completely Automated Vowel Extraction with YouTube ASR: Task Started for '+filename
         
-    body = 'YouTube video successfully uploaded and processing. Your taskname ID is '+taskname+' and your video ID is '+video_id+' . Please save these IDs, and after about 5 hours, visit our YouTube CC processor (http://darla.dartmouth.edu/downloadsrttrans) to check if YouTube has generated the ASR captions. You can then run alignment and extraction with these captions.'
+    body = 'YouTube video successfully uploaded and processing. Your taskname ID is '+taskname+'\n\nPlease save this ID, and after about 5 hours, visit our YouTube CC processor (http://darla.dartmouth.edu/downloadsrttrans) to check if YouTube has generated the ASR captions. You can then run alignment and extraction with these captions.\n\nFor reference, your video ID is '+video_id+'\n\nPlease mention this ID as well when contacting us about any problems with your job.'
 
     message = MIMEMultipart()
     message['From'] = 'DARLA <'+sender+'>'
