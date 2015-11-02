@@ -311,6 +311,18 @@ def write_transcript(datadir, taskname, reffilecontent, hypfilecontent, cmudictf
     
     return numreflines, numhyplines
 
+def norm_dollar_signs(word):
+    """convert $n to n dollars"""
+    if word.startswith('$'):
+        suffix = 'dollars'
+        if len(word)>1:
+            if word[1:] == '1':
+                suffix = 'dollar'
+            return word[1:]+' '+suffix
+        else:
+            return suffix
+    return word
+     
 def process_usertext(inputstring):
     """clean up unicode, translate numbers"""
     transfrom = '\xd5\xd3\xd2\xd0\xd1\xcd\xd4'
@@ -319,12 +331,16 @@ def process_usertext(inputstring):
     #MS line breaks and stylized characters that stupid TextEdit inserts. (is there an existing module that does this?)
     cleaned = string.translate(inputstring.lower(), 
                             unimaketrans).replace("\xe2\x80\x93", " - ").replace('\xe2\x80\x94', " - ").replace('\xe2\x80\x99', "'").replace('\xe2\x80\x9c', '"').replace('\xe2\x80\x9d', '"').replace('\r\n', '\n').replace('\r', '\n').strip()
+    # convert digits and normalize $n
     digitconverter = inflect.engine()
     returnstr = ''
     for line in cleaned.splitlines():
-        returnstr += ' '.join(map(lambda word:
+        wordlist = line.split()
+        wordlist = ' '.join(map(norm_dollar_signs,
+                       wordlist)).split()
+        returnstr += ' '.join(map(lambda word:  
                         digitconverter.number_to_words(word).replace('-', ' ').replace(',', '') if word[0].isdigit() or (word[0]=="'" and len(word)>1 and word[1].isdigit()) else word, 
-                        line.split()))+'\n'
+                        wordlist))+'\n'
     return returnstr
 
 def write_hyp(datadir, taskname, filename, txtfilecontent, cmudictfile):    
