@@ -91,6 +91,6 @@ class asredit:
                                 pass
                 else:
                         align_extract(os.path.join(self.datadir, taskname))
-                return "You may now close this window and we will email you the formant extraction results with your corrected transcriptions. Thank you!"
-
+                return render.success()
+            
 app_asredit = web.application(urls, locals())

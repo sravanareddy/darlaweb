@@ -19,7 +19,8 @@ urls = {
 
 class alignextract:
 	def GET(self):
-		return "TESTING"
+		return render.error("That is not a valid link.", "semi")
+    
 	def POST(self):
 		datadir = open('filepaths.txt').readline().split()[1]
 		post_list = web.data().split("&")

@@ -21,7 +21,7 @@ urls = {
 
 class allpipeline:
     def GET(self):
-        return "Invalid"
+        return render.error("That is not a valid link.", "cave")
 
     def POST(self):
         datadir = open('filepaths.txt').readline().split()[1]
