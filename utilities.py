@@ -434,7 +434,7 @@ def convert_to_video(audiodir, filename, extension, audiofilecontent):
         o.close()
 
         videofile = os.path.join(audiodir, filename+'.mp4')
-        os.system('ffmpeg -loop 1 -i static/images/shield.jpg -i '+audiofile+' -strict experimental -b:a 192k -shortest '+videofile)
+        os.system('/usr/local/bin/ffmpeg -loop 1 -i static/images/shield.jpg -i '+audiofile+' -strict experimental -b:a 192k -shortest '+videofile)
     except:
         return "Error reading or converting your audio file."
 
