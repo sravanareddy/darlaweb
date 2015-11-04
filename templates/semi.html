@@ -7,8 +7,18 @@ This system runs FAVE-style semi-automated analysis using both the
   audio and manual transcriptions, with three different transcription
   types.
   </p>
+
+  <p>The pronunciations of words in your transcriptions are taken from <a
+  href="http://www.speech.cs.cmu.edu/cgi-bin/cmudict">the CMU
+  Dictionary</a>, which contains Standard American English
+  pronunciations.
+  We use a grapheme-to-phoneme model (<a
+  href="https://www-i6.informatik.rwth-aachen.de/web/Software/g2p.html">Sequitur</a>
+  trained on the same dictionary) to predict pronunciations for words that are not in the dictionary, such as proper
+  names or slang terms. This model is reasonably accurate, but may
+  introduce a few errors.</p>
   
- <p>The returned results are in formats convenient for quick analysis: a basic vowel plot, spreadsheets with raw and Lobanov-normalized data, a spreadsheet formatted for the online NORM system (which has other plotting and normalization options), the transcription, and the aligned TextGrid file.
+ <p>The returned results are in formats convenient for analysis: a basic vowel plot, spreadsheets with raw and Lobanov-normalized data, a spreadsheet formatted for the online NORM system (which has other plotting and normalization options), the transcription, and the aligned TextGrid file.
   </p>
 
   <ul class="list-group">

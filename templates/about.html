@@ -26,7 +26,8 @@
 
       <li class="list-group-item">
 
-      <a href="#" data-toggle="collapse" data-target="#outputbody"><h3 id="output">What is the system's output?</h3></a>
+      <a href="#" data-toggle="collapse" data-target="#outputbody"><h3
+      id="output">What output does the system return?</h3></a>
 
        <div id="outputbody" class="collapse">
 <p>We e-mail a set of files to you: a vowel plot showing the mean of stressed vowels
@@ -47,7 +48,7 @@ editing the transcriptions online, and seamlessly re-running your task
     
     <li class="list-group-item">
     <a href="#" data-toggle="collapse" data-target="#asrbody">
-    <h3 id="asr">What ASR do you use for the completely automated feature?</h3></a>
+    <h3 id="asr">What ASR is used for the completely automated feature?</h3></a>
 
      <div id="asrbody" class="collapse">
     <p>We give you two options: our in-house ASR, and YouTube's
@@ -86,7 +87,7 @@ editing the transcriptions online, and seamlessly re-running your task
      </div></li>
 
        <li class="list-group-item">
-  <a href="#eval" data-toggle="collapse" data-target="#evalbody">
+  <a href="#asr" data-toggle="collapse" data-target="#evalbody">
       <h3 id="eval">How can I evaluate the accuracy of the ASR transcriptions?</h3></a>
 
   <div id="evalbody" class="collapse">
@@ -102,7 +103,7 @@ editing the transcriptions online, and seamlessly re-running your task
 
      
   <li class="list-group-item">
-  <a href="#tech" data-toggle="collapse" data-target="#techbody">
+  <a href="#eval" data-toggle="collapse" data-target="#techbody">
       <h3 id="tech">What do you use for alignment and extraction?</h3></a>
 
   <div id="techbody" class="collapse">
@@ -114,7 +115,7 @@ editing the transcriptions online, and seamlessly re-running your task
 </div></li>
 
     <li class="list-group-item">
-    <a href="#why" data-toggle="collapse" data-target="#whybody">
+    <a href="#tech" data-toggle="collapse" data-target="#whybody">
     <h3 id="why">Why completely automate vowel extraction?</h3>
     </a>
 
@@ -132,7 +133,7 @@ editing the transcriptions online, and seamlessly re-running your task
       </li>
       
       <li class="list-group-item">
-<a href="#errors" data-toggle="collapse" data-target="#errorsbody">
+<a href="#why" data-toggle="collapse" data-target="#errorsbody">
       <h3 id="errors">How do we deal with ASR errors?</h3></a>
 
       <div class="collapse" id="errorsbody">
@@ -153,7 +154,7 @@ Of course, there will be instances of vowel error, but the effect of these error
       
       <li class="list-group-item">
 
-      <a href="#limits" data-toggle="collapse" data-target="#limitsbody">
+      <a href="#errors" data-toggle="collapse" data-target="#limitsbody">
       <h3 id="limits">Sounds great! What's the catch?</h3></a>
 
        <div class="collapse" id="limitsbody">  
@@ -176,21 +177,28 @@ that the system can be useful for extracting a representative vowel
        
 
        <li class="list-group-item">
-       <a href="#semi" data-toggle="collapse" data-target="#semibody">
-       <h3 id="semi">What is the semi-automated functionality?</h3></a>
+       <a href="#limits" data-toggle="collapse" data-target="#semibody">
+       <h3 id="semi">What is the semi-automated functionality? How
+       does it differ from FAVE and other such tools?</h3></a>
 
        <div class="collapse" id="semibody">  
 <p>This is designed for research that requires accurate human
 transcription.
-It builds upon <a href="http://fave.ling.upenn.edu/index.html">FAVE</a>, but with a
-different interface and output options.</p>
+Our semi-automated system relies heavily on code from ProsodyLab
+	 Aligner and FAVE, but
+	 wraps it in a different interface and provides more output features.</p>
 
-<p>Our system allows you to upload your transcriptins in different
-formats: as plaintext files, or as a TextGrid with a pair of
+<p>DARLA allows you to upload your transcriptions in various
+formats: as a plaintext file, or as a TextGrid with a pair of
 boundaries around each transcribed sentence (the "Boundaries" option).
 You can also upload manually aligned/corrected TextGrids for formant
-	 extraction only.</p>
+	 extraction only. Another option is to use the completely
+	 automated system to generate ASR transcriptions, and then
+	 correct them using our online tool.</p>
 
+	 <p>Some steps that require manual intervention
+	 in FAVE, like creating pronunciations of words that are not
+	 in the dictionary, are automated.</p>
 
 <p> For research requiring perfect transcriptions, we recommend either
 using either the "Boundaries" option OR using the
@@ -205,7 +213,7 @@ around the parts of the recording that you want.</p>
 
             <li class="list-group-item">
 
-      <a href="#noise" data-toggle="collapse" data-target="#noisebody">
+      <a href="#semi" data-toggle="collapse" data-target="#noisebody">
       <h3 id="noise">What about noise or multiple voices in the recording?</h3></a>
 
        <div class="collapse" id="noisebody">
@@ -230,7 +238,8 @@ around the parts of the recording that you want.</p>
 	 a microphone, this quiet background voice can cause confusion
 	 for the ASR and aligner.
 	 The best solution is to delete the interviewer voice (see
-	 above), but here are some other options:
+	 above), but here are some other options:</p>
+	 
 	 <ol>
 	   <li> Try "smoothing out" the amplitude of all voices on the
 	 recording: Load your file in Audacity, then click Effects >
@@ -245,11 +254,36 @@ around the parts of the recording that you want.</p>
 <li> You can also try increasing the amplitude of all voices so that
 	 the ASR transcription can "hear" all of them clearly: In
 	   Audacity, click Effects > Amplify.</li>
-	   </ul>
+	  </ol>
+	</div>
+	</li>
 
-	   </p>
-	 
-      </div>
+	  <li class="list-group-item">
+    <a href="#noise" data-toggle="collapse" data-target="#codebody"><h3
+    id="code">
+    Is the code for DARLA public? Can I contribute?</h3></a>
+
+    <div id="codebody" class="collapse">
+      <p><a href="#eval" data-toggle="collapse"
+      data-target="#techbody">See this question</a> for links to the alignment,
+      extraction, and plotting code written by other researchers that we are
+      building upon.
+    
+<p>Our code for the rest of the system -- the web interface, the ASR,
+      the YouTube features, online correction and evaluation of transcripts,
+      handling different file formats, 
+      etc. -- is currently not public because 
+      it is under active development. We also think that most users 
+      prefer the convenience of the web interface rather than
+      installing and wrangling with several programs on their computers.</p>
+
+      <p>If you are interested in contributing a new feature or
+      modifying an existing functionality, please e-mail us! We are
+      excited to collaborate on related linguistics and computer science
+      research, as well as the software
+      development front.
+    </div>
+      </li>
 
       
     </ul>   <!-- ends list-group ul -->
