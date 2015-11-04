@@ -10,6 +10,8 @@ body {
     background:	#f4f4f4;
 }
 
+audio{ width: 500px; display: block;}
+
 .note{
     font-family: "Times New Roman", "Times", serif;
     color: #004400;
