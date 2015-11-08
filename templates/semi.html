@@ -17,7 +17,7 @@ This system runs FAVE-style semi-automated analysis using both the
   trained on the same dictionary) to predict pronunciations for words that are not in the dictionary, such as proper
   names or slang terms. This model is reasonably accurate, but may
   introduce a few errors.</p>
-  
+
  <p>The returned results are in formats convenient for analysis: a basic vowel plot, spreadsheets with raw and Lobanov-normalized data, a spreadsheet formatted for the online NORM system (which has other plotting and normalization options), the transcription, and the aligned TextGrid file.
   </p>
 
@@ -29,15 +29,22 @@ This option lets you upload a plaintext (.txt) file with a transcription along w
     upload it to the <a href="uploadtextgrid">TextGrid input
     interface</a> and re-run formant extraction.</p>
 
-<p>For best results, we recommend that you first delete noises, loud breaths, other voices, etc., from your audio file (in Praat, select the noise and use Cmd-X or Ctrl-X to delete). As for the plaintext file, we recommend creating this file using Notepad or TextEdit (with "smart replace" turned off) or emacs or an other plaintext editor. Transcripts created by "rich text" editors like Word may contain markup that will interfere with your results.
+<p>For best results, we recommend that you first delete noises, loud breaths, other voices, etc., from your audio file
+  (in Praat, select the noise and use Cmd-X or Ctrl-X to delete). </p>
+
+<p>As for the plaintext file, we recommend creating this file using Notepad or TextEdit
+  (with "smart replace" turned off) or emacs or another plaintext editor.
+    Transcripts created by "rich text" editors like Word may contain markup that will interfere with your results,
+    or cause DARLA to fail on your job.
+    Please remove punctuation and other extraneous symbols as far as possible.
 </p>
 
           <p> <a class="btn btn-xs btn-success" href="uploadtxttrans" role="button">Try it out</a></p>
 
 
-    
+
     </li>
-    
+
 <li class="list-group-item" id="boundinst"><h3>Audio with transcriptions showing sentence or breath group boundaries (as TextGrids)</h3>
 
 <p>This option is designed to make it possible to easily upload a TextGrid with simple paired boundaries around each sentence, and receive alignment and formant extraction results. To produce the boundaries annotations:</p>
@@ -49,7 +56,7 @@ This option lets you upload a plaintext (.txt) file with a transcription along w
   <li>Now highlight both the audio file and the TextGrid file (hold down Cmd or Ctrl on the keyboard). Click "View & Edit".
   <li>Use the mouse to select a sentence or clause, hit Return. A pair of boundaries (blue) should appear on either side of your sentence.
   <li>Transcribe the sentence inside that pair of boundaries
-  <li>Move on to the next sentence and create a pair of boundaries in the same way. When finished with the whole audio file, click "File", then "Save TextGrid as..." 
+  <li>Move on to the next sentence and create a pair of boundaries in the same way. When finished with the whole audio file, click "File", then "Save TextGrid as..."
 </ol>
 </p>
 
