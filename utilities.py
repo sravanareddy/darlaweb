@@ -60,7 +60,8 @@ def send_ytupload_email(video_id, taskname, receiver, filename):
 
     body += 'Please save this ID, and after about 5 hours, visit our YouTube CC processor '
     body += '('+filepaths['URLBASE']+'/downloadsrttrans) to check if YouTube has generated the ASR captions. '
-    body += 'You can then run alignment and extraction with these captions.\n\n'
+    body += 'You can then run alignment and extraction with these captions. '
+    body += 'Your file will remain on YouTube only for a week, so please access the link above within that time.\n\n'
 
     body += 'For reference, your video ID is '+video_id+'\n\n'
 

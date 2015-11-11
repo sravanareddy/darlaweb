@@ -4,15 +4,21 @@ $def with (form, speakerform)
 
 <h2>Automated Alignment and Vowel Extraction with Manual
   Transcriptions</h2>
-  
+
 <p class="lead">Upload your audio files with manual transcriptions
-  (<a href="semi#txtinst">as described here</a>) to run
+  to run
   forced alignment using ProsodyLab Aligner, followed by formant extraction with FAVE-extract. </p>
+
+  <p class="alert alert-warning">Please be sure to ensure that your transcriptions are in plain text, with no special
+    characters and preferably no punctuation, <a href="semi#txtinst">as described here</a>.
+DARLA tries to handle these cases, but you will reduce the chance of errors if you clean up your
+files as described.
+</p>
 
   <p>
 <a href="uploadtxttrans"><small>Click here at any time to cancel or start over.</small></a></p>
 
-<form name="uploadtxttrans" method="post" enctype="multipart/form-data"> 
+<form name="uploadtxttrans" method="post" enctype="multipart/form-data">
   $if not form.valid: <p class="alert alert-danger">Correct the errors below.</p>
   $if not speakerform:
      $:form.render()
@@ -34,4 +40,3 @@ $def with (form, speakerform)
 	<br>
 
 </div>
-
