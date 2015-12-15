@@ -532,6 +532,13 @@ def youtube_wav(url,audiodir, taskname):
     except:
         return "ytvideo.wav", "Could not convert youtube video to a .wav file."
 
+def write_speaker_info(speakerfile, name, sex):
+    with open(speakerfile, 'w') as o:
+        name = name.strip().replace(',', '')
+        if name == '':
+            name = 'speakername'  # defaults
+        o.write('--name='+name+'\n--sex='+sex+'\n')
+
 def soxConversion(filename, audiodir, dochunk=None):
     sample_rate = 0
     file_size = 0.0
