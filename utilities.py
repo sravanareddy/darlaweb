@@ -26,6 +26,8 @@ import gdata.youtube
 import gdata.youtube.service
 from datetime import datetime
 
+from kitchen.text.converters import to_unicode
+
 ERROR = 0
 
 class CustomException(Exception):
@@ -353,6 +355,8 @@ def process_usertext(inputstring):
     #MS line breaks and stylized characters that stupid TextEdit inserts. (is there an existing module that does this?)
     cleaned = string.translate(inputstring.lower(),
                             unimaketrans).replace("\xe2\x80\x93", " - ").replace('\xe2\x80\x94', " - ").replace('\xe2\x80\x99', "'").replace('\xe2\x80\x9c', '"').replace('\xe2\x80\x9d', '"').replace('\r\n', '\n').replace('\r', '\n').strip()
+    cleaned = to_unicode(cleaned, encoding='utf-8', errors='ignore')   # catch-all?
+    cleaned = cleaned.replace('-', ' ').replace('/', ' ').strip(string.punctuation)  # one more tok pass
     # convert digits and normalize $n
     digitconverter = inflect.engine()
     returnstr = ''
