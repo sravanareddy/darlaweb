@@ -159,15 +159,16 @@ def send_email(tasktype, receiver, filename, taskname):
             body += '(5) transcription.txt contains the transcriptions.\n\n'
             body += 'If you manually correct the alignments in the TextGrid, you may re-upload your data with the new TextGrid to '
             body += filepaths['URLBASE']+'/uploadtextgrid and receive revised formant measurements and plots.\n'
-            if tasktype == 'asr' or tasktype == 'boundalign':
-                body += '\nTo use our online playback tool to edit the ASR transcriptions (in 20-second clips) \
-                and then re-run alignment and extraction, go to '
-                body += filepaths['URLBASE']+'/asredit?taskname={0} \n'.format(os.path.basename(taskname))
-                body += 'Note that this link is only guaranteed to work for 72 hours since we periodically delete user files.\n\n'
-                body += 'Alternately, you may upload corrected plaintext transcriptions to '+filepaths['URLBASE']+'/uploadtxttrans \n'
+
+        body += '\nTo use our online playback tool to edit the ASR transcriptions (in 20-second clips) and then re-run alignment and extraction, go to '
+        body += filepaths['URLBASE']+'/asredit?taskname={0} \n'.format(os.path.basename(taskname))
+        body += 'Note that this link is only guaranteed to work for 72 hours since we periodically delete user files.\n\n'
+        body += 'Alternately, you may upload corrected plaintext transcriptions to '+filepaths['URLBASE']+'/uploadtxttrans \n'
+        
         body += '\n'
         body += 'Do not share this e-mail if you need to preserve the privacy of your uploaded data.\n\n'
         body += 'Thank you for using DARLA. Please e-mail us with questions or suggestions.\n'
+        
         message = MIMEMultipart()
         message['From'] = 'DARLA <'+sender+'>'
         message['To'] = receiver
@@ -175,7 +176,7 @@ def send_email(tasktype, receiver, filename, taskname):
         message['Date'] = formatdate(localtime = True)
 
         message.attach(MIMEText(body, 'plain'))
-        for nicename, filename in [('formants.csv', taskname+'.aggvowels_formants.csv'), ('formants.fornorm.tsv', taskname+'.fornorm.tsv'), ('plot.pdf', taskname+'.plot.pdf'), ('alignments.zip', taskname+'.alignments.zip')]:
+        for nicename, filename in [('formants.csv', taskname+'.aggvowels_formants.csv'), ('formants.fornorm.tsv', taskname+'.fornorm.tsv'), ('plot.pdf', taskname+'.plot.pdf'), (filename+'.TextGrid', taskname+'.merged.TextGrid')]:
                 part = MIMEBase('application', "octet-stream")
                 try:
                     part.set_payload( open(filename,"rb").read() )
@@ -406,7 +407,7 @@ def write_sentgrid_as_lab(datadir, taskname, filename, txtfile, cmudictfile):
     #TODO: fix the PL aligner code (prosodylab aligner strips out silences from ends.)
     ctr = 1
     for i, interval in enumerate(sent_tier.intervals):
-        if interval.mark or interval.mark.lower != 'sil':
+        if interval.mark and interval.mark.lower != 'sil' and interval.mark != '':
             o = open(os.path.join(datadir,
                               taskname+'.wavlab',
                                   filename+'.split{0:03d}.lab'.format(ctr)),

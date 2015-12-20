@@ -32,16 +32,12 @@ class extract:
 			parameters[split[0]] = split[1]
 
                 taskname = parameters["taskname"]
-
-                if not (os.path.isdir(os.path.join(datadir, taskname+".speakers"))):
-                        os.mkdir(os.path.join(datadir, taskname+".speakers"))
-                        os.system('chmod g+w '+os.path.join(datadir, taskname+".speakers"))
-
+                
                 filename = parameters["filename"]
 		if filename=='ytvideo.wav':
 			filename='ytvideo'
 		try:
-			utilities.write_speaker_info(os.path.join(datadir, taskname+'.speakers/converted_'+filename+'.speaker'), parameters["name"], parameters["sex"])
+			utilities.write_speaker_info(os.path.join(datadir, taskname+'.speaker'), parameters["name"], parameters["sex"])
 		except IOError:
 			return render.error("There was an error processing "+filename, "uploadtextgrid")
 

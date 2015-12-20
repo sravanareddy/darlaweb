@@ -43,31 +43,15 @@ fi
 #merge chunked textgrids (uploadsound, uploadboundtrans)
 if [ $task == 'asr' ] || [ $task == 'boundalign' ] || [ $task == 'asredit' ]; then    
     python insert_sil_tg.py $taskname
-    mkdir -p $taskname.tg
-    chmod g+w $taskname.tg
-    cp $taskname.wavlab/*.TextGrid $taskname.tg/
     python merge_grids.py $taskname
 fi
 
 if [ $task == 'txtalign' ]; then
-    mkdir -p $taskname.mergedtg;
-    cp $taskname.wavlab/*.TextGrid $taskname.mergedtg;
+    cp $taskname.wavlab/*.TextGrid $taskname.merged.TextGrid;
 fi
 
-zip -j $taskname.alignments.zip $taskname.mergedtg/*.TextGrid
-
 #run FAVE-extract
-mkdir -p $taskname.vowels
-for filename in $(ls $taskname.mergedtg); do
-    filename=${filename%.*};
-    python $favedir/bin/extractFormants.py --means=$favedir/means.txt --covariances=$favedir/covs.txt --phoneset=$favedir/cmu_phoneset.txt --speaker=$taskname.speakers/converted_$filename.speaker $taskname.audio/converted_$filename.wav $taskname.mergedtg/$filename.TextGrid $taskname.vowels/$filename &> $taskname.errors;
-done
+python $favedir/bin/extractFormants.py --means=$favedir/means.txt --covariances=$favedir/covs.txt --phoneset=$favedir/cmu_phoneset.txt --speaker=$taskname.speaker $taskname.audio/converted_*.wav $taskname.merged.TextGrid $taskname.aggvowels &> $taskname.errors;
 
-#aggregate all the vowel files together
-cat $taskname.vowels/*_formants.csv > $taskname.aggvowels_formants.csv
-head -n1 $taskname.aggvowels_formants.csv > $taskname.aggvowels_formants.header
-grep -v "name,sex" $taskname.aggvowels_formants.csv > $taskname.aggvowels_formants.body
-cat $taskname.aggvowels_formants.header $taskname.aggvowels_formants.body > $taskname.aggvowels_formants.csv
-rm $taskname.aggvowels_formants.header $taskname.aggvowels_formants.body
-
+#plot
 Rscript plot_vowels.r $taskname.aggvowels_formants.csv $taskname.fornorm.tsv $taskname.plot.pdf
