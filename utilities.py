@@ -26,6 +26,8 @@ import gdata.youtube
 import gdata.youtube.service
 from datetime import datetime
 
+from kitchen.text.converters import to_unicode
+
 ERROR = 0
 
 class CustomException(Exception):
@@ -130,7 +132,7 @@ def consolidate_hyp(wavlab, outfile):
         content = sorted(basehyps[basefile], key=lambda x:int(x[1]))
         for (line, num) in content:
             o.write(line.strip()+' ')
-        o.write('('+basefile+')\n')
+        o.write('\n')
     o.close()
 
 def send_email(tasktype, receiver, filename, taskname):
@@ -155,17 +157,18 @@ def send_email(tasktype, receiver, filename, taskname):
         if tasktype == 'asr' or tasktype == 'asredit' or tasktype == 'boundalign':
             #TODO: make special keyword for youtube instead of boundalign
             body += '(5) transcription.txt contains the transcriptions.\n\n'
-            body += 'If you manually correct the transcriptions, you may re-upload your data with the new TextGrids to '
-            body += filepaths['URLBASE']+' and receive revised formant measurements and plots.\n'
-            if tasktype == 'asr' or tasktype == 'boundalign':
-                body += '\nTo use our online playback tool to edit the ASR transcriptions (in 20-second clips) \
-                and then re-run alignment and extraction, go to '
-                body += filepaths['URLBASE']+'/asredit?taskname={0} \n'.format(os.path.basename(taskname))
-                body += 'Note that this link is only guaranteed to work for 72 hours since we periodically delete user files.'
-                body += 'Alternately, you may upload corrected plaintext transcriptions to '+filepaths['URLBASE']+'/uploadtxttrans \n'
+            body += 'If you manually correct the alignments in the TextGrid, you may re-upload your data with the new TextGrid to '
+            body += filepaths['URLBASE']+'/uploadtextgrid and receive revised formant measurements and plots.\n'
+
+            body += '\nTo use our online playback tool to edit the ASR transcriptions (in 20-second clips) and then re-run alignment and extraction, go to '
+            body += filepaths['URLBASE']+'/asredit?taskname={0} \n'.format(os.path.basename(taskname))
+            body += 'Note that this link is only guaranteed to work for 72 hours since we periodically delete user files.\n\n'
+            body += 'Alternately, you may upload corrected plaintext transcriptions to '+filepaths['URLBASE']+'/uploadtxttrans \n'
+        
         body += '\n'
         body += 'Do not share this e-mail if you need to preserve the privacy of your uploaded data.\n\n'
         body += 'Thank you for using DARLA. Please e-mail us with questions or suggestions.\n'
+        
         message = MIMEMultipart()
         message['From'] = 'DARLA <'+sender+'>'
         message['To'] = receiver
@@ -173,7 +176,7 @@ def send_email(tasktype, receiver, filename, taskname):
         message['Date'] = formatdate(localtime = True)
 
         message.attach(MIMEText(body, 'plain'))
-        for nicename, filename in [('formants.csv', taskname+'.aggvowels_formants.csv'), ('formants.fornorm.tsv', taskname+'.fornorm.tsv'), ('plot.pdf', taskname+'.plot.pdf'), ('alignments.zip', taskname+'.alignments.zip')]:
+        for nicename, filename in [('formants.csv', taskname+'.aggvowels_formants.csv'), ('formants.fornorm.tsv', taskname+'.fornorm.tsv'), ('plot.pdf', taskname+'.plot.pdf'), (filename+'.TextGrid', taskname+'.merged.TextGrid')]:
                 part = MIMEBase('application', "octet-stream")
                 try:
                     part.set_payload( open(filename,"rb").read() )
@@ -353,6 +356,8 @@ def process_usertext(inputstring):
     #MS line breaks and stylized characters that stupid TextEdit inserts. (is there an existing module that does this?)
     cleaned = string.translate(inputstring.lower(),
                             unimaketrans).replace("\xe2\x80\x93", " - ").replace('\xe2\x80\x94', " - ").replace('\xe2\x80\x99', "'").replace('\xe2\x80\x9c', '"').replace('\xe2\x80\x9d', '"').replace('\r\n', '\n').replace('\r', '\n').strip()
+    cleaned = to_unicode(cleaned, encoding='utf-8', errors='ignore')   # catch-all?
+    cleaned = cleaned.replace('-', ' ').replace('/', ' ').strip(string.punctuation)  # one more tok pass
     # convert digits and normalize $n
     digitconverter = inflect.engine()
     returnstr = ''
@@ -399,10 +404,10 @@ def write_sentgrid_as_lab(datadir, taskname, filename, txtfile, cmudictfile):
 
     chunks = []
     allwords = set()
-    #prosodylab aligner strips out silences from ends, so let's attach them to adjacent. TODO: fix the PL aligner code
+    #TODO: fix the PL aligner code (prosodylab aligner strips out silences from ends.)
     ctr = 1
     for i, interval in enumerate(sent_tier.intervals):
-        if interval.mark:
+        if interval.mark and interval.mark.lower != 'sil' and interval.mark != '':
             o = open(os.path.join(datadir,
                               taskname+'.wavlab',
                                   filename+'.split{0:03d}.lab'.format(ctr)),
@@ -414,15 +419,10 @@ def write_sentgrid_as_lab(datadir, taskname, filename, txtfile, cmudictfile):
                 allwords.add(word)
                 o.write(word+' ')
             o.write('\n')
-            if chunks==[]:
-                chunks.append([0, interval.maxTime])
-            else:
-                chunks.append([interval.minTime, interval.maxTime])
+            chunks.append([interval.minTime, interval.maxTime])
             o.close()
             ctr+=1
-        elif len(chunks)>0:
-            chunks[-1][1] = interval.maxTime
-
+    
     g2p(os.path.join(datadir, taskname), allwords, cmudictfile)
     return chunks, ""
 
@@ -531,6 +531,13 @@ def youtube_wav(url,audiodir, taskname):
         return "ytvideo.wav", ""
     except:
         return "ytvideo.wav", "Could not convert youtube video to a .wav file."
+
+def write_speaker_info(speakerfile, name, sex):
+    with open(speakerfile, 'w') as o:
+        name = name.strip().replace(',', '')
+        if name == '':
+            name = 'speakername'  # defaults
+        o.write('--name='+name+'\n--sex='+sex+'\n')
 
 def soxConversion(filename, audiodir, dochunk=None):
     sample_rate = 0
