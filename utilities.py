@@ -160,10 +160,10 @@ def send_email(tasktype, receiver, filename, taskname):
             body += 'If you manually correct the alignments in the TextGrid, you may re-upload your data with the new TextGrid to '
             body += filepaths['URLBASE']+'/uploadtextgrid and receive revised formant measurements and plots.\n'
 
-        body += '\nTo use our online playback tool to edit the ASR transcriptions (in 20-second clips) and then re-run alignment and extraction, go to '
-        body += filepaths['URLBASE']+'/asredit?taskname={0} \n'.format(os.path.basename(taskname))
-        body += 'Note that this link is only guaranteed to work for 72 hours since we periodically delete user files.\n\n'
-        body += 'Alternately, you may upload corrected plaintext transcriptions to '+filepaths['URLBASE']+'/uploadtxttrans \n'
+            body += '\nTo use our online playback tool to edit the ASR transcriptions (in 20-second clips) and then re-run alignment and extraction, go to '
+            body += filepaths['URLBASE']+'/asredit?taskname={0} \n'.format(os.path.basename(taskname))
+            body += 'Note that this link is only guaranteed to work for 72 hours since we periodically delete user files.\n\n'
+            body += 'Alternately, you may upload corrected plaintext transcriptions to '+filepaths['URLBASE']+'/uploadtxttrans \n'
         
         body += '\n'
         body += 'Do not share this e-mail if you need to preserve the privacy of your uploaded data.\n\n'
