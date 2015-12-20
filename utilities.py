@@ -132,7 +132,7 @@ def consolidate_hyp(wavlab, outfile):
         content = sorted(basehyps[basefile], key=lambda x:int(x[1]))
         for (line, num) in content:
             o.write(line.strip()+' ')
-        o.write('('+basefile+')\n')
+        o.write('\n')
     o.close()
 
 def send_email(tasktype, receiver, filename, taskname):
