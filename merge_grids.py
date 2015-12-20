@@ -17,6 +17,9 @@ def merge_grids(tg1, tg2):
                 elif tier.name=='word':
                         for interval in tier:
                                 merged_word.add(interval.minTime, interval.maxTime, interval.mark)
+        if tg2.minTime - tg1.maxTime > 0:
+            merged_phone.add((tg1.maxTime, tg2.minTime, 'sil'))
+            merged_word.add((tg1.maxTime, tg2.minTime, 'sil'))
         for tier in tg2.tiers:
                 if tier.name=='phone':
                         for interval in tier:
@@ -36,23 +39,19 @@ if __name__=='__main__':
         taskname = sys.argv[1]
         tgdir = taskname+'.tg'
         merged_tgdir = taskname+'.mergedtg'
-        
-        tglists = defaultdict(list)
+
+        tglist = []
         os.system('mkdir -p '+merged_tgdir)
         os.system('chmod g+w '+merged_tgdir)
 
-        list_of_tgs = sorted(filter(lambda x: x.endswith('TextGrid'), os.listdir(tgdir)))  #puts splits in correct order
-        for filename in list_of_tgs:
-                if filename.endswith('TextGrid'):
-                        tg = TextGrid()
-                        tg.read(os.path.join(tgdir, filename))
-                        basefile = filename.rsplit('.split', 1)[0]
-                        tglists[basefile].append(tg)
-                        
-        for basefile in tglists:
-                chunks = map(lambda line: line.split(), open(taskname+basefile+'.chunks').readlines())
-                for i in range(len(tglists[basefile])):
-                        tglists[basefile][i].minTime = float(chunks[i][0])
-                        tglists[basefile][i].maxTime = float(chunks[i][1])
-                tgnew = reduce(lambda x,y:merge_grids(x, y), tglists[basefile])
-                tgnew.write(os.path.join(merged_tgdir, basefile+'.TextGrid'))
+        tglist = sorted(filter(lambda x: x.endswith('TextGrid'), os.listdir(tgdir)))  #puts splits in correct order
+        tglist = map(TextGrid, tglist)   # load textgrids
+
+        chunks = map(lambda line: map(float, line.split()), open(taskname+'.chunks').readlines())
+        # insert sil textgrids to fill holes in chunk list
+        for tg, chunk in zip(tglist, chunks):
+            tg.minTime = chunk[0]
+            tg.maxTime = chunk[1]
+
+        tgnew = reduce(merge_grids, tglist)
+        tgnew.write(os.path.join(merged_tgdir, basefile+'.TextGrid'))

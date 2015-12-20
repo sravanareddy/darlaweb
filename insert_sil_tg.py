@@ -12,7 +12,7 @@ if __name__=='__main__':
             basename = filename[:-4]
             if not os.path.exists(os.path.join(wvdir, basename+'.TextGrid')):
                 basefile, splitnum = basename.rsplit('.split', 1)
-                chunk = open(taskname+basefile+'.chunks').readlines()[int(splitnum)-1].split()
+                chunk = open(taskname+'.chunks').readlines()[int(splitnum)-1].split()
                 tg = TextGrid()
                 tg.minTime = 0
                 tg.maxTime = float(chunk[1])-float(chunk[0])
@@ -23,5 +23,3 @@ if __name__=='__main__':
                 tg.append(phone)
                 tg.append(word)
                 tg.write(os.path.join(wvdir, basename+'.TextGrid'))
-
-                

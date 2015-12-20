@@ -137,7 +137,7 @@ class uploadsound:
 
                 filename = os.path.splitext(filename)[0]
 
-                utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+filename+'.chunks'))
+                utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+'.chunks'))
 
             elif 'uploadfile' in x:
 
@@ -159,7 +159,7 @@ class uploadsound:
                         form.note = error
                         return render.speakerssound(form, "")
 
-                    utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+filename+'.chunks'))
+                    utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+'.chunks'))
 
             if total_size < self.MINDURATION:
                 form.note = "Warning: Your file totals only {:.2f} minutes of speech. We recommend at least {:.0f} minutes for best results.".format(total_size, self.MINDURATION)
@@ -306,7 +306,7 @@ class downloadsrttrans:
 
         filenames = [(filename, filename)]
 
-        utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+filename+'.chunks'))
+        utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+'.chunks'))
         utilities.gen_argfiles(self.datadir, taskname, filename, 'boundalign', form.email.value, samprate)
 
         speakers = speaker_form(filename, taskname)
@@ -518,7 +518,7 @@ class uploadboundtrans:
 
             filenames = [(filename, x.filelink)]
 
-        utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+filename+'.chunks'))
+        utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+'.chunks'))
         utilities.gen_argfiles(self.datadir, form.taskname.value, filename, 'boundalign', form.email.value, samprate)
 
         speakers = speaker_form(filename, taskname)

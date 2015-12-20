@@ -403,10 +403,10 @@ def write_sentgrid_as_lab(datadir, taskname, filename, txtfile, cmudictfile):
 
     chunks = []
     allwords = set()
-    #prosodylab aligner strips out silences from ends, so let's attach them to adjacent. TODO: fix the PL aligner code
+    #TODO: fix the PL aligner code (prosodylab aligner strips out silences from ends.)
     ctr = 1
     for i, interval in enumerate(sent_tier.intervals):
-        if interval.mark:
+        if interval.mark or interval.mark.lower != 'sil':
             o = open(os.path.join(datadir,
                               taskname+'.wavlab',
                                   filename+'.split{0:03d}.lab'.format(ctr)),
@@ -418,15 +418,10 @@ def write_sentgrid_as_lab(datadir, taskname, filename, txtfile, cmudictfile):
                 allwords.add(word)
                 o.write(word+' ')
             o.write('\n')
-            if chunks==[]:
-                chunks.append([0, interval.maxTime])
-            else:
-                chunks.append([interval.minTime, interval.maxTime])
+            chunks.append([interval.minTime, interval.maxTime])
             o.close()
             ctr+=1
-        elif i == len(sent_tier.intervals) - 1:
-            chunks[-1][1] = interval.maxTime
-
+    
     g2p(os.path.join(datadir, taskname), allwords, cmudictfile)
     return chunks, ""
 
