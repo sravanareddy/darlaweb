@@ -420,7 +420,7 @@ def write_sentgrid_as_lab(datadir, taskname, filename, txtfile, cmudictfile):
                 chunks.append([interval.minTime, interval.maxTime])
             o.close()
             ctr+=1
-        elif len(chunks)>0:
+        elif i == len(sent_tier.intervals) - 1:
             chunks[-1][1] = interval.maxTime
 
     g2p(os.path.join(datadir, taskname), allwords, cmudictfile)
