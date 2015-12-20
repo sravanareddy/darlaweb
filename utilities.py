@@ -26,6 +26,8 @@ import gdata.youtube
 import gdata.youtube.service
 from datetime import datetime
 
+from kitchen.text.converters import to_unicode
+
 ERROR = 0
 
 class CustomException(Exception):
@@ -155,13 +157,13 @@ def send_email(tasktype, receiver, filename, taskname):
         if tasktype == 'asr' or tasktype == 'asredit' or tasktype == 'boundalign':
             #TODO: make special keyword for youtube instead of boundalign
             body += '(5) transcription.txt contains the transcriptions.\n\n'
-            body += 'If you manually correct the transcriptions, you may re-upload your data with the new TextGrids to '
-            body += filepaths['URLBASE']+' and receive revised formant measurements and plots.\n'
+            body += 'If you manually correct the alignments in the TextGrid, you may re-upload your data with the new TextGrid to '
+            body += filepaths['URLBASE']+'/uploadtextgrid and receive revised formant measurements and plots.\n'
             if tasktype == 'asr' or tasktype == 'boundalign':
                 body += '\nTo use our online playback tool to edit the ASR transcriptions (in 20-second clips) \
                 and then re-run alignment and extraction, go to '
                 body += filepaths['URLBASE']+'/asredit?taskname={0} \n'.format(os.path.basename(taskname))
-                body += 'Note that this link is only guaranteed to work for 72 hours since we periodically delete user files.'
+                body += 'Note that this link is only guaranteed to work for 72 hours since we periodically delete user files.\n\n'
                 body += 'Alternately, you may upload corrected plaintext transcriptions to '+filepaths['URLBASE']+'/uploadtxttrans \n'
         body += '\n'
         body += 'Do not share this e-mail if you need to preserve the privacy of your uploaded data.\n\n'
@@ -353,6 +355,8 @@ def process_usertext(inputstring):
     #MS line breaks and stylized characters that stupid TextEdit inserts. (is there an existing module that does this?)
     cleaned = string.translate(inputstring.lower(),
                             unimaketrans).replace("\xe2\x80\x93", " - ").replace('\xe2\x80\x94', " - ").replace('\xe2\x80\x99', "'").replace('\xe2\x80\x9c', '"').replace('\xe2\x80\x9d', '"').replace('\r\n', '\n').replace('\r', '\n').strip()
+    cleaned = to_unicode(cleaned, encoding='utf-8', errors='ignore')   # catch-all?
+    cleaned = cleaned.replace('-', ' ').replace('/', ' ').strip(string.punctuation)  # one more tok pass
     # convert digits and normalize $n
     digitconverter = inflect.engine()
     returnstr = ''
