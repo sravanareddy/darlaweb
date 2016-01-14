@@ -306,13 +306,9 @@ def make_task(datadir):
 def write_transcript(datadir, taskname, reffilecontent, hypfilecontent, cmudictfile):
     """Write reference and hypothesis files for evaluation, g2p for OOVs"""
     punct = '!"#$%&\()*+,-./:;<=>?@[\\]^_`{|}~' #same as string.punct but no '
-    reffilecontent = string.translate(process_usertext(reffilecontent),
-                                      None,
-                                      punct).splitlines()
+    reffilecontent = filter(lambda c: c not in punct, process_usertext(reffilecontent)).splitlines()
     reffilecontent = filter(lambda line: line!='', reffilecontent)
-    hypfilecontent = string.translate(process_usertext(hypfilecontent),
-                                      None,
-                                      punct).splitlines()
+    hypfilecontent = filter(lambda c: c not in punct, process_usertext(hypfilecontent)).splitlines()
     hypfilecontent = filter(lambda line: line!='', hypfilecontent)
     numreflines = len(reffilecontent)
     numhyplines = len(hypfilecontent)
@@ -421,7 +417,7 @@ def write_sentgrid_as_lab(datadir, taskname, filename, txtfile, cmudictfile):
             chunks.append([interval.minTime, interval.maxTime])
             o.close()
             ctr+=1
-    
+
     g2p(os.path.join(datadir, taskname), allwords, cmudictfile)
     return chunks, ""
 
