@@ -1,6 +1,6 @@
 # Scripts for the DARLA server, built on the web.py framework.
 
-## Configure on your computer
+## Configure and install on your computer
 
 On Mac OS, execute main.py and preview in `http://localhost:8080/`
 
@@ -12,7 +12,7 @@ PASSWORD /absolute/path/to/text/file/containing/the/GMail/password
 URLBASE http://base.url.on.this.machine
 ```
 
-Do *not* push `filepaths.txt` to the repo.
+Do *not* push `filepaths.txt` to the repo, since it is dependent on the local environment.
 
 ## Restarting Lighttpd
 
@@ -22,3 +22,6 @@ Lighttpd does not automatically recompile the code after changes (unlike Apache)
 killall lighttpd
 /etc/init.d/lighttpd start
 ```
+
+This is only relevant for the production server.
+
