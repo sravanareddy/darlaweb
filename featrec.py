@@ -30,6 +30,7 @@ def featurize_recognize(taskname):
 
 @task(serializer='json')
 def align_extract(taskname):
+        print "Calling align_extract for "+taskname;
         error_check = True
         filename, align_hmm, receiver, tasktype = open(taskname+'.alext_args').read().split()
         if tasktype!='asr':
@@ -40,7 +41,8 @@ def align_extract(taskname):
         retval = align.wait()
 
         if retval != 0:
-                send_error_email(receiver, filename, "Alignment and extraction process failed.", error_check)
+                send_error_email(receiver, filename, "Alignment and extraction process failed.", error_check) ## not working
         else:
+                print taskname + " succeeded, sending email"
                 send_email(tasktype, receiver, filename, taskname, True) #passes in true for no errors so no multiple emails. Will have to change if anything is done before align_extract before featrec that could send error emails. 
         return

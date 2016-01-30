@@ -236,7 +236,7 @@ def send_error_email(receiver, filename, message, first):
         except smtplib.SMTPException:
                 print 'Unable to send e-mail '
     else:
-        msg = 'Error email already sent.'
+        print 'Error email already sent. for ' + receiver;
         return False
 
 def read_prdict(dictfile):
