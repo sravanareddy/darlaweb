@@ -50,7 +50,9 @@ class allpipeline:
             if result.get() == False:
                 return render.error("There is something wrong with your audio file. We could not extract acoustic features or run ASR.", "uploadsound")
         else:
-            featurize_recognize(os.path.join(datadir, taskname))
+            if not featurize_recognize(os.path.join(datadir, taskname)):
+                return render.error("There is something wrong with your audio file. We could not extract acoustic features or run ASR.", "uploadsound")
+
 
         if celeryon:
             result = align_extract.delay(os.path.join(datadir, taskname))

@@ -28,7 +28,7 @@ from datetime import datetime
 
 from kitchen.text.converters import to_unicode
 
-ERROR = 0
+# ERROR = 0
 
 class CustomException(Exception):
     pass
@@ -135,7 +135,7 @@ def consolidate_hyp(wavlab, outfile):
         o.write('\n')
     o.close()
 
-def send_email(tasktype, receiver, filename, taskname):
+def send_email(tasktype, receiver, filename, taskname, error_check):
         filepaths = read_filepaths()
         password = open(filepaths['PASSWORD']).read().strip()
         username = 'darla.dartmouth'
@@ -184,7 +184,7 @@ def send_email(tasktype, receiver, filename, taskname):
                     part.add_header('Content-Disposition', 'attachment; filename='+nicename)
                     message.attach(part)
                 except:
-                    send_error_email(receiver, filename, "Your job was not completed.")
+                    error_check = send_error_email(receiver, filename, "Your job was not completed.", error_check) # returns false after error sends
         if tasktype == 'asr' or tasktype == 'asredit' or tasktype == 'boundalign': #send transcription
             try:
                 consolidate_hyp(taskname+'.wavlab', taskname+'.orderedhyp')
@@ -193,7 +193,7 @@ def send_email(tasktype, receiver, filename, taskname):
                 part.add_header('Content-Disposition', 'attachment; filename=transcription.txt')
                 message.attach(part)
             except:
-                    send_error_email(receiver, filename, "There was a problem attaching the transcription.")
+                    error_check = send_error_email(receiver, filename, "There was a problem attaching the transcription.", error_check)
         try:
                 server = smtplib.SMTP('smtp.gmail.com', 587)
                 server.starttls()
@@ -205,10 +205,10 @@ def send_email(tasktype, receiver, filename, taskname):
                 print 'Unable to send e-mail '
 
 
-def send_error_email(receiver, filename, message):
-    global ERROR;
+def send_error_email(receiver, filename, message, first):
+    # global ERROR;
 
-    if ERROR==0:
+    if first: 
 
         filepaths = read_filepaths()
         password = open(filepaths['PASSWORD']).read().strip()
@@ -231,12 +231,13 @@ def send_error_email(receiver, filename, message):
                 server.login(username, password)
                 server.sendmail(sender, receiver, message.as_string())
                 server.quit()
-                ERROR=1
+                return False
 
         except smtplib.SMTPException:
                 print 'Unable to send e-mail '
     else:
-        msg = 'Error email already sent.'
+        print 'Error email already sent. for ' + receiver;
+        return False
 
 def read_prdict(dictfile):
     spam = map(lambda line: line.split(), open(dictfile).readlines())
