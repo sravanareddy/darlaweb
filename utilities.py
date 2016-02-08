@@ -206,9 +206,12 @@ def send_email(tasktype, receiver, filename, taskname, error_check):
 
 
 def send_error_email(receiver, filename, message, first):
+    # sends error email, returns false so can use this return value to send again for "first" so task 
     # global ERROR;
 
     if first: 
+
+        sys.stderr.write('First and only error email sent') 
 
         filepaths = read_filepaths()
         password = open(filepaths['PASSWORD']).read().strip()
@@ -236,7 +239,8 @@ def send_error_email(receiver, filename, message, first):
         except smtplib.SMTPException:
                 print 'Unable to send e-mail '
     else:
-        print 'Error email already sent. for ' + receiver;
+        #print 'Error email already sent. for ' + receiver; #printing cannot work with celery 
+        sys.stderr.write('Error email already sent') 
         return False
 
 def read_prdict(dictfile):
@@ -677,7 +681,7 @@ def gen_argfiles(datadir, taskname, uploadfilename, task, email, samprate=None, 
 
         options.update({'cepdir': os.path.join(datadir, taskname+'.mfc'),
                         'cepext': '.mfc',
-                        'dict': '/home/darla/prdicts/cmudict.nostress.txt',
+                        'dict': 'cmudict.nostress.txt',
                         'fdict': os.path.join(hmm, 'noisedict'),
                         'hmm': hmm,
                         'lm': '/home/darla/languagemodels/en-us.lm.dmp',
