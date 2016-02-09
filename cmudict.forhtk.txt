@@ -43621,7 +43621,7 @@ gestures  JH EH1 S CH ER0 Z
 gesturing  JH EH1 S CH ER0 IH0 NG
 gesualdi  JH EH0 S UW0 AA1 L D IY0
 gesundheit  G AH0 Z UH1 N D HH AY0 T
-get  G IH1 T
+get  G EH1 T
 get-together  G EH1 T T AH0 G EH1 DH ER0
 get-togethers  G EH1 T T AH0 G EH1 DH ER0 Z
 get-well  G EH1 T W EH1 L
@@ -57287,7 +57287,7 @@ joanou  JH OW1 N UW2
 joao  JH OW1 OW0
 joaquim  W AA2 K IY1 M
 joaquin  W AA2 K IY1 N
-job  JH OW1 B
+job  JH AA1 B
 job\'s  JH OW1 B Z
 jobber  JH AA1 B ER0
 jobbers  JH AA1 B ER0 Z
