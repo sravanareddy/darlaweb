@@ -21292,7 +21292,7 @@ colen  K OW1 L AH0 N
 coler  K OW1 L ER0
 coleridge  K OW1 L R IH0 JH
 coles  K OW1 L Z
-coleslaw  K OW1 L S L AA2
+coleslaw  K OW1 L S L AO2
 coleson  K OW1 L S AH0 N
 colestipol  K OW1 L S T IH2 P AA2 L
 colestock  K OW1 L S T AA2 K
@@ -119228,12 +119228,12 @@ wanninger  W AA1 N IH0 NG ER0
 wanniski  W AH0 N IH1 S K IY0
 wanser  W AO1 N Z ER0
 wansley  W AO1 N Z L IY0
-want  W AO1 N T
+want  W AA1 N T
 wanta  W AA1 N T AH0
 wantage  W AA1 N T IH0 JH
 wantages  W AA1 N T IH0 JH IH0 Z
 wante  W AA1 N T AH0
-wanted  W AO1 N T IH0 D
+wanted  W AA1 N T IH0 D
 wanting  W AA1 N T IH0 NG
 wantland  W AA1 N T L AH0 N D
 wanton  W AO1 N T AH0 N
