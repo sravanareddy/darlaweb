@@ -279,7 +279,7 @@ def g2p(taskname, transwords, cmudictfile):
     return
 
 def get_basename(filename):
-    basename = ntpath.basename(filename.replace('\\','/').replace(' ', '_').replace('&', 'and'))
+    basename = ntpath.basename(filename.replace('\\','/').replace(' ', '_').replace('(', '').replace(')', '').replace('&', 'and'))
     basename, extension = os.path.splitext(basename)
     return basename, extension.lower()
 
