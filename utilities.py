@@ -65,8 +65,6 @@ def send_ytupload_email(video_id, taskname, receiver, filename):
     body += 'You can then run alignment and extraction with these captions. '
     body += 'Your file will remain on YouTube only for a week, so please access the link above within that time.\n\n'
 
-    body += 'For reference, your video ID is '+video_id+'\n\n'
-
     body += 'Please mention this ID as well when contacting us about any problems with your job.'
 
     message = MIMEMultipart()
@@ -164,11 +162,11 @@ def send_email(tasktype, receiver, filename, taskname, error_check):
             body += filepaths['URLBASE']+'/asredit?taskname={0} \n'.format(os.path.basename(taskname))
             body += 'Note that this link is only guaranteed to work for 72 hours since we periodically delete user files.\n\n'
             body += 'Alternately, you may upload corrected plaintext transcriptions to '+filepaths['URLBASE']+'/uploadtxttrans \n'
-        
+
         body += '\n'
         body += 'Do not share this e-mail if you need to preserve the privacy of your uploaded data.\n\n'
         body += 'Thank you for using DARLA. Please e-mail us with questions or suggestions.\n'
-        
+
         message = MIMEMultipart()
         message['From'] = 'DARLA <'+sender+'>'
         message['To'] = receiver
@@ -206,9 +204,12 @@ def send_email(tasktype, receiver, filename, taskname, error_check):
 
 
 def send_error_email(receiver, filename, message, first):
+    # sends error email, returns false so can use this return value to send again for "first" so task
     # global ERROR;
 
-    if first: 
+    if first:
+
+        sys.stderr.write('First and only error email sent')
 
         filepaths = read_filepaths()
         password = open(filepaths['PASSWORD']).read().strip()
@@ -236,7 +237,8 @@ def send_error_email(receiver, filename, message, first):
         except smtplib.SMTPException:
                 print 'Unable to send e-mail '
     else:
-        print 'Error email already sent. for ' + receiver;
+        #print 'Error email already sent. for ' + receiver; #printing cannot work with celery
+        sys.stderr.write('Error email already sent')
         return False
 
 def read_prdict(dictfile):
@@ -277,7 +279,7 @@ def g2p(taskname, transwords, cmudictfile):
     return
 
 def get_basename(filename):
-    basename = ntpath.basename(filename.replace('\\','/').replace(' ', '_').replace('&', 'and'))
+    basename = ntpath.basename(filename.replace('\\','/').replace(' ', '_').replace('(', '').replace(')', '').replace('&', 'and'))
     basename, extension = os.path.splitext(basename)
     return basename, extension.lower()
 
@@ -677,7 +679,7 @@ def gen_argfiles(datadir, taskname, uploadfilename, task, email, samprate=None, 
 
         options.update({'cepdir': os.path.join(datadir, taskname+'.mfc'),
                         'cepext': '.mfc',
-                        'dict': '/home/darla/prdicts/cmudict.nostress.txt',
+                        'dict': 'cmudict.nostress.txt',
                         'fdict': os.path.join(hmm, 'noisedict'),
                         'hmm': hmm,
                         'lm': '/home/darla/languagemodels/en-us.lm.dmp',
