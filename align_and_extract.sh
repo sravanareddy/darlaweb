@@ -46,10 +46,14 @@ if [ $task == 'asr' ] || [ $task == 'boundalign' ] || [ $task == 'asredit' ]; th
     python merge_grids.py $taskname
 fi
 
-if [ $task == 'txtalign' ]; then
+if [ $task == 'txtalign' ] ; then
     cp $taskname.wavlab/*.TextGrid $taskname.merged.TextGrid;
 fi
 
+if [ $task == 'extract' ] ; then
+    cp $taskname.mergedtg/*.TextGrid $taskname.merged.TextGrid;
+fi
+ 
 #run FAVE-extract
 python $favedir/bin/extractFormants.py --means=$favedir/means.txt --covariances=$favedir/covs.txt --phoneset=$favedir/cmu_phoneset.txt --speaker=$taskname.speaker $taskname.audio/converted_*.wav $taskname.merged.TextGrid $taskname.aggvowels &> $taskname.errors;
 
