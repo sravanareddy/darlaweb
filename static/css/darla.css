@@ -10,6 +10,11 @@ body {
     background:	#f4f4f4;
 }
 
+.jumbotron h1{
+   font-size: 2.8em;
+   color: #004800;
+}
+
 textarea {
    font-size: 16pt;
    font-family: Courier;
