@@ -293,6 +293,16 @@ def randomname(fnamelen):
         fname+=random.choice(string.letters)
     return fname
 
+def store_mturk(datadir):
+    taskname = randomname(5)
+    loc = os.path.join(datadir, taskname+'.mturk')
+    if os.path.exists(loc): #check if taskname exists
+        store_mturk(loc) #make a new taskname
+    else:
+        os.mkdir(loc)
+        os.system('chgrp www-data '+loc)
+        return taskname, loc
+
 def make_task(datadir):
     try:
         taskname = randomname(5)
@@ -601,7 +611,7 @@ def soxConversion(filename, audiodir, dochunk=None):
 
         if type(dochunk) is int:
             chunks = map(lambda i: (i, i+20), range(0, int(file_size*60), 20))
-            
+
             conv = subprocess.Popen(['sox', os.path.join(audiodir, 'converted_'+filename), os.path.join(audiodir, 'splits', basename+'.split.wav'), 'trim', '0', str(dochunk), ':', 'newfile', ':', 'restart'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             retval = conv.wait()
             if retval != 0:
@@ -610,7 +620,7 @@ def soxConversion(filename, audiodir, dochunk=None):
             if file_size*60-chunks[-1][-1]>0:
                 convrm = subprocess.Popen(['rm', os.path.join(audiodir, 'splits', basename+'.split{0:03d}.wav'.format(len(chunks)))])
                 convrm.wait()
-        
+
         elif type(dochunk) is list:
             chunks = dochunk
             for ci, chunk in enumerate(dochunk):

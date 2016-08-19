@@ -17,8 +17,9 @@ import time
 import srt_to_textgrid
 
 render = web.template.render('templates/', base='layout')
+noheadrender = web.template.render('templates/', base='simple')
 
-urls = ('/', 'index', '/index', 'index', '/cite', 'cite', '/about', 'about', '/cave', 'cave', '/semi', 'semi', '/uploadsound', 'uploadsound', '/uploadtxttrans', 'uploadtxttrans', '/uploadboundtrans', 'uploadboundtrans', '/uploadtextgrid', 'uploadtextgrid', '/allpipeline', allpipeline.app_allpipeline, '/extract', extract.app_extract, '/alignextract', alignextract.app_alignextract, '/uploadeval', 'uploadeval', '/asredit', asredit.app_asredit, '/uploadyt', 'uploadyt', '/downloadsrttrans', 'downloadsrttrans')
+urls = ('/', 'index', '/index', 'index', '/cite', 'cite', '/about', 'about', '/cave', 'cave', '/semi', 'semi', '/mturk', 'mturk', '/uploadsound', 'uploadsound', '/uploadtxttrans', 'uploadtxttrans', '/uploadboundtrans', 'uploadboundtrans', '/uploadtextgrid', 'uploadtextgrid', '/allpipeline', allpipeline.app_allpipeline, '/extract', extract.app_extract, '/alignextract', alignextract.app_alignextract, '/uploadeval', 'uploadeval', '/asredit', asredit.app_asredit, '/uploadyt', 'uploadyt', '/downloadsrttrans', 'downloadsrttrans')
 
 app = web.application(urls, globals())
 web.config.debug = True
@@ -55,6 +56,95 @@ def speaker_form(filename, taskname):
                             sex,
                             filename)
     return speakers()
+
+class mturk:
+    req = '<span class="formrequired">*</span> '
+    recording = myform.MyFile('recording',
+                           post='Follow the instructions to record yourself reading the given passage and save the file.',
+                           description='Upload your recording'+req)
+    bornstate = form.Dropdown('bornstate',
+                            [('', 'drop down to select'),
+                             ('CT', 'Connecticut'),
+                          ('RI', 'Rhode Island'),
+                          ('MA', 'Massachusetts'),
+                          ('ME', 'Maine'),
+                          ('NH', 'New Hampshire'),
+                          ('VT', 'Vermont'),
+                          ('NotNE', 'I was not born in New England')],
+                         description='In which New England State were you born?'+req)
+    borncity = form.Textbox('borncity',
+                            form.notnull,
+                            description='What is the name of the city/town of your birth?'+req)
+    bornzip = form.Textbox('bornzip',
+                         form.regexp(r'^(\d{5})?$',
+                                     'Please enter a valid 5-digit US zip code or leave blank.'),
+                         post='Leave blank if unknown.',
+                         description='What is the 5 digit zip code in which you were born? ')
+    childstate = form.Dropdown('childstate',
+                         [('', 'drop down to select'),
+                          ('CT', 'Connecticut '),
+                          ('RI', 'Rhode Island '),
+                          ('MA', 'Massachusetts '),
+                          ('ME', 'Maine'),
+                          ('NH', 'New Hampshire'),
+                          ('VT', 'Vermont'),
+                          ('NotNE', 'I did not grow up in New England')],
+                         description='In which New England State did you spend most of your time, ages 0-12?'+req)
+    childcity = form.Textbox('childcity',
+                            form.notnull,
+                            description='What is the name of the city/town you spent the most time, ages 0-12?'+req)
+    childzip = form.Textbox('childzip',
+                         form.regexp(r'^(\d{5})?$',
+                                     'Please enter a valid 5-digit US zip code or leave blank.'),
+                         post='Leave blank if unknown.',
+                         description='What is the 5 digit zip code in which you spent the most time, ages 0-12? ')
+    #TODO: remaining fields
+    submit = form.Button('submit', type='submit', description='Submit')
+
+    valid = [form.Validator('Please select the state where you were born.',
+                            lambda x: x.bornstate!=''),
+             form.Validator('Please select the state where you spent most of ages 0-12.',
+                                     lambda x: x.childstate!='')]
+
+    datadir = open('filepaths.txt').readline().split()[1]
+
+    def GET(self):
+        mturk = myform.MyForm(self.bornstate,
+                              self.borncity,
+                              self.bornzip,
+                              self.childstate,
+                              self.childcity,
+                              self.childzip,
+                              self.recording,
+                              self.submit)
+        form = mturk()
+        return noheadrender.mturk(form)
+
+    def POST(self):
+        mturk = myform.MyForm(self.bornstate,
+                              self.borncity,
+                              self.bornzip,
+                              self.childstate,
+                              self.childcity,
+                              self.childzip,
+                              self.recording,
+                              self.submit,
+                              validators = self.valid)
+        form = mturk()
+        x = web.input(recording={})
+        if not form.validates(): #not validated
+            return noheadrender.mturk(form)
+        else:
+            #store
+            _, extension = utilities.get_basename(x.recording.filename)  # sanitize
+            if extension not in ['.wav', '.mp3']:
+                form.note = "Please upload a .wav or .mp3 audio file."
+                return noheadrender.mturk(form)
+            responseid, loc = utilities.store_mturk(self.datadir)
+            with open(os.path.join(loc, 'recording'+extension), 'w') as o:
+                o.write(x.recording.file.read())
+            # TODO: store rest
+            return noheadrender.success('Thank you. Your task is complete.')
 
 class uploadsound:
     MINDURATION = 30 #in minutes

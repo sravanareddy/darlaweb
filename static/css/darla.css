@@ -22,6 +22,10 @@ textarea {
    height: 6em;
 }
 
+.formrequired {
+color: red;
+}
+
 audio{ width: 500px; display: block;}
 
 .note{
