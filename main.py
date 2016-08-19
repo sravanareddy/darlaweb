@@ -99,37 +99,37 @@ class mturk:
                          description='What is the 5 digit zip code in which you were born? ')
     childstate = form.Dropdown('childstate',
                          nestates,
-                         description='In which New England State did you spend most of your time, ages 0-12?'+req)
+                         description='During ages 0-12, in which New England State did you spend the most time?'+req)
     childcity = form.Textbox('childcity',
                             form.notnull,
-                            description='What is the name of the city/town you spent the most time, ages 0-12?'+req)
+                            description='During ages 0-12, what is the name of the city/town you spent the most time in?'+req)
     childzip = form.Textbox('childzip',
                          form.regexp(r'^(\d{5})?$',
                                      'Please enter a valid 5-digit US zip code or leave blank.'),
                          post='Optional; leave blank if unknown.',
-                         description='What is the 5 digit zip code in which you spent the most time, ages 0-12? ')
+                         description='During ages 0-12, what is the 5 digit zip code in which you spent the most time? ')
     teenstate = form.Dropdown('teenstate',
                          nestates,
-                         description='In which New England State did you spend most of your time, ages 13-18?'+req)
+                         description='During ages 13-18, in which New England State did you spend the most time?'+req)
     teencity = form.Textbox('teencity',
                             form.notnull,
-                            description='What is the name of the city/town you spent the most time, ages 13-18?'+req)
+                            description='During ages 13-18, what is the name of the city/town you spent the most time in?'+req)
     teenzip = form.Textbox('teenzip',
                          form.regexp(r'^(\d{5})?$',
                                      'Please enter a valid 5-digit US zip code or leave blank.'),
                          post='Optional; leave blank if unknown.',
-                         description='What is the 5 digit zip code in which you spent the most time, ages 13-18? ')
+                         description='During ages 13-18, what is the 5 digit zip code in which you spent the most time? ')
     adultstate = form.Dropdown('adultstate',
                          states,
-                         description='In which US State (or DC) did you spend most of your time after age 18?'+req)
+                         description='After age 18, in which US State (or DC) did you spend the most time?'+req)
     adultcity = form.Textbox('adultcity',
                             form.notnull,
-                            description='What is the name of the city/town you spent the most time after age 18?'+req)
+                            description='After age 18, what is the name of the city/town you spent the most time in?'+req)
     adultzip = form.Textbox('adultzip',
                          form.regexp(r'^(\d{5})?$',
                                      'Please enter a valid 5-digit US zip code or leave blank.'),
                          post='Leave blank if unknown.',
-                         description='What is the 5 digit zip code in which you spent the most time after age 18? ')
+                         description='After age 18, what is the 5 digit zip code in which you spent the most time? ')
     ethnicity = form.Dropdown('ethnicity',
                          ethnicity_data,
                          description='Which of the following US Census categories best represents your ethnicity?'+req)
@@ -147,9 +147,7 @@ class mturk:
     #TODO: remaining fields
     submit = form.Button('submit', type='submit', description='Submit')
 
-    valid = [form.Validator('Please select the state where you were born.',
-                            lambda x: x.bornstate!=''),
-             form.Validator('Please select the state where you spent most of ages 0-12.',
+    valid = [form.Validator('Please select the state where you spent most of ages 0-12.',
                                      lambda x: x.childstate!=''),
              form.Validator('Please select the state where you spent most of ages 13-18.',
                                      lambda x: x.teenstate!=''),
@@ -168,9 +166,6 @@ class mturk:
     def GET(self):
         mturk = myform.MyForm(self.gender,
                               self.ethnicity,
-                              self.bornstate,
-                              self.borncity,
-                              self.bornzip,
                               self.childstate,
                               self.childcity,
                               self.childzip,
@@ -183,16 +178,15 @@ class mturk:
                               self.education,
                               self.occupation,
                               self.consent,
-                              self.submit)
+                              self.recording,
+                              self.submit,
+                              validators = self.valid)
         form = mturk()
         return noheadrender.mturk(form)
 
     def POST(self):
         mturk = myform.MyForm(self.gender,
                               self.ethnicity,
-                              self.bornstate,
-                              self.borncity,
-                              self.bornzip,
                               self.childstate,
                               self.childcity,
                               self.childzip,
