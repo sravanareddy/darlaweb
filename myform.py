@@ -8,7 +8,7 @@ class MyRadio(web.form.Radio):
                 x = '<span>'
                 for arg in self.args:
                     if isinstance(arg, (tuple, list)):
-                        value, desc, id= arg 
+                        value, desc, id= arg
                     else:
                         value, desc, id= arg, arg, arg
                     attrs = self.attrs.copy()
@@ -24,10 +24,10 @@ class MyRadio(web.form.Radio):
 
 class MyButton(web.form.Button):
 	"""get_type not implemented in original"""
-	
+
 	def get_type(self):
 		return 'button'
-	
+
 class MyFile(web.form.File):
 	"""Rendering for files should not try to display contents"""
 	def render(self):
@@ -54,13 +54,13 @@ class MyForm(web.form.Form):
                         else:
                                 css_class="text-danger"
                                 return '<span class="{0}"> {1}</span>'.format(css_class, note)
-                else: 
+                else:
                         return ''
 
         def render(self):
-                out = [] 
+                out = []
                 out.append(self.rendernote(self.note, attached_to_form = True))
-                for i in self.inputs:
+		for i in self.inputs:
                         if not i.is_hidden():
                                 out.append('<p>')
                                 out.append(i.description+' ')
@@ -69,9 +69,25 @@ class MyForm(web.form.Form):
                             out.append(self.rendernote(i.note))
                             out.append('<br><span class="note">{0}</span>'.format(i.post))
                             out.append('</p>\n')
-                return ''.join(out) 
+                return ''.join(out)
 
-        def render_disabled(self):  
+	def render_list(self):
+		out = []
+		out.append(self.rendernote(self.note, attached_to_form = True))
+		out.append('<ul class="list-group">')
+		for i in self.inputs:
+			if not i.is_hidden():
+				out.append('<li class="list-group-item">')
+				out.append(i.description+' ')
+			out.append(i.render())
+			if not i.is_hidden():
+				out.append(self.rendernote(i.note))
+				out.append('<br><span class="note">{0}</span>'.format(i.post))
+				out.append('</li>\n')
+		out.append('</ul>')
+		return ''.join(out)
+
+        def render_disabled(self):
                 out = []
                 out.append(self.rendernote(self.note, attached_to_form = True))
                 for i in self.inputs:
@@ -97,13 +113,13 @@ class ListToForm(web.form.Form):
                 self.validators = kw.pop('validators', [])
 
         def rendernote(self, note):
-                if note: 
+                if note:
                         return '<span class="text-danger"> {0}</span>'.format(note)
-                else: 
+                else:
                         return ''
 
         def render(self):
-                out = [] 
+                out = []
                 out.append(self.rendernote(self.note))
                 for i in self.inputs:
                         if not i.is_hidden():
@@ -122,6 +138,4 @@ class ListToForm(web.form.Form):
                                 out.append('<span class="note">{0}</span>'.format(i.post))
                                 out.append('</p>\n')
 
-                return ''.join(out) 
-
-
+                return ''.join(out)

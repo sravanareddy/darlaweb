@@ -15,6 +15,7 @@ from evaluate import run_evaluation
 import asredit
 import time
 import srt_to_textgrid
+import json
 
 render = web.template.render('templates/', base='layout')
 noheadrender = web.template.render('templates/', base='simple')
@@ -59,18 +60,34 @@ def speaker_form(filename, taskname):
 
 class mturk:
     req = '<span class="formrequired">*</span> '
+    dropheader = ('', 'drop down to select')
+    states = json.load(open('us_states.json'))
+
+    ne = set(['CT', 'ME', 'MA', 'NH', 'RI', 'VT'])
+    nestates = [(abbrev, full) for (abbrev, full) in states if abbrev in ne]
+    nestates.insert(0, dropheader)
+    nestates.append(('NotNE', 'Not in New England'))
+
+    states.insert(0, dropheader)
+    states.append(('NotUS', 'Not in the US'))
+
+    ethnicity_data = json.load(open('ethnicity.json'))
+    ethnicity_data.insert(0, dropheader)
+
+    education_data = json.load(open('education.json'))
+    education_data.insert(0, dropheader)
+
     recording = myform.MyFile('recording',
-                           post='Follow the instructions to record yourself reading the given passage and save the file.',
+                              post='Follow the instructions to record yourself reading the given passage and save the file.',
                            description='Upload your recording'+req)
+    gender = form.Dropdown('gender',
+                        [dropheader,
+                         ('M', 'Male '),
+                         ('F', 'Female '),
+                         ('O', 'Other ')],
+                          description='What is your gender?'+req)
     bornstate = form.Dropdown('bornstate',
-                            [('', 'drop down to select'),
-                             ('CT', 'Connecticut'),
-                          ('RI', 'Rhode Island'),
-                          ('MA', 'Massachusetts'),
-                          ('ME', 'Maine'),
-                          ('NH', 'New Hampshire'),
-                          ('VT', 'Vermont'),
-                          ('NotNE', 'I was not born in New England')],
+                            nestates,
                          description='In which New England State were you born?'+req)
     borncity = form.Textbox('borncity',
                             form.notnull,
@@ -78,17 +95,10 @@ class mturk:
     bornzip = form.Textbox('bornzip',
                          form.regexp(r'^(\d{5})?$',
                                      'Please enter a valid 5-digit US zip code or leave blank.'),
-                         post='Leave blank if unknown.',
+                         post='Optional; leave blank if unknown.',
                          description='What is the 5 digit zip code in which you were born? ')
     childstate = form.Dropdown('childstate',
-                         [('', 'drop down to select'),
-                          ('CT', 'Connecticut '),
-                          ('RI', 'Rhode Island '),
-                          ('MA', 'Massachusetts '),
-                          ('ME', 'Maine'),
-                          ('NH', 'New Hampshire'),
-                          ('VT', 'Vermont'),
-                          ('NotNE', 'I did not grow up in New England')],
+                         nestates,
                          description='In which New England State did you spend most of your time, ages 0-12?'+req)
     childcity = form.Textbox('childcity',
                             form.notnull,
@@ -96,37 +106,105 @@ class mturk:
     childzip = form.Textbox('childzip',
                          form.regexp(r'^(\d{5})?$',
                                      'Please enter a valid 5-digit US zip code or leave blank.'),
-                         post='Leave blank if unknown.',
+                         post='Optional; leave blank if unknown.',
                          description='What is the 5 digit zip code in which you spent the most time, ages 0-12? ')
+    teenstate = form.Dropdown('teenstate',
+                         nestates,
+                         description='In which New England State did you spend most of your time, ages 13-18?'+req)
+    teencity = form.Textbox('teencity',
+                            form.notnull,
+                            description='What is the name of the city/town you spent the most time, ages 13-18?'+req)
+    teenzip = form.Textbox('teenzip',
+                         form.regexp(r'^(\d{5})?$',
+                                     'Please enter a valid 5-digit US zip code or leave blank.'),
+                         post='Optional; leave blank if unknown.',
+                         description='What is the 5 digit zip code in which you spent the most time, ages 13-18? ')
+    adultstate = form.Dropdown('adultstate',
+                         states,
+                         description='In which US State (or DC) did you spend most of your time after age 18?'+req)
+    adultcity = form.Textbox('adultcity',
+                            form.notnull,
+                            description='What is the name of the city/town you spent the most time after age 18?'+req)
+    adultzip = form.Textbox('adultzip',
+                         form.regexp(r'^(\d{5})?$',
+                                     'Please enter a valid 5-digit US zip code or leave blank.'),
+                         post='Leave blank if unknown.',
+                         description='What is the 5 digit zip code in which you spent the most time after age 18? ')
+    ethnicity = form.Dropdown('ethnicity',
+                         ethnicity_data,
+                         description='Which of the following US Census categories best represents your ethnicity?'+req)
+    education = form.Dropdown('education',
+                       education_data,
+                       description='Which of the following best describes your highest achieved education level?'+req)
+    occupation = form.Textbox('occupation',
+                         form.notnull,
+                         description='Please enter your occupation. If currently unemployed, please enter your most recent occupation.'+req,
+                         post='If you are a student, enter the occupation of the primary income source in your household when growing up.')
+    consent = form.Radio('consent',
+                         [('Yes', 'Yes, you may provide my recordings to the public, such as media releases or online samples.\n'),
+                          ('No', 'No, you may not release my recordings.')],
+                         description='<b>Consent for data release:</b> This is a research study about how people talk in this region, and includes survey information and brief audio recordings of your voice. No personally identifiable information about the recordings or surveys will ever be used in this study or released to the public. But since people are often interested in dialects, we may want to provide recordings for the general public, such as media releases or online dialect samples. You have the option to give us permission or to decline. Your choice will not affect your ability to participate in the survey activities.'+req+'<br>')
     #TODO: remaining fields
     submit = form.Button('submit', type='submit', description='Submit')
 
     valid = [form.Validator('Please select the state where you were born.',
                             lambda x: x.bornstate!=''),
              form.Validator('Please select the state where you spent most of ages 0-12.',
-                                     lambda x: x.childstate!='')]
+                                     lambda x: x.childstate!=''),
+             form.Validator('Please select the state where you spent most of ages 13-18.',
+                                     lambda x: x.teenstate!=''),
+             form.Validator('Please select the state where you spent most of your adulthood after 18.',
+                                     lambda x: x.adultstate!=''),
+             form.Validator('Please specify your ethnicity.',
+                                     lambda x: x.ethnicity!=''),
+             form.Validator('Please specify your highest education level.',
+                        lambda x: x.education!=''),
+             form.Validator('Please specify your gender',
+                        lambda x: x.gender!='')
+             ]
 
     datadir = open('filepaths.txt').readline().split()[1]
 
     def GET(self):
-        mturk = myform.MyForm(self.bornstate,
+        mturk = myform.MyForm(self.gender,
+                              self.ethnicity,
+                              self.bornstate,
                               self.borncity,
                               self.bornzip,
                               self.childstate,
                               self.childcity,
                               self.childzip,
-                              self.recording,
+                              self.teenstate,
+                              self.teencity,
+                              self.teenzip,
+                              self.adultstate,
+                              self.adultcity,
+                              self.adultzip,
+                              self.education,
+                              self.occupation,
+                              self.consent,
                               self.submit)
         form = mturk()
         return noheadrender.mturk(form)
 
     def POST(self):
-        mturk = myform.MyForm(self.bornstate,
+        mturk = myform.MyForm(self.gender,
+                              self.ethnicity,
+                              self.bornstate,
                               self.borncity,
                               self.bornzip,
                               self.childstate,
                               self.childcity,
                               self.childzip,
+                              self.teenstate,
+                              self.teencity,
+                              self.teenzip,
+                              self.adultstate,
+                              self.adultcity,
+                              self.adultzip,
+                              self.education,
+                              self.occupation,
+                              self.consent,
                               self.recording,
                               self.submit,
                               validators = self.valid)
