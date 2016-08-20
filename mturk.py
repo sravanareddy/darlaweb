@@ -7,9 +7,6 @@ import os
 
 noheadrender = web.template.render('templates/', base='simple')
 
-taskname = None
-loc = None
-
 req = '<span class="formrequired">*</span> '
 
 record_post = 'Follow the instructions to record yourself reading this passage and save the file.'
@@ -131,25 +128,27 @@ class mturk:
 
     def GET(self):
         mturk = myform.MyForm(*self.formfields)
-        form = mturk()
-        return noheadrender.mturk(form)
+        mform = mturk()
+        return noheadrender.mturk(mform)
 
     def POST(self):
         mturk = myform.MyForm(*self.formfields,
                               validators = self.valid)
-        form = mturk()
-        if not form.validates(): #not validated
-            return noheadrender.mturk(form)
+        mform = mturk()
+        if not mform.validates(): #not validated
+            return noheadrender.mturk(mform)
         else:
             taskname, loc = utilities.store_mturk(self.datadir)
 
-            parameters = {i.name: i.value for i in form.inputs if i.value!=''}
+            parameters = {i.name: i.value for i in mform.inputs if i.value!=''}
             parameters['taskname'] = taskname
 
             with open(os.path.join(loc, 'speakerinfo.json'), 'w') as o:
                 json.dump(parameters, o)
 
             recordform = myform.MyForm(recording1, recording2, recording3,
+                                       form.Hidden(name='taskname', value=taskname),
+                                       form.Hidden(name='loc', value=loc),
                                        myform.MyButton('submit', type='submit', description='Submit'),
                                        )
             return noheadrender.mturksubmit(recordform())
@@ -162,7 +161,11 @@ class mturksubmit:
         recordform = myform.MyForm(recording1, recording2, recording3,
                                    myform.MyButton('submit', type='submit', description='Submit'),
                                    )
-        x = web.input(recording1={}, recording2={}, recording3={})
+        rform = recordform()
+
+        x = web.input(recording1={}, recording2={}, recording3={}, taskname={}, loc={})
+        loc = x.loc
+        taskname = x.taskname
 
         #TODO: clean up this copy-pasta
         """
@@ -177,19 +180,18 @@ class mturksubmit:
             return noheadrender.mturksubmit(recordform())
         """
 
-        print x.recording1
         _, extension1 = utilities.get_basename(x.recording1.filename)  # sanitize
         if extension1 not in ['.wav', '.mp3']:
             recordform.note = "Please upload a .wav or .mp3 audio file for the first passage."
-            return noheadrender.mturksubmit(recordform())
+            return noheadrender.mturksubmit(rform)
         _, extension2 = utilities.get_basename(x.recording2.filename)  # sanitize
         if extension2 not in ['.wav', '.mp3']:
             recordform.note = "Please upload a .wav or .mp3 audio file for the second passage."
-            return noheadrender.mturksubmit(recordform())
+            return noheadrender.mturksubmit(rform)
         _, extension3 = utilities.get_basename(x.recording3.filename)  # sanitize
         if extension3 not in ['.wav', '.mp3']:
             recordform.note = "Please upload a .wav or .mp3 audio file for the third passage."
-            return noheadrender.mturksubmit(recordform())
+            return noheadrender.mturksubmit(rform)
 
         with open(os.path.join(loc, 'recording1'+extension1), 'w') as o:
             o.write(x.recording1.file.read())
@@ -198,4 +200,4 @@ class mturksubmit:
         with open(os.path.join(loc, 'recording3'+extension3), 'w') as o:
             o.write(x.recording3.file.read())
 
-        return noheadrender.success('Thank you. Please enter this code in the Mechanical Turk site in order to confirm that you completed this task so that you can be compensated.<br><br><h3>{0}</h3>'.format(self.taskname))
+        return noheadrender.mturkconf(taskname)

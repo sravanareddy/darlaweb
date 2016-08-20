@@ -33,7 +33,7 @@ class allpipeline:
             parameters[split[0]] = split[1]
 
         taskname = parameters["taskname"]
-        
+
         filename = parameters["filename"]
         if filename=='ytvideo.wav':
             filename = 'ytvideo'
