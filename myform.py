@@ -28,6 +28,10 @@ class MyButton(web.form.Button):
 	def get_type(self):
 		return 'button'
 
+class MyDropdown(web.form.Dropdown):
+	def get_type(self):
+                return 'dropdown'
+
 class MyFile(web.form.File):
 	"""Rendering for files should not try to display contents"""
 	def render(self):

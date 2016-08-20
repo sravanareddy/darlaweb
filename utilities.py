@@ -50,6 +50,14 @@ def read_filepaths():
     """get data from filepaths.txt ans return dictionary. Assumes it is in the correct format!"""
     return dict(map(lambda line: tuple(line.split()), open('filepaths.txt').readlines()))
 
+def parse_web_params(source):
+    post_list = source.split("&")
+    parameters = {}
+    for form_input in post_list:
+        split = form_input.split("=")
+        parameters[split[0]] = split[1]
+    return parameters
+    
 def send_ytupload_email(video_id, taskname, receiver, filename):
     filepaths = read_filepaths()
     password = open(filepaths['PASSWORD']).read().strip()
