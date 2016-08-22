@@ -50,34 +50,48 @@ class mturk:
                          ('F', 'Female '),
                          ('O', 'Other ')],
                           description='What is your gender?'+req)
+    info['birth'] = form.Textbox('birth',
+                         form.regexp(r'\d{4}',
+                                     'Please enter a valid 4-digit year.'),
+                         description='In which year were you born?'+req,
+                         post='Enter in YYYY (4-digit) format.')
     info['childstate'] = myform.MyDropdown('childstate',
                          nestates,
                          description='During ages 0-12, in which New England State did you spend the most time?'+req)
     info['childcity'] = form.Textbox('childcity',
                             form.notnull,
-                            description='During ages 0-12, what is the name of the city/town you spent the most time in?'+req)
+                            description='During ages 0-12, what is the name of the city/town you spent the most time in?'+req,
+                            post='Please list the ONE city/town which best answers this question.')
     info['childzip'] = form.Textbox('childzip',
                          form.regexp(r'^(\d{5})?$',
                                      'Please enter a valid 5-digit US zip code or leave blank.'),
                          post='Optional; leave blank if unknown.',
                          description='During ages 0-12, what is the 5 digit zip code in which you spent the most time? ')
+    info['childloc'] = myform.MyDropdown('childloc',
+                         nestates,
+                         description='During ages 0-12, which of the following best describes your location?'+req)
     info['teenstate'] = myform.MyDropdown('teenstate',
                          nestates,
                          description='During ages 13-18, in which New England State did you spend the most time?'+req)
     info['teencity'] = form.Textbox('teencity',
                             form.notnull,
-                            description='During ages 13-18, what is the name of the city/town you spent the most time in?'+req)
+                            description='During ages 13-18, what is the name of the city/town you spent the most time in?'+req,
+                            post='Please list the ONE city/town which best answers this question.')
     info['teenzip'] = form.Textbox('teenzip',
                          form.regexp(r'^(\d{5})?$',
                                      'Please enter a valid 5-digit US zip code or leave blank.'),
                          post='Optional; leave blank if unknown.',
                          description='During ages 13-18, what is the 5 digit zip code in which you spent the most time? ')
+    info['teenloc'] = myform.MyDropdown('teenloc',
+                         nestates,
+                         description='During ages 13-18, which of the following best describes your location?'+req)
     info['adultstate'] = myform.MyDropdown('adultstate',
                          states,
                          description='After age 18, in which US State (or DC) did you spend the most time?'+req)
     info['adultcity'] = form.Textbox('adultcity',
                             form.notnull,
-                            description='After age 18, what is the name of the city/town you spent the most time in?'+req)
+                            description='After age 18, what is the name of the city/town you spent the most time in?'+req,
+                            post='Please list the ONE city/town which best answers this question.')
     info['adultzip'] = form.Textbox('adultzip',
                          form.regexp(r'^(\d{5})?$',
                                      'Please enter a valid 5-digit US zip code or leave blank.'),
@@ -105,6 +119,10 @@ class mturk:
                                      lambda x: x.teenstate!=''),
              form.Validator('Please select the state where you spent most of your adulthood after 18.',
                                      lambda x: x.adultstate!=''),
+             form.Validator('Please select the type of location where you spent most of ages 0-12.',
+                                     lambda x: x.childloc!=''),
+             form.Validator('Please select the type of location where you spent most of ages 13-18.',
+                            lambda x: x.teenloc!=''),
              form.Validator('Please specify your ethnicity.',
                                      lambda x: x.ethnicity!=''),
              form.Validator('Please specify your highest education level.',
@@ -116,9 +134,10 @@ class mturk:
     datadir = open('filepaths.txt').readline().split()[1]
 
     fields = ['gender',
+              'birth',
               'ethnicity',
-              'childstate', 'childcity', 'childzip',
-              'teenstate', 'teencity', 'teenzip',
+              'childstate', 'childcity', 'childzip', 'childloc',
+              'teenstate', 'teencity', 'teenzip', 'teenloc',
               'adultstate', 'adultcity', 'adultzip',
               'education', 'occupation',
               'consent']
