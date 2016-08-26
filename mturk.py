@@ -11,22 +11,22 @@ req = '<span class="formrequired">*</span> '
 
 record_post = 'Follow the instructions to record yourself reading this passage and save the file. The passage should be read twice as shown.'
 
-sentences = ['I hope that Mary bought coffee and pizza for the crew. I hope that Mary bought coffee and pizza for the crew.',
-             'Susan rode a horse to the farm. The horse likes to kick my foot. Susan rode a horse to the farm. The horse likes to kick my foot.',
-             'This old bus can easily carry the laundry bin. This old bus can easily carry the laundry bin.',
-             "I guess that Sherry didn't bother to start my car or lock my bike. I guess that Sherry didn't bother to start my car or lock my bike.",
-             'My father sometimes hides his boots by the road in the park. My father sometimes hides his boots by the road in the park.',
-             'I see that Larry took the candy heart from your palm. I see that Larry took the candy heart from your palm.',
-             'Steve tried to shout, "Hey! I thought you paid for the boarding passes!" Steve tried to shout, "Hey! I thought you paid for the boarding passes!"',
-             'Pat laughed and laughed at the sound of the shouting. The hoarse voice sounded really odd. Pat laughed and laughed at the sound of the shouting. The hoarse voice sounded really odd.',
-             "Joe tossed five books into Mary's room - one at a time. Joe tossed five books into Mary's room - one at a time.",
-             'In this hot sunny weather, I could fall down at the drop of a feather. In this hot sunny weather, I could fall down at the drop of a feather.',
-             'Mom taught me to be calm, say "thank you," and shake hands. Mom taught me to be calm, say "thank you," and shake hands.',
-             'I doubt that my father actually bought a very nice card. I doubt that my father actually bought a very nice card.']
+sentences = ['I hope that Mary bought coffee and pizza for the crew.',
+             'Susan rode a horse to the farm. The horse likes to kick my foot.',
+             'This old bus can easily carry the laundry bin.',
+             "I guess that Sherry didn't bother to start my car or lock my bike.",
+             'My father sometimes hides his boots by the road in the park.',
+             'I see that Larry took the candy heart from your palm.',
+             'Steve tried to shout, "Hey! I thought you paid for the boarding passes!"',
+             'Pat laughed and laughed at the sound of the shouting. The hoarse voice sounded really odd.',
+             "Joe tossed five books into Mary's room - one at a time.",
+             'In this hot sunny weather, I could fall down at the drop of a feather.',
+             'Mom taught me to be calm, say "thank you," and shake hands.',
+             'I doubt that my father actually bought a very nice card.']
 
 recordings = [myform.MyFile('recording',
                           post=record_post,
-                          description='<div class="well">{0}{1}</div>'.format(sentences[i], req))
+                          description='<div class="well">{0}<br>{0} {1}</div>'.format(sentences[i], req))
               for i in range(len(sentences))]
 
 class mturk:
@@ -63,7 +63,7 @@ class mturk:
                          post='Enter in YYYY (4-digit) format.')
     info['childstate'] = myform.MyDropdown('childstate',
                          nestates,
-                         description='During ages 0-12, in which New England State did you spend the most time?'+req)
+                         description='During ages 0-12, in which New England state did you spend the most time?'+req)
     info['childcity'] = form.Textbox('childcity',
                             form.notnull,
                             description='During ages 0-12, what is the name of the city/town you spent the most time in?'+req,
@@ -78,7 +78,7 @@ class mturk:
                          description='During ages 0-12, which of the following best describes your location?'+req)
     info['teenstate'] = myform.MyDropdown('teenstate',
                          nestates,
-                         description='During ages 13-18, in which New England State did you spend the most time?'+req)
+                         description='During ages 13-18, in which New England state did you spend the most time?'+req)
     info['teencity'] = form.Textbox('teencity',
                             form.notnull,
                             description='During ages 13-18, what is the name of the city/town you spent the most time in?'+req,
