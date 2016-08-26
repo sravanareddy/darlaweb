@@ -24,9 +24,9 @@ Mac Users
 <li>A recorder should appear. Click the red button in the middle to start recording.
 <li> Click the square button (where the red button was) to stop recording.
 <li>Play back once to make sure that the audio was recorded properly.
-<li> Open the <em>File</em> menu at the top of the screen again and select <em>Save</em>&hellip;
-<li>Type any file name in <em>Export As:</em> and choose a location where you will be able to find the file easily in <em>Where:</em>
-<li>Upload your recording to the survey from the location you saved it in in the previous step </label></p>
+<li> Open the <em>File</em> menu at the top of the screen again and select <em>Save</em>.
+<li>Type any file name in the <em>Export As:</em> field, and choose a location where you will be able to find the file easily in <em>Where:</em>
+<li>Upload your recording to the survey from the location you saved it in in the previous step.</p>
 </ol>
 </p>
 </div>
@@ -57,16 +57,20 @@ Windows Users
 <h3>Record and Upload</h3>
 
 <p>Read aloud the passage below ($recnum of $total) and upload the recorded file.
-  You must submit recordings for all $total passages.
+  Any filename is fine -- just make sure that you upload the file that
+  contains your recording of the sentences on this current page.
 </p>
+
 
 <form action="mturksubmit" name="mturksubmit" method="post" enctype="multipart/form-data">
 $:form.render_list()
 </form>
 
-<p class="alert alert-warning">This form will take some time to process after submission,
+<p class="alert alert-warning">This form might take some time to process after submission,
   especially if you are behind a slow internet connection.
-  You must wait until it is done in order to get compensated for the task.
-  The final page after all the passages will generate a code that you must enter on Mechanical Turk.
+  Please wait until it is done.
+<br><br>
+  You must submit recordings for all $total passages in order to get compensated for the task.
+  The final page will generate a code that you must enter on Mechanical Turk.
 </p>
 </div>
