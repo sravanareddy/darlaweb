@@ -9,21 +9,25 @@ noheadrender = web.template.render('templates/', base='simple')
 
 req = '<span class="formrequired">*</span> '
 
-record_post = 'Follow the instructions to record yourself reading this passage and save the file.'
+record_post = 'Follow the instructions to record yourself reading this passage and save the file. The passage should be read twice as shown.'
 
-passage1 = "I hope that Mary bought coffee and pizza for the whole company. The horse likes to kick the football. The horse can easily carry the laundry bin around the farm. I guess that Sherry didn't bother to start the car or lock the door."
-passage2 = "My father sometimes hides his hiking boots in a hole in the park. I see that Larry took the candy heart from your palm. Steve shouted, 'Hey! I thought you paid for the boarding passes!' Pat just laughed at the sound of the shouting."
-passage3 = "Joe tossed the books into Mary's room. In this hot weather, I could fall down at the drop of a feather. I taught you to say 'thank you' and shake hands. I found out that my father actually bought a very nice card."
+sentences = ['I hope that Mary bought coffee and pizza for the crew. I hope that Mary bought coffee and pizza for the crew.',
+             'Susan rode a horse to the farm. The horse likes to kick my foot. Susan rode a horse to the farm. The horse likes to kick my foot.',
+             'This old bus can easily carry the laundry bin. This old bus can easily carry the laundry bin.',
+             "I guess that Sherry didn't bother to start my car or lock my bike. I guess that Sherry didn't bother to start my car or lock my bike.",
+             'My father sometimes hides his boots by the road in the park. My father sometimes hides his boots by the road in the park.',
+             'I see that Larry took the candy heart from your palm. I see that Larry took the candy heart from your palm.',
+             'Steve tried to shout, "Hey! I thought you paid for the boarding passes!" Steve tried to shout, "Hey! I thought you paid for the boarding passes!"',
+             'Pat laughed and laughed at the sound of the shouting. The hoarse voice sounded really odd. Pat laughed and laughed at the sound of the shouting. The hoarse voice sounded really odd.',
+             "Joe tossed five books into Mary's room - one at a time. Joe tossed five books into Mary's room - one at a time.",
+             'In this hot sunny weather, I could fall down at the drop of a feather. In this hot sunny weather, I could fall down at the drop of a feather.',
+             'Mom taught me to be calm, say "thank you," and shake hands. Mom taught me to be calm, say "thank you," and shake hands.',
+             'I doubt that my father actually bought a very nice card. I doubt that my father actually bought a very nice card.']
 
-recording1 = myform.MyFile('recording1',
+recordings = [myform.MyFile('recording',
                           post=record_post,
-                          description='<div class="well">{0}{1}</div>'.format(passage1, req))
-recording2 = myform.MyFile('recording2',
-                          post=record_post,
-                          description='<div class="well">{0}{1}</div>'.format(passage2, req))
-recording3 = myform.MyFile('recording3',
-                          post=record_post,
-                          description='<div class="well">{0}{1}</div>'.format(passage3, req))
+                          description='<div class="well">{0}{1}</div>'.format(sentences[i], req))
+              for i in range(len(sentences))]
 
 class mturk:
     dropheader = ('', 'drop down to select')
@@ -42,6 +46,8 @@ class mturk:
 
     education_data = json.load(open('education.json'))
     education_data.insert(0, dropheader)
+
+    locations = [dropheader, 'rural', 'suburban', 'urban']
 
     info = {}
     info['gender'] = myform.MyDropdown('gender',
@@ -68,7 +74,7 @@ class mturk:
                          post='Optional; leave blank if unknown.',
                          description='During ages 0-12, what is the 5 digit zip code in which you spent the most time? ')
     info['childloc'] = myform.MyDropdown('childloc',
-                         nestates,
+                         locations,
                          description='During ages 0-12, which of the following best describes your location?'+req)
     info['teenstate'] = myform.MyDropdown('teenstate',
                          nestates,
@@ -83,7 +89,7 @@ class mturk:
                          post='Optional; leave blank if unknown.',
                          description='During ages 13-18, what is the 5 digit zip code in which you spent the most time? ')
     info['teenloc'] = myform.MyDropdown('teenloc',
-                         nestates,
+                         locations,
                          description='During ages 13-18, which of the following best describes your location?'+req)
     info['adultstate'] = myform.MyDropdown('adultstate',
                          states,
@@ -165,58 +171,49 @@ class mturk:
             with open(os.path.join(loc, 'speakerinfo.json'), 'w') as o:
                 json.dump(parameters, o)
 
-            recordform = myform.MyForm(recording1, recording2, recording3,
+            recnum = 1
+            recordform = myform.MyForm(recordings[recnum-1],
+                                       form.Hidden(name='recnum', value=recnum),
                                        form.Hidden(name='taskname', value=taskname),
                                        form.Hidden(name='loc', value=loc),
                                        myform.MyButton('submit', type='submit', description='Submit'),
                                        )
-            return noheadrender.mturksubmit(recordform())
+            return noheadrender.mturksubmit(recordform(), recnum, len(sentences))
 
 
 class mturksubmit:
     def GET(self):
         pass  #TODO: safety catch
     def POST(self):
-        recordform = myform.MyForm(recording1, recording2, recording3,
-                                   myform.MyButton('submit', type='submit', description='Submit'),
-                                   )
-        rform = recordform()
-
-        x = web.input(recording1={}, recording2={}, recording3={}, taskname={}, loc={})
+        x = web.input(recording={}, taskname={}, loc={}, recnum = {})
         loc = x.loc
         taskname = x.taskname
+        recnum = int(x.recnum)
 
-        #TODO: clean up this copy-pasta
-        """
-        if not x.recording1:
-            recordform.note = "Please upload a .wav or .mp3 audio file for the first passage."
-            return noheadrender.mturksubmit(recordform())
-        if not x.recording2:
-            recordform.note = "Please upload a .wav or .mp3 audio file for the second passage."
-            return noheadrender.mturksubmit(recordform())
-        if not x.recording3:
-            recordform.note = "Please upload a .wav or .mp3 audio file for the third passage."
-            return noheadrender.mturksubmit(recordform())
-        """
+        _, extension = utilities.get_basename(x.recording.filename)  # sanitize
+        if extension not in ['.wav', '.mp3', '.m4a', '.wma']:
+            recordform = myform.MyForm(recordings[recnum-1],
+                                       form.Hidden(name='recnum', value=recnum),
+                                       form.Hidden(name='taskname', value=taskname),
+                                       form.Hidden(name='loc', value=loc),
+                                       myform.MyButton('submit', type='submit', description='Submit'),
+                                       )
+            rform = recordform()
+            recordform.note = "Please upload a .wav, .m4a, .wma, or .mp3 audio file for the first passage."
+            return noheadrender.mturksubmit(rform, recnum, len(sentences))
 
-        _, extension1 = utilities.get_basename(x.recording1.filename)  # sanitize
-        if extension1 not in ['.wav', '.mp3']:
-            recordform.note = "Please upload a .wav or .mp3 audio file for the first passage."
-            return noheadrender.mturksubmit(rform)
-        _, extension2 = utilities.get_basename(x.recording2.filename)  # sanitize
-        if extension2 not in ['.wav', '.mp3']:
-            recordform.note = "Please upload a .wav or .mp3 audio file for the second passage."
-            return noheadrender.mturksubmit(rform)
-        _, extension3 = utilities.get_basename(x.recording3.filename)  # sanitize
-        if extension3 not in ['.wav', '.mp3']:
-            recordform.note = "Please upload a .wav or .mp3 audio file for the third passage."
-            return noheadrender.mturksubmit(rform)
+        with open(os.path.join(loc, 'recording'+str(recnum)+extension), 'w') as o:
+            o.write(x.recording.file.read())
 
-        with open(os.path.join(loc, 'recording1'+extension1), 'w') as o:
-            o.write(x.recording1.file.read())
-        with open(os.path.join(loc, 'recording2'+extension2), 'w') as o:
-            o.write(x.recording2.file.read())
-        with open(os.path.join(loc, 'recording3'+extension3), 'w') as o:
-            o.write(x.recording3.file.read())
-
-        return noheadrender.mturkconf(taskname)
+        if recnum == len(sentences):
+            return noheadrender.mturkconf(taskname)
+        else:
+            recnum += 1
+            recordform = myform.MyForm(recordings[recnum-1],
+                                       form.Hidden(name='recnum', value=recnum),
+                                       form.Hidden(name='taskname', value=taskname),
+                                       form.Hidden(name='loc', value=loc),
+                                       myform.MyButton('submit', type='submit', description='Submit'),
+                                       )
+            rform = recordform()
+            return noheadrender.mturksubmit(rform, recnum, len(sentences))
