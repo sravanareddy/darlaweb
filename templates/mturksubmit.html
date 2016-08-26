@@ -1,0 +1,76 @@
+$def with (form, recnum, total)
+<div class="container">
+
+<h2>Recording Task (part $recnum of $total)</h2>
+
+<h3>How to record audio on your computer</h3>
+
+<p>Click for the instructions on recording audio in your operating system.
+  You may also use any other audio recording program that you are familiar with.
+</p>
+
+<button type="button" class="btn btn-primary"
+data-toggle="collapse"
+data-target="#mac">
+Mac Users
+  <span class="glyphicon glyphicon-menu-down"></span>
+</button>
+
+<div class="collapse bs-callout bs-callout-primary" id="mac">
+  <p>
+<ol>
+  <li>Go to your Applications folder, and open <em>QuickTime Player</em> (or click on the magnifying glass icon on the top right of the screen and search for<em> QuickTimePlayer</em>).
+<li> Open the <em>File</em> menu at the top of your screen and select <em>New Audio Recording</em>.
+<li>A recorder should appear. Click the red button in the middle to start recording.
+<li> Click the square button (where the red button was) to stop recording.
+<li>Play back once to make sure that the audio was recorded properly.
+<li> Open the <em>File</em> menu at the top of the screen again and select <em>Save</em>.
+<li>Type any file name in the <em>Export As:</em> field, and choose a location where you will be able to find the file easily in <em>Where:</em>
+<li>Upload your recording to the survey from the location you saved it in in the previous step.</p>
+</ol>
+</p>
+</div>
+
+<br>
+<br>
+
+<button type="button" class="btn btn-primary"
+data-toggle="collapse"
+data-target="#windows">
+Windows Users
+  <span class="glyphicon glyphicon-menu-down"></span>
+</button>
+
+<div class="collapse bs-callout bs-callout-primary" id="windows">
+<p>
+  <ol>
+<li>Go to <em>Start</em>, select <em>All Programs</em>, select <em>Accessories</em>, select <em>Entertainment</em>, and finally select <em>Sound Recorder</em> (or click <em>Start</em> and search for <em>Sound Recorder</em>).
+<li>A recorder should appear. Click the <em>Start Recording</em> button on the left to start recording.
+<li>Click the<em> Stop Recording </em>button (where the <em>Start Recording</em> button was) to stop recording.
+<li>A window to save should appear. Navigate to a location where you will be able to find the file easily and type any file name. Click &lsquo;<em>Save</em>&rsquo; and the recording will save in that location.
+<li>Open the file and play once to make sure that the audio was recorded properly.
+<li>Upload your recording to the survey from the location you saved it in in Step 4.
+</ol>
+</p>
+</div>
+
+<h3>Record and Upload</h3>
+
+<p>Read aloud the passage below ($recnum of $total) and upload the recorded file.
+  Any filename is fine -- just make sure that you upload the file that
+  contains your recording of the sentences on this current page.
+</p>
+
+
+<form action="mturksubmit" name="mturksubmit" method="post" enctype="multipart/form-data">
+$:form.render_list()
+</form>
+
+<p class="alert alert-warning">This form might take some time to process after submission,
+  especially if you are behind a slow internet connection.
+  Please wait until it is done.
+<br><br>
+  You must submit recordings for all $total passages in order to get compensated for the task.
+  The final page will generate a code that you must enter on Mechanical Turk.
+</p>
+</div>

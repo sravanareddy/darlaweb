@@ -50,6 +50,14 @@ def read_filepaths():
     """get data from filepaths.txt ans return dictionary. Assumes it is in the correct format!"""
     return dict(map(lambda line: tuple(line.split()), open('filepaths.txt').readlines()))
 
+def parse_web_params(source):
+    post_list = source.split("&")
+    parameters = {}
+    for form_input in post_list:
+        split = form_input.split("=")
+        parameters[split[0]] = split[1]
+    return parameters
+    
 def send_ytupload_email(video_id, taskname, receiver, filename):
     filepaths = read_filepaths()
     password = open(filepaths['PASSWORD']).read().strip()
@@ -293,6 +301,16 @@ def randomname(fnamelen):
         fname+=random.choice(string.letters)
     return fname
 
+def store_mturk(datadir):
+    taskname = randomname(5)
+    loc = os.path.join(datadir, taskname+'.mturk')
+    if os.path.exists(loc): #check if taskname exists
+        store_mturk(loc) #make a new taskname
+    else:
+        os.mkdir(loc)
+        os.system('chgrp www-data '+loc)
+        return taskname, loc
+
 def make_task(datadir):
     try:
         taskname = randomname(5)
@@ -525,7 +543,7 @@ def process_audio(audiodir, filename, extension, filecontent, dochunk):
 
 def youtube_wav(url,audiodir, taskname):
     try:
-        yt_command = 'youtube-dl '+url+' --extract-audio --audio-format wav --audio-quality 16k -o '+os.path.join(audiodir, 'ytvideo.%(ext)s')
+        yt_command = 'youtube-dl '+url+' --extract-audio --audio-format wav --audio-quality 16k -o '+os.path.join(audiodir, 'ytvideo.wav')
         tube = subprocess.Popen(shlex.split(yt_command), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         tube.wait()
         return "ytvideo.wav", ""
@@ -601,7 +619,7 @@ def soxConversion(filename, audiodir, dochunk=None):
 
         if type(dochunk) is int:
             chunks = map(lambda i: (i, i+20), range(0, int(file_size*60), 20))
-            
+
             conv = subprocess.Popen(['sox', os.path.join(audiodir, 'converted_'+filename), os.path.join(audiodir, 'splits', basename+'.split.wav'), 'trim', '0', str(dochunk), ':', 'newfile', ':', 'restart'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             retval = conv.wait()
             if retval != 0:
@@ -610,7 +628,7 @@ def soxConversion(filename, audiodir, dochunk=None):
             if file_size*60-chunks[-1][-1]>0:
                 convrm = subprocess.Popen(['rm', os.path.join(audiodir, 'splits', basename+'.split{0:03d}.wav'.format(len(chunks)))])
                 convrm.wait()
-        
+
         elif type(dochunk) is list:
             chunks = dochunk
             for ci, chunk in enumerate(dochunk):

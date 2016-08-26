@@ -15,10 +15,12 @@ from evaluate import run_evaluation
 import asredit
 import time
 import srt_to_textgrid
+import json
+from mturk import mturk, mturksubmit
 
 render = web.template.render('templates/', base='layout')
 
-urls = ('/', 'index', '/index', 'index', '/cite', 'cite', '/about', 'about', '/cave', 'cave', '/semi', 'semi', '/uploadsound', 'uploadsound', '/uploadtxttrans', 'uploadtxttrans', '/uploadboundtrans', 'uploadboundtrans', '/uploadtextgrid', 'uploadtextgrid', '/allpipeline', allpipeline.app_allpipeline, '/extract', extract.app_extract, '/alignextract', alignextract.app_alignextract, '/uploadeval', 'uploadeval', '/asredit', asredit.app_asredit, '/uploadyt', 'uploadyt', '/downloadsrttrans', 'downloadsrttrans')
+urls = ('/', 'index', '/index', 'index', '/cite', 'cite', '/about', 'about', '/cave', 'cave', '/semi', 'semi', '/mturk', 'mturk', '/mturksubmit', 'mturksubmit', '/uploadsound', 'uploadsound', '/uploadtxttrans', 'uploadtxttrans', '/uploadboundtrans', 'uploadboundtrans', '/uploadtextgrid', 'uploadtextgrid', '/allpipeline', allpipeline.app_allpipeline, '/extract', extract.app_extract, '/alignextract', alignextract.app_alignextract, '/uploadeval', 'uploadeval', '/asredit', asredit.app_asredit, '/uploadyt', 'uploadyt', '/downloadsrttrans', 'downloadsrttrans')
 
 app = web.application(urls, globals())
 web.config.debug = True
@@ -55,6 +57,7 @@ def speaker_form(filename, taskname):
                             sex,
                             filename)
     return speakers()
+
 
 class uploadsound:
     MINDURATION = 30 #in minutes
