@@ -32,10 +32,10 @@ class mturk:
     states.insert(0, dropheader)
     states.append(('NotUS', 'Not in the US'))
 
-    ethnicity_data = json.load(os.path.join(surveydir, open('ethnicity.json')))
+    ethnicity_data = json.load(open(os.path.join(surveydir, 'ethnicity.json')))
     ethnicity_data.insert(0, dropheader)
 
-    education_data = json.load(os.path.join(surveydir, open('education.json')))
+    education_data = json.load(open(os.path.join(surveydir, 'education.json')))
     education_data.insert(0, dropheader)
 
     locations = [dropheader, 'rural', 'suburban', 'urban']
