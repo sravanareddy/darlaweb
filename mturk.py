@@ -11,18 +11,9 @@ req = '<span class="formrequired">*</span> '
 
 record_post = 'Follow the instructions to record yourself reading this passage and save the file. The passage should be read twice as shown.'
 
-sentences = ['I hope that Mary bought coffee and pizza for the crew.',
-             'Susan rode a horse to the farm. The horse likes to kick my foot.',
-             'This old bus can easily carry the laundry bin.',
-             "I guess that Sherry didn't bother to start my car or lock my bike.",
-             'My father sometimes hides his boots by the road in the park.',
-             'I see that Larry took the candy heart from your palm.',
-             'Steve tried to shout, "Hey! I thought you paid for the boarding passes!"',
-             'Pat laughed and laughed at the sound of the shouting. The hoarse voice sounded really odd.',
-             "Joe tossed five books into Mary's room - one at a time.",
-             'In this hot sunny weather, I could fall down at the drop of a feather.',
-             'Mom taught me to be calm, say "thank you," and shake hands.',
-             'I doubt that my father actually bought a very nice card.']
+surveydir = 'surveyparams'
+
+sentences = [line.strip() for line in open(os.path.join(surveydir, 'sents.txt')).readlines()]
 
 recordings = [myform.MyFile('recording',
                           post=record_post,
@@ -31,7 +22,7 @@ recordings = [myform.MyFile('recording',
 
 class mturk:
     dropheader = ('', 'drop down to select')
-    states = json.load(open('us_states.json'))
+    states = json.load(open(os.path.join(surveydir, 'us_states.json')))
 
     ne = set(['CT', 'ME', 'MA', 'NH', 'RI', 'VT'])
     nestates = [(abbrev, full) for (abbrev, full) in states if abbrev in ne]
@@ -41,10 +32,10 @@ class mturk:
     states.insert(0, dropheader)
     states.append(('NotUS', 'Not in the US'))
 
-    ethnicity_data = json.load(open('ethnicity.json'))
+    ethnicity_data = json.load(open(os.path.join(surveydir, 'ethnicity.json')))
     ethnicity_data.insert(0, dropheader)
 
-    education_data = json.load(open('education.json'))
+    education_data = json.load(open(os.path.join(surveydir, 'education.json')))
     education_data.insert(0, dropheader)
 
     locations = [dropheader, 'rural', 'suburban', 'urban']
