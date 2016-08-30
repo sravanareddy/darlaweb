@@ -10,6 +10,7 @@ noheadrender = web.template.render('templates/', base='simple')
 req = '<span class="formrequired">*</span> '
 
 record_post = 'Follow the instructions to record yourself reading this passage and save the file. The passage should be read twice as shown.'
+city_post = "Please list the ONE city/town which best answers this question. If it's the Boston area, please give the specific location, such as 'Charlestown', 'Mattapan', 'Lexington', etc."
 
 surveydir = 'surveyparams'
 
@@ -58,7 +59,7 @@ class mturk:
     info['childcity'] = form.Textbox('childcity',
                             form.notnull,
                             description='During ages 0-12, what is the name of the city/town you spent the most time in?'+req,
-                            post='Please list the ONE city/town which best answers this question.')
+                            post=city_post)
     info['childzip'] = form.Textbox('childzip',
                          form.regexp(r'^(\d{5})?$',
                                      'Please enter a valid 5-digit US zip code or leave blank.'),
@@ -73,7 +74,7 @@ class mturk:
     info['teencity'] = form.Textbox('teencity',
                             form.notnull,
                             description='During ages 13-18, what is the name of the city/town you spent the most time in?'+req,
-                            post='Please list the ONE city/town which best answers this question.')
+                            post=city_post)
     info['teenzip'] = form.Textbox('teenzip',
                          form.regexp(r'^(\d{5})?$',
                                      'Please enter a valid 5-digit US zip code or leave blank.'),
@@ -88,7 +89,7 @@ class mturk:
     info['adultcity'] = form.Textbox('adultcity',
                             form.notnull,
                             description='After age 18, what is the name of the city/town you spent the most time in?'+req,
-                            post='Please list the ONE city/town which best answers this question.')
+                            post=city_post)
     info['adultzip'] = form.Textbox('adultzip',
                          form.regexp(r'^(\d{5})?$',
                                      'Please enter a valid 5-digit US zip code or leave blank.'),
