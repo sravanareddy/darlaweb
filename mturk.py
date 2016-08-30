@@ -105,28 +105,31 @@ class mturk:
                          form.notnull,
                          description='Please enter your occupation. If currently unemployed, please enter your most recent occupation.'+req,
                          post='If you are a student, enter the occupation of the primary income source in your household when growing up.')
-    info['consent'] = form.Radio('consent',
-                         [('Yes', 'Yes, you may provide my recordings to the public, such as media releases or online samples.\n'),
-                          ('No', 'No, you may not release my recordings.')],
+    info['consent'] = myform.MyDropdown('consent',
+                         [dropheader,
+                          ('yes', 'Yes, you may provide my recordings to the public when appropropriate'),
+                          ('no', 'No, you may not release my recordings.')],
                          description='<b>Consent for data release:</b> This is a research study about how people talk in this region, and includes survey information and brief audio recordings of your voice. No personally identifiable information about the recordings or surveys will ever be used in this study or released to the public. But since people are often interested in dialects, we may want to provide recordings for the general public, such as media releases or online dialect samples. You have the option to give us permission or to decline. Your choice will not affect your ability to participate in the survey activities.'+req+'<br>')
     submit = myform.MyButton('submit', type='submit', description='Submit')
 
-    valid = [form.Validator('Please select the state where you spent most of ages 0-12.',
+    valid = [form.Validator('Please select the <a href="#childstate">state where you spent most of ages 0-12</a>.',
                                      lambda x: x.childstate!=''),
-             form.Validator('Please select the state where you spent most of ages 13-18.',
+             form.Validator('Please select the <a href="#teenstate">state where you spent most of ages 13-18</a>.',
                                      lambda x: x.teenstate!=''),
-             form.Validator('Please select the state where you spent most of your adulthood after 18.',
+             form.Validator('Please select the <a href="#adultstate">state where you spent most of your adulthood after 18</a>.',
                                      lambda x: x.adultstate!=''),
-             form.Validator('Please select the type of location where you spent most of ages 0-12.',
+             form.Validator('Please select the <a href="#childloc">type of location where you spent most of ages 0-12</a>.',
                                      lambda x: x.childloc!=''),
-             form.Validator('Please select the type of location where you spent most of ages 13-18.',
+             form.Validator('Please select the <a href="#teenloc">type of location where you spent most of ages 13-18</a>.',
                             lambda x: x.teenloc!=''),
-             form.Validator('Please specify your ethnicity.',
+             form.Validator('Please specify <a href="#ethicity">your ethnicity</a>.',
                                      lambda x: x.ethnicity!=''),
-             form.Validator('Please specify your highest education level.',
+             form.Validator('Please specify <a href="#education">your highest education level</a>.',
                         lambda x: x.education!=''),
-             form.Validator('Please specify your gender',
-                        lambda x: x.gender!='')
+             form.Validator('Please specify <a href="#gender">your gender</a>.',
+                        lambda x: x.gender!=''),
+             form.Validator('Please select an option for <a href="#consent">Consent for data release</a>.',
+                            lambda x: x.consent!=''),
              ]
 
     datadir = open('filepaths.txt').readline().split()[1]
