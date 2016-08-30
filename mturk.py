@@ -11,7 +11,9 @@ req = '<span class="formrequired">*</span> '
 
 record_post = 'Follow the instructions to record yourself reading this passage and save the file. The passage should be read twice as shown.'
 
-sentences = [line.strip() for line in open('surveysents.txt').readlines()]
+surveydir = 'surveyparams'
+
+sentences = [line.strip() for line in open(os.path.join(surveydir, 'sents.txt')).readlines()]
 
 recordings = [myform.MyFile('recording',
                           post=record_post,
@@ -20,7 +22,7 @@ recordings = [myform.MyFile('recording',
 
 class mturk:
     dropheader = ('', 'drop down to select')
-    states = json.load(open('us_states.json'))
+    states = json.load(open(os.path.join(surveydir, 'us_states.json')))
 
     ne = set(['CT', 'ME', 'MA', 'NH', 'RI', 'VT'])
     nestates = [(abbrev, full) for (abbrev, full) in states if abbrev in ne]
@@ -30,10 +32,10 @@ class mturk:
     states.insert(0, dropheader)
     states.append(('NotUS', 'Not in the US'))
 
-    ethnicity_data = json.load(open('ethnicity.json'))
+    ethnicity_data = json.load(os.path.join(surveydir, open('ethnicity.json')))
     ethnicity_data.insert(0, dropheader)
 
-    education_data = json.load(open('education.json'))
+    education_data = json.load(os.path.join(surveydir, open('education.json')))
     education_data.insert(0, dropheader)
 
     locations = [dropheader, 'rural', 'suburban', 'urban']
