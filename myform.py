@@ -81,7 +81,7 @@ class MyForm(web.form.Form):
 		out.append('<ul class="list-group">')
 		for i in self.inputs:
 			if not i.is_hidden():
-				out.append('<li class="list-group-item">')
+				out.append('<li id="{0}" class="list-group-item">'.format(i.name))
 				out.append(i.description+' ')
 			out.append(i.render())
 			if not i.is_hidden():
