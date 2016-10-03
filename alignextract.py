@@ -13,43 +13,45 @@ from featrec import align_extract
 render = web.template.render('templates/', base='layout')
 
 if celeryon:
-	from celery import group
+    from celery import group
 
 urls = {
-	 '/?', 'alignextract'
-	 }
+     '/?', 'alignextract'
+     }
 
 class alignextract:
-	def GET(self):
-		return render.error("That is not a valid link.", "semi")
+    def GET(self):
+        return render.error("That is not a valid link.", "semi")
 
-	def POST(self):
-		datadir = open('filepaths.txt').readline().split()[1]
-		post_list = web.data().split("&")
-		parameters = {}
+    def POST(self):
+        filepaths = utilities.read_filepaths()
+        datadir = filepaths['DATA']
+        appdir = filepaths['APPDIR']
+        post_list = web.data().split("&")
+        parameters = {}
 
-		for form_input in post_list:
-			split = form_input.split("=")
-			parameters[split[0]] = split[1]
+        for form_input in post_list:
+            split = form_input.split("=")
+            parameters[split[0]] = split[1]
 
-		taskname = parameters["taskname"]
+        taskname = parameters["taskname"]
                 
-		filename = parameters["filename"]
-		if filename=='ytvideo.wav':
-			filename='ytvideo'
+        filename = parameters["filename"]
+        if filename=='ytvideo.wav':
+            filename='ytvideo'
 
-		try:
-			utilities.write_speaker_info(os.path.join(datadir, taskname+'.speaker'), parameters["name"], parameters["sex"])
-		except IOError:
-			return render.error("Error creating a job for {0}.".format(filename), "index.html")
+        try:
+            utilities.write_speaker_info(os.path.join(datadir, taskname+'.speaker'), parameters["name"], parameters["sex"])
+        except IOError:
+            return render.error("Error creating a job for {0}.".format(filename), "index.html")
 
-		if celeryon:
-			result = align_extract.delay(os.path.join(datadir, taskname))
-			while not result.ready():
-				pass
-		else:
-			align_extract(os.path.join(datadir, taskname))
+        if celeryon:
+            result = align_extract.delay(os.path.join(datadir, taskname), appdir)
+            while not result.ready():
+                pass
+        else:
+            align_extract(os.path.join(datadir, taskname), appdir)
 
-		return render.success('')
+        return render.success('')
 
 app_alignextract = web.application(urls, locals())

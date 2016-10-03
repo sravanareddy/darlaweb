@@ -3,6 +3,7 @@
 taskname=$1
 hmm=$2
 task=$3
+appdir=$4
 
 dot="$(cd "$(dirname "$0")"; pwd)"
 favedir=$dot'/FAVE-extract'
@@ -37,9 +38,9 @@ fi
 
 #get alignments (uploadsound, uploadboundtrans, uploadtxttrans, asredit)
 if [ $task == 'asr' ] || [ $task == 'boundalign' ] || [ $task == 'txtalign' ] || [ $task == 'asredit' ]; then
-    export PYTHONPATH=/home/darla/applications/Prosodylab-Aligner
-    /usr/bin/python3 -m aligner -r $hmm -d $stressdict -a $taskname.wavlab
-    echo "aligned"
+    export PYTHONPATH=$appdir'Prosodylab-Aligner'
+    echo '-r ' $hmm '-d ' $stressdict '-a ' $taskname.wavlab
+    python3 -m aligner -r $hmm -d $stressdict -a $taskname.wavlab
 fi
 
 #merge chunked textgrids (uploadsound, uploadboundtrans)
@@ -58,6 +59,8 @@ fi
  
 #run FAVE-extract
 python $favedir/bin/extractFormants.py --means=$favedir/means.txt --covariances=$favedir/covs.txt --phoneset=$favedir/cmu_phoneset.txt --speaker=$taskname.speaker $taskname.audio/converted_*.wav $taskname.merged.TextGrid $taskname.aggvowels &> $taskname.errors;
-
+echo $?
+echo $favedir
+echo "python"
 #plot
 Rscript plot_vowels.r $taskname.aggvowels_formants.csv $taskname.fornorm.tsv $taskname.plot.pdf

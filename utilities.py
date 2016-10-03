@@ -538,7 +538,7 @@ def process_audio(audiodir, filename, extension, filecontent, dochunk):
         extension = '.wav'
 
     #split and convert frequency
-    samprate, filesize, chunks, soxerror = soxConversion(filename+extension, audiodir, dochunk)
+    samprate, filesize, chunks, soxerror = sox_conversion(filename+extension, audiodir, dochunk)
     return samprate, filesize, chunks, soxerror
 
 def youtube_wav(url,audiodir, taskname):
@@ -557,7 +557,7 @@ def write_speaker_info(speakerfile, name, sex):
             name = 'speakername'  # defaults
         o.write('--name='+name+'\n--sex='+sex+'\n')
 
-def soxConversion(filename, audiodir, dochunk=None):
+def sox_conversion(filename, audiodir, dochunk=None):
     sample_rate = 0
     file_size = 0.0
     args = "sox --i "+os.path.join(audiodir, filename)
@@ -641,6 +641,8 @@ def soxConversion(filename, audiodir, dochunk=None):
     return sample_rate, file_size, chunks, ""
 
 def gen_argfiles(datadir, taskname, uploadfilename, task, email, samprate=None, lw=None, dialect=None):
+    filepaths = read_filepaths()
+    acoustic_dir = (filepaths['ACOUSTICMODELS']);
     """create ctl files if applicable"""
     if task=='asr':
         filelist = map(lambda filename: filename[:-4],
@@ -691,11 +693,11 @@ def gen_argfiles(datadir, taskname, uploadfilename, task, email, samprate=None, 
         """recognition"""
         options = {}
         if samprate==8000:
-            hmm = '/home/darla/acousticmodels/sphinx-8'
+            hmm = acoustic_dir + 'sphinx-8'
             options.update({'nfilt': '20',
                             'upperf': '3500'})
         else:
-            hmm = '/home/darla/acousticmodels/sphinx-16'
+            hmm = acoustic_dir + 'sphinx-16'
             options.update({'nfilt': '25',
                             'upperf': '6800'})
 
@@ -704,7 +706,7 @@ def gen_argfiles(datadir, taskname, uploadfilename, task, email, samprate=None, 
                         'dict': 'cmudict.nostress.txt',
                         'fdict': os.path.join(hmm, 'noisedict'),
                         'hmm': hmm,
-                        'lm': '/home/darla/languagemodels/en-us.lm.dmp',
+                        'lm': filepaths['LM'],
                         'lw': str(lw),
                         'samprate': str(samprate),
                         'bestpath': 'no',
@@ -729,9 +731,9 @@ def gen_argfiles(datadir, taskname, uploadfilename, task, email, samprate=None, 
     o = open(os.path.join(datadir, taskname+'.alext_args'), 'w')
     o.write(uploadfilename+' ')
     if samprate==8000:
-        o.write('/home/darla/acousticmodels/htkpenn8kplp ')
+        o.write(acoustic_dir + 'htkpenn8kplp ')
     else:
-        o.write('/home/darla/acousticmodels/htkpenn16kplp ')
+        o.write(acoustic_dir + 'htkpenn16kplp ')
 
     o.write(email+' ')
     o.write(task+'\n')
