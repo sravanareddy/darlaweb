@@ -97820,7 +97820,7 @@ saylor  S EY1 L ER0
 saylors  S EY1 L ER0 Z
 sayre  S EH1 R
 sayres  S EH1 R Z
-says  S IH1 Z
+says  S EH1 Z
 sayyid  S AY1 IH0 D
 sazama  S AA0 Z AA1 M AH0
 sbarro  S B AA1 R OW0
