@@ -1,0 +1,26 @@
+$def with (form)
+
+<div class="container">
+
+<h2>Completely Automated Vowel Extraction with Transcriptions from Google Speech API</h2><p><p>
+
+<p class="lead">Upload your audio file to get automated
+  ASR from Google, followed by automated alignment and extraction.
+ <p>
+
+<a href="uploadyt"><small>Click here at any time to cancel or start over.</small></a><p>
+
+<form name="uploadyt" method="post" enctype="multipart/form-data" onsubmit="progress()"> 
+  $if not form.valid: <p class="alert alert-danger">Correct the errors below.</p>
+  $:form.render()
+</form>
+
+  <div id="loading" style="display: none;">
+	  <span class="note">Task processing. You may now close this window and we will email you the results.</span>
+	<img src="/static/images/ajax-loader.gif"></img>
+	</div>
+	
+	<br>
+
+</div>
+

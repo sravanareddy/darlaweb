@@ -239,7 +239,7 @@ class googlespeech:
                                                                                  x.uploadfile.file.read(),
                                                                                  dochunk=50)
                 service = self.get_speech_service()
-                total = ""
+                total_msg = []
 
                 # TODO: chunks are just the intervals. need to get the actual files 
                 for ci, chunk in enumerate(chunks): 
@@ -262,9 +262,11 @@ class googlespeech:
                             }
                         })
                     response = service_request.execute()
-                    print(json.dumps(response, indent=4))
+                    sentences = "".join(map(lambda x: x['alternatives'][0]['transcript'], response['results']))
+                    total_msg.append(sentences)
 
-                return render.success(audiodir)
+
+                return render.success(" ".join(total_msg))
 
 
 
