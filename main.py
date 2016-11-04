@@ -16,11 +16,17 @@ import asredit
 import time
 import srt_to_textgrid
 import json
+import base64
 from mturk import mturk, mturksubmit
+#google 
+from googleapiclient import discovery
+import httplib2
+from oauth2client.client import GoogleCredentials
+# [END import_libraries]
 
 render = web.template.render('templates/', base='layout')
 
-urls = ('/', 'index', '/index', 'index', '/cite', 'cite', '/about', 'about', '/cave', 'cave', '/semi', 'semi', '/mturk', 'mturk', '/mturksubmit', 'mturksubmit', '/uploadsound', 'uploadsound', '/uploadtxttrans', 'uploadtxttrans', '/uploadboundtrans', 'uploadboundtrans', '/uploadtextgrid', 'uploadtextgrid', '/allpipeline', allpipeline.app_allpipeline, '/extract', extract.app_extract, '/alignextract', alignextract.app_alignextract, '/uploadeval', 'uploadeval', '/asredit', asredit.app_asredit, '/uploadyt', 'uploadyt', '/downloadsrttrans', 'downloadsrttrans')
+urls = ('/', 'index', '/index', 'index', '/cite', 'cite', '/about', 'about', '/cave', 'cave', '/semi', 'semi', '/mturk', 'mturk', '/mturksubmit', 'mturksubmit', '/uploadsound', 'uploadsound', '/uploadtxttrans', 'uploadtxttrans', '/uploadboundtrans', 'uploadboundtrans', '/uploadtextgrid', 'uploadtextgrid', '/allpipeline', allpipeline.app_allpipeline, '/extract', extract.app_extract, '/alignextract', alignextract.app_alignextract, '/uploadeval', 'uploadeval', '/asredit', asredit.app_asredit, '/uploadyt', 'uploadyt', '/googlespeech', 'googlespeech', '/downloadsrttrans', 'downloadsrttrans')
 
 app = web.application(urls, globals())
 web.config.debug = True
@@ -92,7 +98,7 @@ class uploadsound:
     soundvalid = [form.Validator('Please upload a file or enter a video link (but not both).',
                                  lambda x: (x.filelink!='' or x.uploadfile) and not (x.uploadfile and x.filelink!=''))]
 
-    datadir = open('filepaths.txt').readline().split()[1]
+    datadir = utilities.read_filepaths()['DATA']
 
     def GET(self):
         self.dialect.value = 'standard'
@@ -126,13 +132,14 @@ class uploadsound:
 
             form.taskname.value = taskname
 
+            # if youtube link filled
             if x.filelink!="":
                 filename, error = utilities.youtube_wav(x.filelink, audiodir, taskname)
                 if error!="":
                     form.note = error
                     return render.speakerssound(form, "")
 
-                samprate, total_size, chunks, error = utilities.soxConversion(filename,
+                samprate, total_size, chunks, error = utilities.sox_conversion(filename,
                                                                               audiodir, dochunk=20)
                 if error!="":
                     form.note = error
@@ -142,6 +149,7 @@ class uploadsound:
 
                 utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+'.chunks'))
 
+            # else uploaded file 
             elif 'uploadfile' in x:
 
                 #sanitize filename
@@ -174,6 +182,101 @@ class uploadsound:
             speakers = speaker_form(filename, form.taskname.value)
             return render.speakerssound(form, speakers)
 
+class googlespeech:
+    datadir = utilities.read_filepaths()['DATA']
+    # [START authenticating]
+    DISCOVERY_URL = ('https://{api}.googleapis.com/$discovery/rest?'
+                     'version={apiVersion}')
+    uploadfile = myform.MyFile('uploadfile',
+                               post='Your uploaded file is stored temporarily on the Dartmouth servers in order to process your job, and deleted after.',
+                               description='Your .wav or .mp3 file:')
+    email = form.Textbox('email',
+                         form.notnull,
+                         form.regexp(r'^[\w.+-]+@[\w.+-]+\.[\w.+-]+$',
+                                     'Please enter a valid email address'),
+                                     post='We will not store or distribute your address.',
+                                     description='Your e-mail address:')
+    taskname = form.Hidden('taskname')
+    submit = form.Button('submit', type='submit', description='Submit')
+    soundvalid = [form.Validator('Please upload a sound file.',
+                                 lambda x:x.uploadfile)]
+    # Application default credentials provided by env variable
+    # GOOGLE_APPLICATION_CREDENTIALS
+    def get_speech_service(self):
+        credentials = GoogleCredentials.get_application_default().create_scoped(
+            ['https://www.googleapis.com/auth/cloud-platform'])
+        http = httplib2.Http()
+        credentials.authorize(http)
+
+        return discovery.build(
+            'speech', 'v1beta1', http=http, discoveryServiceUrl=self.DISCOVERY_URL)
+
+    def GET(self):
+        googlespeech = myform.MyForm(self.uploadfile, self.email, self.taskname, self.submit)
+        form = googlespeech()
+        return render.googlespeech(form)
+
+    def POST(self):
+        googlespeech = myform.MyForm(self.uploadfile, self.email, self.taskname, self.submit)
+        form = googlespeech()
+        x = web.input(uploadfile={})
+
+        #sanitize filename
+        filename, extension = utilities.get_basename(x.uploadfile.filename)
+        if extension not in ['.wav', '.mp3']:
+            form.note = "Please upload a .wav or .mp3 file."
+            return render.speakersyt(form)
+        else:
+            with x.uploadfile.file as speech:
+            # Base64 encode the binary audio file for inclusion in the JSON
+            # request.
+                # split into minute chunks
+                taskname, audiodir, error = utilities.make_task(self.datadir)
+                filename, extension = utilities.get_basename(x.uploadfile.filename)
+                samprate, total_size, chunks, error = utilities.process_audio(audiodir,
+                                                                                 filename,
+                                                                                 extension,
+                                                                                 x.uploadfile.file.read(),
+                                                                                 dochunk=50)
+                service = self.get_speech_service()
+                total = ""
+
+                # TODO: chunks are just the intervals. need to get the actual files 
+                for ci, chunk in enumerate(chunks): 
+                    # get the file and read it in 
+
+                    chunk_file = open(os.path.join(audiodir,'splits',filename+'.split{0:03d}.wav'.format(ci+1)))
+                    speech_content = base64.b64encode(chunk_file.read())
+                    service_request = service.speech().syncrecognize(
+                    body={
+                        'config': {
+                            # There are a bunch of config options you can specify. See
+                            # https://goo.gl/KPZn97 for the full list.
+                            'encoding': 'LINEAR16',  # raw 16-bit signed LE samples
+                            'sampleRate': 16000,  # 16 khz
+                            # See https://goo.gl/A9KJ1A for a list of supported languages.
+                            'languageCode': 'en-US',  # a BCP-47 language tag
+                        },
+                        'audio': {
+                            'content': speech_content.decode('UTF-8')
+                            }
+                        })
+                    response = service_request.execute()
+                    print(json.dumps(response, indent=4))
+
+                return render.success(audiodir)
+
+
+
+                # speech_content = base64.b64encode(speech.read())
+
+                
+                # # [END construct_request]
+                # # [START send_request]
+                # response = service_request.execute()
+                # print(json.dumps(response))
+                # return render.success(json.dumps(response))
+
 class uploadyt:
 
     uploadfile = myform.MyFile('uploadfile',
@@ -190,7 +293,7 @@ class uploadyt:
     soundvalid = [form.Validator('Please upload a sound file.',
                                  lambda x:x.uploadfile)]
 
-    datadir = open('filepaths.txt').readline().split()[1]
+    datadir = utilities.read_filepaths()['DATA']
 
     def GET(self):
         uploadyt = myform.MyForm(self.uploadfile, self.email, self.taskname, self.submit)
@@ -404,7 +507,7 @@ class uploadtxttrans:
             if error!="":
                 form.note = error
                 return render.speakerttxttrans(form, "")
-            samprate, total_size, chunks, error = utilities.soxConversion(filename, audiodir, dochunk=None)
+            samprate, total_size, chunks, error = utilities.sox_conversion(filename, audiodir, dochunk=None)
             if error!="":
                 form.note = error
                 return render.speakerstxttrans(form, "")
@@ -514,7 +617,7 @@ class uploadboundtrans:
                 form.note = error
                 return render.speakersboundtrans(form, "")
 
-            samprate, total_size, chunks, error = utilities.soxConversion(filename, audiodir, dochunk=chunks)
+            samprate, total_size, chunks, error = utilities.sox_conversion(filename, audiodir, dochunk=chunks)
             if error!="":
                 form.note = error
                 return render.speakersboundtrans(form, "")
@@ -621,7 +724,7 @@ class uploadtextgrid:
             form.taskname.value = taskname
 
             filename = utilities.youtube_wav(x.filelink, audiodir, taskname)
-            samprate, total_size, chunks, error = utilities.soxConversion(filename, audiodir, dochunk=None)
+            samprate, total_size, chunks, error = utilities.sox_conversion(filename, audiodir, dochunk=None)
             if error!="":
                 form.note = error
                 return render.speakerstextgrid(form, "")

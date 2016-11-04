@@ -530,10 +530,10 @@ def process_audio(audiodir, filename, extension, filecontent, dochunk):
         o.close()
 
     if extension == '.mp3':
-        # print 'converting', os.path.join(audiodir, filename+extension)  #TODO: try and except here
-        os.system("mpg123 "+"-w "+os.path.join(audiodir, filename+'.wav')+' '+os.path.join(audiodir, filename+extension))
-        #audio = subprocess.Popen(shlex.split("mpg123 "+"-w "+os.path.join(audiodir, filename+'.wav')+' '+os.path.join(audiodir, filename+extension)), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
-        #retval = audio.wait()
+        print 'converting mp3 to wav', os.path.join(audiodir, filename+extension)  #TODO: try and except here
+        #os.system("mpg123 "+"-w "+os.path.join(audiodir, filename+'.wav')+' '+os.path.join(audiodir, filename+extension))
+        audio = subprocess.Popen(shlex.split("mpg123 "+"-w "+os.path.join(audiodir, filename+'.wav')+' '+os.path.join(audiodir, filename+extension)), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+        retval = audio.wait()
 
         extension = '.wav'
 
@@ -557,14 +557,15 @@ def write_speaker_info(speakerfile, name, sex):
             name = 'speakername'  # defaults
         o.write('--name='+name+'\n--sex='+sex+'\n')
 
+def sox_info(filename, audiodir):
+    args = "sox --i "+os.path.join(audiodir, filename)
+    sox = subprocess.Popen(shlex.split(args), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    return [sox.wait(), sox]
+
 def sox_conversion(filename, audiodir, dochunk=None):
     sample_rate = 0
     file_size = 0.0
-    args = "sox --i "+os.path.join(audiodir, filename)
-    sox = subprocess.Popen(shlex.split(args), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    #print "I AM HERE"
-    #print sox.stdout.readlines()
-    retval = sox.wait()
+    [retval, sox] = sox_info(filename, audiodir)
 
     if retval != 0:
         error_message = 'Could not process your audio file. Please check that the file is valid and not blank.'
@@ -581,7 +582,7 @@ def sox_conversion(filename, audiodir, dochunk=None):
             m = re.search("(=\s)(.*)(\ssamples)", line)
             file_size = float(m.group(2))
             file_size = file_size / sample_rate #gets duration, in seconds of the file.
-            file_size /= 60.0
+            file_size /= 60.0 # gets in minutes.l 
 
     #converts wav file to 16000kHz sampling rate if sampling rate is more than
     if sample_rate >= 16000:
@@ -617,8 +618,8 @@ def sox_conversion(filename, audiodir, dochunk=None):
 
         basename, _ = os.path.splitext(filename)
 
-        if type(dochunk) is int:
-            chunks = map(lambda i: (i, i+20), range(0, int(file_size*60), 20))
+        if type(dochunk) is int: # group 2 dochunk (s) intervals
+            chunks = map(lambda i: (i, i+dochunk), range(0, int(file_size*60), dochunk))
 
             conv = subprocess.Popen(['sox', os.path.join(audiodir, 'converted_'+filename), os.path.join(audiodir, 'splits', basename+'.split.wav'), 'trim', '0', str(dochunk), ':', 'newfile', ':', 'restart'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             retval = conv.wait()
@@ -629,7 +630,7 @@ def sox_conversion(filename, audiodir, dochunk=None):
                 convrm = subprocess.Popen(['rm', os.path.join(audiodir, 'splits', basename+'.split{0:03d}.wav'.format(len(chunks)))])
                 convrm.wait()
 
-        elif type(dochunk) is list:
+        elif type(dochunk) is list: # is a list of tuples
             chunks = dochunk
             for ci, chunk in enumerate(dochunk):
                 conv = subprocess.Popen(['sox', os.path.join(audiodir, 'converted_'+filename), os.path.join(audiodir, 'splits', basename+'.split{0:03d}.wav'.format(ci+1)), 'trim', str(chunk[0]), str(chunk[1]-chunk[0])], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)

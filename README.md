@@ -6,11 +6,15 @@ pip install web.py inflect git+http://github.com/kylebgorman/textgrid.git celery
 ```
 You also must install
 
+- mpg123 for converting mp3 -> wav files 
+https://sourceforge.net/projects/mpg123/files/mpg123/
+
 - python3 if you don't have it (and `python3 -m pip install pyyaml numpy scipy TextGrid`)
 
 - HTK tools: [http://htk.eng.cam.ac.uk/download.shtml](http://htk.eng.cam.ac.uk/download.shtml)
 
 	- note: if you are having trouble installing this and there is a problem with X11, use `configure --without-x --disable-hslab` so you don't need X11 (for graphing)
+- R: [https://cran.cnr.berkeley.edu/](https://cran.cnr.berkeley.edu/)
 
 -  gdata and all its dependencies here:
 [https://github.com/google/gdata-python-client](https://github.com/google/gdata-python-client)  
@@ -22,10 +26,7 @@ You also must install
 - sphinxbase and pocketsphinx: 
 [sphinxbase](https://sourceforge.net/projects/cmusphinx/files/sphinxbase/5prealpha/), [pocketsphinx](https://sourceforge.net/projects/cmusphinx/files/pocketsphinx/5prealpha/)
 	- read [this](http://cmusphinx.sourceforge.net/wiki/tutorialpocketsphinx) on how to download them:
-- [praat](http://www.fon.hum.uva.nl/praat/):
-	- if mac, download then connect `ln -s  /Applications/Praat.app/Contents/MacOS/Praat /usr/local/bin/praat`
-- R: 
-	- you need to run: `install.packages("vowels")`
+
 
 
 ## Configure and run on your computer
