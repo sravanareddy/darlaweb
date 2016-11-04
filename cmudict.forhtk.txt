@@ -91041,7 +91041,7 @@ reallocated  R IY2 AE1 L AH0 K EY2 T IH0 D
 reallocating  R IY0 AE1 L AH0 K EY2 T IH0 NG
 reallocation  R IY0 AE2 L AH0 K EY1 SH AH0 N
 reallowance  R IY1 AH0 L AW1 AH0 N S
-really  R IY1 L IY0
+really  R IH1 L IY0
 realm  R EH1 L M
 realms  R EH1 L M Z
 realmuto  R AH0 L M UW1 T OW0
@@ -97820,7 +97820,7 @@ saylor  S EY1 L ER0
 saylors  S EY1 L ER0 Z
 sayre  S EH1 R
 sayres  S EH1 R Z
-says  S IH1 Z
+says  S EH1 Z
 sayyid  S AY1 IH0 D
 sazama  S AA0 Z AA1 M AH0
 sbarro  S B AA1 R OW0
