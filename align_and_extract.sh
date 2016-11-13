@@ -10,6 +10,7 @@ dot="$(cd "$(dirname "$0")"; pwd)"
 favedir=$dot'/FAVE-extract'
 
 stressdict='cmudict.forhtk.txt'
+stopwords='stopwords.txt'
 
 #convert ASR hypotheses to PL aligner .lab files
 if [ $task == 'asr' ]; then
@@ -60,7 +61,7 @@ fi
  
 #run FAVE-extract
 if [ $delstopwords == 'Y' ]; then
-    python $favedir/bin/extractFormants.py --means=$favedir/means.txt --covariances=$favedir/covs.txt --phoneset=$favedir/cmu_phoneset.txt --speaker=$taskname.speaker --removeStopWords $taskname.audio/converted_*.wav $taskname.merged.TextGrid $taskname.aggvowels &> $taskname.errors;
+    python $favedir/bin/extractFormants.py --means=$favedir/means.txt --covariances=$favedir/covs.txt --phoneset=$favedir/cmu_phoneset.txt --speaker=$taskname.speaker --removeStopWords --stopWordsFile=$stopwords $taskname.audio/converted_*.wav $taskname.merged.TextGrid $taskname.aggvowels &> $taskname.errors;
 else
    python $favedir/bin/extractFormants.py --means=$favedir/means.txt --covaria\
 nces=$favedir/covs.txt --phoneset=$favedir/cmu_phoneset.txt --speaker=$taskname.speaker $taskname.audio/converted_*.wav $taskname.merged.TextGrid $taskname.aggvowels &> $taskname.errors;

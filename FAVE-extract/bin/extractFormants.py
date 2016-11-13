@@ -1765,13 +1765,11 @@ def setup_parser():
                         help="Do a second pass is performed on the data, using the speaker's own system as the base of comparison for the Mahalanobis distance")
     parser.add_argument("--removeStopWords", action="store_true",
                         help="Don't measure vowels in stop words." )
+    parser.add_argument("--stopWordsFile", help="list of stop words to ignore")
     parser.add_argument("--speechSoftware", choices = ['praat', 'Praat', 'esps', 'ESPS'], default = "Praat",
                         help="The speech software program to be used for LPC analysis.")
     parser.add_argument("--speaker",  "-s",
                         help = "*.speaker file, if used")
-    parser.add_argument("--stopWordsFile",
-                        default = 'functionwords.txt',
-                        help = "file containing words to exclude from analysis")
     parser.add_argument("--tracks", action="store_true",
                         help = "Write full formant tracks.")
     parser.add_argument("--vowelSystem", choices = ['phila', 'Phila', 'PHILA', 'NorthAmerican', 'simplifiedARPABET'],
@@ -2037,10 +2035,9 @@ def extractFormants(wavInput, tgInput, output, opts, SPATH='', PPATH=''):
     meansFile = opts.means
     covsFile = opts.covariances
     phonesetFile = opts.phoneset
-    stopWordsFile = opts.stopWordsFile
-
-    if stopWordsFile:
-        opts.stopWords = parseStopWordsFile(stopWordsFile)
+    
+    if opts.stopWordsFile:
+        opts.stopWords = parseStopWordsFile(opts.stopWordsFile)
 
     # assign the options to individual variables and to type conversion if
     # necessary

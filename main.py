@@ -28,7 +28,27 @@ from oauth2client.client import GoogleCredentials
 
 render = web.template.render('templates/', base='layout')
 
-urls = ('/', 'index', '/index', 'index', '/cite', 'cite', '/about', 'about', '/cave', 'cave', '/semi', 'semi', '/mturk', 'mturk', '/mturksubmit', 'mturksubmit', '/uploadsound', 'uploadsound', '/uploadtxttrans', 'uploadtxttrans', '/uploadboundtrans', 'uploadboundtrans', '/uploadtextgrid', 'uploadtextgrid', '/allpipeline', allpipeline.app_allpipeline, '/extract', extract.app_extract, '/alignextract', alignextract.app_alignextract, '/uploadeval', 'uploadeval', '/asredit', asredit.app_asredit, '/uploadyt', 'uploadyt', '/googlespeech', 'googlespeech', '/downloadsrttrans', 'downloadsrttrans')
+urls = ('/', 'index',
+        '/index', 'index',
+        '/cite', 'cite',
+        '/about', 'about',
+        '/cave', 'cave',
+        '/semi', 'semi',
+        '/mturk', 'mturk',
+        '/stopwords', 'stopwords',
+        '/mturksubmit', 'mturksubmit',
+        '/uploadsound', 'uploadsound',
+        '/uploadtxttrans', 'uploadtxttrans',
+        '/uploadboundtrans', 'uploadboundtrans',
+        '/uploadtextgrid', 'uploadtextgrid',
+        '/allpipeline', allpipeline.app_allpipeline,
+        '/extract', extract.app_extract,
+        '/alignextract', alignextract.app_alignextract,
+        '/uploadeval', 'uploadeval',
+        '/asredit', asredit.app_asredit,
+        '/uploadyt', 'uploadyt',
+        '/googlespeech', 'googlespeech',
+        '/downloadsrttrans', 'downloadsrttrans')
 
 app = web.application(urls, globals())
 web.config.debug = True
@@ -55,6 +75,10 @@ class semi:
     def GET(self):
         return render.semi()
 
+class stopwords:
+    def GET(self):
+        return render.stopwords(', '.join(open('stopwords.txt').read().split()))
+
 def make_uploadfile():
     return myform.MyFile('uploadfile',
                        post='Longer recordings (of at least {0} minutes) are recommended. Your uploaded files are stored temporarily on the Dartmouth servers in order to process your job, and deleted after.'.format(MINDURATION),
@@ -78,7 +102,8 @@ def make_delstopwords():
     f = myform.MyRadio('delstopwords',
                                      [('Y', 'Yes ', 'Y'),
                                       ('N', 'No ', 'N')],
-                                     description='Filter out stop-words? ')
+                                     description='Filter out stop-words? ',
+                                     post='<a href="stopwords" target="_blank">This is the list</a> of stop-words we remove. (Link opens in a new tab.)')
     f.value = 'Y'  # default
     return f
 
@@ -111,7 +136,7 @@ class uploadsound:
                                  lambda x: (x.filelink!='' or x.uploadfile) and not (x.uploadfile and x.filelink!=''))]
 
     datadir = utilities.read_filepaths()['DATA']
-    
+
     def GET(self):
         uploadsound = myform.MyForm(self.uploadfile,
                                     self.filelink,
