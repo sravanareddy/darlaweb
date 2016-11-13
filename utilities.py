@@ -14,6 +14,7 @@ import shlex
 import re
 import smtplib
 import sys
+import json
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
@@ -45,10 +46,6 @@ def read_textupload(data):
             except:
                 pass
     return
-
-def read_filepaths():
-    """get data from filepaths.txt ans return dictionary. Assumes it is in the correct format!"""
-    return dict(map(lambda line: tuple(line.split()), open('filepaths.txt').readlines()))
 
 def parse_web_params(source):
     post_list = source.split("&")
@@ -252,6 +249,9 @@ def send_error_email(receiver, filename, message, first):
 def read_prdict(dictfile):
     spam = map(lambda line: line.split(), open(dictfile).readlines())
     return dict(map(lambda line: (line[0], line[1:]), spam))
+
+def read_filepaths():
+    return json.load(open('filepaths.json'))
 
 def g2p(taskname, transwords, cmudictfile):
     """Predict pronunciations of words not in dictionary and add"""
@@ -462,7 +462,7 @@ def get_entry_id(url):
         return str(url).split('/')[-2][:-1]
 
 def upload_youtube(taskname, videofile):
-        passfile = open('filepaths.txt').readlines()[1].split()[1]
+        passfile = ).readlines()[1].split()[1]
 
         try:
                 yt_service = gdata.youtube.service.YouTubeService()
@@ -493,11 +493,10 @@ def upload_youtube(taskname, videofile):
                 return 0, "Failed to upload to YouTube. Check your file and try again. If you tried uploading the same or similar file recently, YouTube's spam detector probably rejected your upload."
 
 def download_youtube(audiodir, filename, video_id):
-        passfile = open('filepaths.txt').readlines()[1].split()[1]
+        password = open(read_filepaths()['PASSWORD']).read().strip()
 
         try:
                 email = 'darla.dartmouth@gmail.com'
-                password = open(passfile).read().strip()
                 dl = subprocess.Popen(shlex.split('youtube-dl --write-auto-sub --skip-download https://www.youtube.com/watch?v='+str(video_id)+' -u '+email+' -p '+password+' -o '+os.path.join(audiodir, filename+'.srt')), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 r = dl.wait()
 
@@ -729,15 +728,14 @@ def gen_argfiles(datadir, taskname, uploadfilename, task, email, samprate=None, 
         o.close()
 
     """Align and extract"""
-    o = open(os.path.join(datadir, taskname+'.alext_args'), 'w')
-    o.write(uploadfilename+' ')
+    alext_args = {'filename': uploadfilename,
+                  'email': email,
+                  'tasktype': task,
+                  'delstopwords': delstopwords}
     if samprate==8000:
-        o.write(acoustic_dir + 'htkpenn8kplp ')
+        alext_args['hmm'] = os.path.join(acoustic_dir, 'htkpenn8kplp')
     else:
-        o.write(acoustic_dir + 'htkpenn16kplp ')
-
-    o.write(email+' ')
-    o.write(task+' ')
-    o.write(delstopwords+' ')
-    o.close()
+        alext_args['hmm'] = os.path.join(acoustic_dir, 'htkpenn16kplp')
+    with open(os.path.join(datadir, taskname+'.alext_args'), 'w') as o:
+        json.dump(alext_args, o)
     return

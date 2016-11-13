@@ -14,6 +14,7 @@ import shutil
 from featrec import align_extract
 import string
 import inflect
+import json
 
 if celeryon:
         from celery import group
@@ -25,7 +26,9 @@ urls = {
 	 }
 
 class asredit:
-        datadir = open('filepaths.txt').readline().split()[1]
+        filepaths = utilities.read_filepaths() 
+        datadir = filepaths['DATA']
+        appdir = filepaths['APPDIR']
 	def GET(self):
                 taskname = web.input()['taskname']
                 #copy sound files to public
@@ -79,18 +82,18 @@ class asredit:
                         if os.path.exists(os.path.join(self.datadir, taskname+'.wavlab', wavfile[:-4]+'.TextGrid')):
                                 os.remove(os.path.join(self.datadir, taskname+'.wavlab', wavfile[:-4]+'.TextGrid'))
                 #change task type
-                filename, hmm, email, _ = open(os.path.join(self.datadir, taskname+'.alext_args')).read().split()
-                o = open(os.path.join(self.datadir, taskname+'.alext_args'), 'w')
-                o.write(filename+' '+hmm+' '+email+' asredit')
-                o.close()
+                alext_args = json.load(open(os.path.join(self.datadir, taskname+'.alext_args')))
+                alext_args['tasktype'] = 'asredit'
+                with open(os.path.join(self.datadir, taskname+'.alext_args'), 'w') as o:
+                        json.dump(alext_args, o)
                 
                 #now re-run alignment and extraction
                 if celeryon:
-                        result = align_extract.delay(os.path.join(self.datadir, taskname))
+                        result = align_extract.delay(os.path.join(self.datadir, taskname), appdir)
                         while not result.ready():
                                 pass
                 else:
-                        align_extract(os.path.join(self.datadir, taskname))
+                        align_extract(os.path.join(self.datadir, taskname), appdir)
                 return render.success('')
             
 app_asredit = web.application(urls, locals())

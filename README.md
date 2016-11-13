@@ -33,15 +33,16 @@ https://sourceforge.net/projects/mpg123/files/mpg123/
 
 On Mac OS, execute main.py and preview in `http://localhost:8080/`
 
-For cross-computer compatibility, create a file named `filepaths.txt` containing three lines as follows:
+For cross-computer compatibility, create a file named `filepaths.json` containing a dictionary as a json file as follows:
 
 ```
-DATA /absolute/path/to/directory/where/user/uploads/will/be/stored/and/processed
-PASSWORD /absolute/path/to/text/file/containing/the/GMail/password
-URLBASE http://base.url.on.this.machine
+{'DATA': /absolute/path/to/directory/where/user/uploads/will/be/stored/and/processed,
+'PASSWORD': /absolute/path/to/text/file/containing/the/GMail/password,
+'URLBASE': http://base.url.on.this.machine,
+'APPDIR': /absolute/path/to/directory/with/applications/}
 ```
 
-Do *not* push `filepaths.txt` to the repo, since it is dependent on the local environment.
+Do *not* push `filepaths.json` to the repo, since it is dependent on the local environment.
 
 ## Restarting Lighttpd
 

@@ -109,7 +109,7 @@ class uploadsound:
                                  lambda x: (x.filelink!='' or x.uploadfile) and not (x.uploadfile and x.filelink!=''))]
 
     datadir = utilities.read_filepaths()['DATA']
-
+    
     def GET(self):
         uploadsound = myform.MyForm(self.uploadfile,
                                     self.filelink,
@@ -369,7 +369,7 @@ class downloadsrttrans:
     soundvalid = [form.Validator('Please enter a taskname and video ID to continue with your job',
                   lambda x: (x.taskname!='' and x.video_id!=''))]
 
-    datadir = open('filepaths.txt').readline().split()[1]
+    datadir = utilities.read_filepaths()['DATA']
 
     def GET(self):
         downloadsrttrans = myform.MyForm(self.taskname,
@@ -444,7 +444,7 @@ class uploadtxttrans:
     soundvalid = [form.Validator('Please upload a file or enter a video link (but not both).',
                                  lambda x: (x.filelink!='' or x.uploadfile) and not (x.uploadfile and x.filelink!=''))]
 
-    datadir = open('filepaths.txt').readline().split()[1]
+    datadir = utilities.read_filepaths()['DATA']
 
     def GET(self):
         uploadtxttrans = myform.MyForm(self.uploadfile,
@@ -539,7 +539,7 @@ class uploadboundtrans:
     soundvalid = [form.Validator('Please upload a file or enter a video link (but not both).',
                                  lambda x: (x.filelink!='' or x.uploadfile) and not (x.uploadfile and x.filelink!=''))]
 
-    datadir = open('filepaths.txt').readline().split()[1]
+    datadir = utilities.read_filepaths()['DATA']
 
     def GET(self):
         uploadboundtrans = myform.MyForm(self.uploadfile,
@@ -643,7 +643,7 @@ class uploadtextgrid:
     soundvalid = [form.Validator('Please upload a file or enter a video link (but not both).',
                                  lambda x: (x.filelink!='' or x.uploadfile) and not (x.uploadfile and x.filelink!=''))]
 
-    datadir = open('filepaths.txt').readline().split()[1]
+    datadir = utilities.read_filepaths()['DATA']
 
     def GET(self):
         uploadtextgrid = myform.MyForm(self.uploadfile,
@@ -740,7 +740,7 @@ class uploadeval:
                             description='ASR or alternate manual transcription as plaintext .txt:')
     taskname = form.Hidden('taskname')
     submit = form.Button('submit', type='submit', description='Submit')
-    datadir = open('filepaths.txt').readline().split()[1]
+    datadir = utilities.read_filepaths()['DATA']
 
     def GET(self):
             uploadeval = myform.MyForm(self.reffile,

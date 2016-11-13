@@ -132,7 +132,7 @@ class mturk:
                             lambda x: x.consent!=''),
              ]
 
-    datadir = open('filepaths.txt').readline().split()[1]
+    datadir = utilities.read_filepaths()['DATA']
 
     fields = ['gender',
               'birth',

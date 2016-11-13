@@ -40,7 +40,6 @@ fi
 #get alignments (uploadsound, uploadboundtrans, uploadtxttrans, asredit)
 if [ $task == 'asr' ] || [ $task == 'boundalign' ] || [ $task == 'txtalign' ] || [ $task == 'asredit' ]; then
     export PYTHONPATH=$appdir/'Prosodylab-Aligner'
-    echo '-r ' $hmm '-d ' $stressdict '-a ' $taskname.wavlab
     python3 -m aligner -r $hmm -d $stressdict -a $taskname.wavlab
 fi
 
@@ -59,7 +58,7 @@ if [ $task == 'extract' ] ; then
 fi
  
 #run FAVE-extract
-if [ $delstopwords == 'True' ]; then
+if [ $delstopwords == 'Y' ]; then
     python $favedir/bin/extractFormants.py --means=$favedir/means.txt --covariances=$favedir/covs.txt --phoneset=$favedir/cmu_phoneset.txt --speaker=$taskname.speaker --removeStopWords $taskname.audio/converted_*.wav $taskname.merged.TextGrid $taskname.aggvowels &> $taskname.errors;
 else
    python $favedir/bin/extractFormants.py --means=$favedir/means.txt --covaria\
