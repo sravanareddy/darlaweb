@@ -2236,6 +2236,9 @@ def extractFormants(wavInput, tgInput, output, opts, SPATH='', PPATH=''):
                 # and it leaves out vowels that are reduced)
                 if dur < minVowelDuration:
                     count_too_short += 1
+                    if opts.verbose:
+                        print 
+                        print "\t\t\tvowel {0} in {1} is shorter than {2}".format(p.label, w.transcription, minVowelDuration)
                     continue
 
                 word_trans = " ".join([x.label for x in w.phones])
