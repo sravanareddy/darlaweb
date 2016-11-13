@@ -144,6 +144,8 @@ def send_email(tasktype, receiver, filename, taskname, error_check):
         username = 'darla.dartmouth'
         sender = username+'@gmail.com'
 
+        alext_args = json.load(open(taskname+'.alext_args'))
+
         subjectmap = {'asr': 'Completely Automated Vowel Extraction',
                       'txtalign': 'Alignment and Extraction',
                       'boundalign': 'Alignment and Extraction',
@@ -152,10 +154,13 @@ def send_email(tasktype, receiver, filename, taskname, error_check):
 
         subject = '{0}: Vowel Analysis Results for {1}'.format(subjectmap[tasktype], filename)
         body = 'The formant extraction results for your data are attached:\n\n'
-        body += '(1) formants.csv contains detailed information on bandwidths and phonetic environments\n'
-        body += '(2) formants.fornorm.tsv can be uploaded to the NORM online tool (http://lvc.uoregon.edu/norm/index.php) \
-        for additional normalization and plotting options\n'
-        body += '(3) plot.pdf shows the F1/F2 vowel space of your speakers\n'
+        body += '(1) formants.csv contains detailed information on bandwidths and phonetic environments. '
+        if alext_args['delstopwords'] == 'Y':
+            body += 'You elected to remove stop-words ({0}/stopwords).\n'.format(filepaths['URLBASE'])
+        else:
+            body += 'You elected to retain stop-words.\n'
+        body += '(2) formants.fornorm.tsv can be uploaded to the NORM online tool (http://lvc.uoregon.edu/norm/index.php) for additional normalization and plotting options\n'
+        body += '(3) plot.pdf shows the F1/F2 (stressed) vowel space of your speakers\n'
         body += '(4) The .TextGrid file contains the transcription aligned with the audio\n'
         if tasktype == 'asr' or tasktype == 'asredit' or tasktype == 'boundalign':
             #TODO: make special keyword for youtube instead of boundalign
