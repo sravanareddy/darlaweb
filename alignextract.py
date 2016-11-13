@@ -9,7 +9,6 @@ import utilities
 import os
 import sys
 from featrec import align_extract
-import json
 
 render = web.template.render('templates/', base='layout')
 

@@ -89,11 +89,11 @@ class asredit:
                 
                 #now re-run alignment and extraction
                 if celeryon:
-                        result = align_extract.delay(os.path.join(self.datadir, taskname), appdir)
+                        result = align_extract.delay(os.path.join(self.datadir, taskname), self.appdir)
                         while not result.ready():
                                 pass
                 else:
-                        align_extract(os.path.join(self.datadir, taskname), appdir)
+                        align_extract(os.path.join(self.datadir, taskname), self.appdir)
                 return render.success('')
             
 app_asredit = web.application(urls, locals())

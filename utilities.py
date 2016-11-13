@@ -156,7 +156,7 @@ def send_email(tasktype, receiver, filename, taskname, error_check):
         body += '(2) formants.fornorm.tsv can be uploaded to the NORM online tool (http://lvc.uoregon.edu/norm/index.php) \
         for additional normalization and plotting options\n'
         body += '(3) plot.pdf shows the F1/F2 vowel space of your speakers\n'
-        body += '(4) alignments.zip contains the TextGrids of the ASR transcriptions aligned with the audio\n'
+        body += '(4) The .TextGrid file contains the transcription aligned with the audio\n'
         if tasktype == 'asr' or tasktype == 'asredit' or tasktype == 'boundalign':
             #TODO: make special keyword for youtube instead of boundalign
             body += '(5) transcription.txt contains the transcriptions.\n\n'
@@ -462,7 +462,7 @@ def get_entry_id(url):
         return str(url).split('/')[-2][:-1]
 
 def upload_youtube(taskname, videofile):
-        passfile = ).readlines()[1].split()[1]
+        passfile = utilities.read_filepaths()['PASSWORD']
 
         try:
                 yt_service = gdata.youtube.service.YouTubeService()
