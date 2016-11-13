@@ -18,7 +18,7 @@ import srt_to_textgrid
 import json
 import base64
 from mturk import mturk, mturksubmit
-#google 
+#google
 from googleapiclient import discovery
 import httplib2
 from oauth2client.client import GoogleCredentials
@@ -30,6 +30,8 @@ urls = ('/', 'index', '/index', 'index', '/cite', 'cite', '/about', 'about', '/c
 
 app = web.application(urls, globals())
 web.config.debug = True
+
+MINDURATION = 30 # minimum uploaded audio duration in minutes
 
 class index:
     def GET(self):
@@ -51,47 +53,55 @@ class semi:
     def GET(self):
         return render.semi()
 
-def speaker_form(filename, taskname):
-    input_list = []
-    taskname = form.Hidden(name="taskname", value=taskname)
-    speaker_name = form.Textbox('name', description='Speaker ID: ')
-    sex = myform.MyRadio('sex', [('M','Male ', 'M'), ('F','Female ', 'F'), ('F','Child ', 'C')], description='Sex: ')
-    sex.value = 'M'  # default
-    filename = form.Hidden(value=filename, name='filename')
-    speakers = myform.MyForm(taskname,
-                            speaker_name,
-                            sex,
-                            filename)
-    return speakers()
+def make_uploadfile():
+    return myform.MyFile('uploadfile',
+                       post='Longer recordings (of at least {0} minutes) are recommended. Your uploaded files are stored temporarily on the Dartmouth servers in order to process your job, and deleted after.'.format(MINDURATION),
+                       description='Upload a .wav or .mp3 file:')
 
+def make_filelink():
+    return form.Textbox('filelink',
+                        form.regexp(r'^$|https\://www\.youtube\.com/watch\?v\=\S+', 'Check your link. It should start with https://www.youtube.com/watch?v='),
+                          post='Long, single-speaker videos with no music work best.',
+                          description='or copy and paste a link to a YouTube video:')
 
-class uploadsound:
-    MINDURATION = 30 #in minutes
-    uploadfile = myform.MyFile('uploadfile',
-                           post='Longer recordings (of at least {0} minutes) are recommended. Your uploaded files are stored temporarily on the Dartmouth servers in order to process your job, and deleted after.'.format(MINDURATION),
-                           description='Upload a .wav or .mp3 file:')
-    filelink = form.Textbox('filelink',
-                            form.regexp(r'^$|https\://www\.youtube\.com/watch\?v\=\S+', 'Check your link. It should start with https://www.youtube.com/watch?v='),
-                              post='Long, single-speaker videos with no music work best.',
-                              description='or copy and paste a link to a YouTube video:')
-    dialect = form.Radio('dialect',
-                         [('standard', 'Standard American '),
-                          ('southern', 'Southern ')],
-                         value = 'standard',
-                         post='Selecting the closest appropriate dialect for the acoustic model may increase transcription accuracy. Other dialects may be added in the future.',
-                         description='Dialect of the speaker:')
-    lw = form.Radio('lw',
-                    [('7', 'Free speech or reading passage '),
-                     ('3', 'Word list ')],
-                    value = '7',
-                    post='If your recording contains both styles, select the free speech option.',
-                    description='Speech Type',)
-    email = form.Textbox('email',
+def make_email():
+    return form.Textbox('email',
                          form.notnull,
                          form.regexp(r'^[\w.+-]+@[\w.+-]+\.[\w.+-]+$',
                                      'Please enter a valid email address.'),
                          post='We will not store or distribute your address.',
                          description='Your e-mail address:')
+
+def make_delstopwords():
+    f = myform.MyRadio('delstopwords',
+                                     [('Y', 'Yes ', 'Y'),
+                                      ('N', 'No ', 'N')],
+                                     description='Filter out stop-words? ')
+    f.value = 'Y'  # default
+    return f
+
+def speaker_form(filename, taskname):
+    input_list = []
+    taskname = form.Hidden(name="taskname", value=taskname)
+    speaker_name = form.Textbox('name', description='Speaker ID: ')
+    sex = myform.MyRadio('sex', [('M','Male ', 'M'), ('F','Female ', 'F'), ('F','Child ', 'C')], description='Sex: ')
+    sex.value = 'M'  # default if not checked
+
+    filename = form.Hidden(value=filename, name='filename')
+
+    speakers = myform.MyForm(taskname,
+                            speaker_name,
+                            sex,
+                            filename)
+
+    return speakers()
+
+
+class uploadsound:
+    uploadfile = make_uploadfile()
+    filelink = make_filelink()
+    delstopwords = make_delstopwords()
+    email = make_email()
     taskname = form.Hidden('taskname')
     submit = form.Button('submit', type='submit', description='Submit')
 
@@ -101,20 +111,18 @@ class uploadsound:
     datadir = utilities.read_filepaths()['DATA']
 
     def GET(self):
-        self.dialect.value = 'standard'
-        self.lw.value = '7' #defaults
         uploadsound = myform.MyForm(self.uploadfile,
                                     self.filelink,
-                                    self.dialect,
-                                    self.lw, self.email, self.taskname, self.submit)
+                                    self.delstopwords,
+                                    self.email, self.taskname, self.submit)
         form = uploadsound()
         return render.speakerssound(form, "")
 
     def POST(self):
         uploadsound = myform.MyForm(self.uploadfile,
                                     self.filelink,
-                                    self.dialect,
-                                    self.lw, self.email, self.taskname, self.submit,
+                                    self.delstopwords,
+                                    self.email, self.taskname, self.submit,
                                     validators = self.soundvalid)
         form = uploadsound()
         x = web.input(uploadfile={})
@@ -149,7 +157,7 @@ class uploadsound:
 
                 utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+'.chunks'))
 
-            # else uploaded file 
+            # else uploaded file
             elif 'uploadfile' in x:
 
                 #sanitize filename
@@ -172,11 +180,11 @@ class uploadsound:
 
                     utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+'.chunks'))
 
-            if total_size < self.MINDURATION:
-                form.note = "Warning: Your file totals only {:.2f} minutes of speech. We recommend at least {:.0f} minutes for best results.".format(total_size, self.MINDURATION)
+            if total_size < MINDURATION:
+                form.note = "Warning: Your file totals only {:.2f} minutes of speech. We recommend at least {:.0f} minutes for best results.".format(total_size, MINDURATION)
 
             #generate argument files
-            utilities.gen_argfiles(self.datadir, form.taskname.value, filename, 'asr', form.email.value, samprate, form.lw.value, form.dialect.value)
+            utilities.gen_argfiles(self.datadir, form.taskname.value, filename, 'asr', form.email.value, samprate, form.delstopwords.value)
 
             #show speaker form by adding fields to existing form and re-rendering
             speakers = speaker_form(filename, form.taskname.value)
@@ -187,17 +195,12 @@ class googlespeech:
     # [START authenticating]
     DISCOVERY_URL = ('https://{api}.googleapis.com/$discovery/rest?'
                      'version={apiVersion}')
-    uploadfile = myform.MyFile('uploadfile',
-                               post='Your uploaded file is stored temporarily on the Dartmouth servers in order to process your job, and deleted after.',
-                               description='Your .wav or .mp3 file:')
-    email = form.Textbox('email',
-                         form.notnull,
-                         form.regexp(r'^[\w.+-]+@[\w.+-]+\.[\w.+-]+$',
-                                     'Please enter a valid email address'),
-                                     post='We will not store or distribute your address.',
-                                     description='Your e-mail address:')
+    uploadfile = make_uploadfile()
+    delstopwords = make_delstopwords()
+    email = make_email()
     taskname = form.Hidden('taskname')
     submit = form.Button('submit', type='submit', description='Submit')
+
     soundvalid = [form.Validator('Please upload a sound file.',
                                  lambda x:x.uploadfile)]
     # Application default credentials provided by env variable
@@ -212,12 +215,20 @@ class googlespeech:
             'speech', 'v1beta1', http=http, discoveryServiceUrl=self.DISCOVERY_URL)
 
     def GET(self):
-        googlespeech = myform.MyForm(self.uploadfile, self.email, self.taskname, self.submit)
+        googlespeech = myform.MyForm(self.uploadfile,
+                                     self.delstopwords,
+                                     self.email,
+                                     self.taskname,
+                                     self.submit)
         form = googlespeech()
         return render.googlespeech(form)
 
     def POST(self):
-        googlespeech = myform.MyForm(self.uploadfile, self.email, self.taskname, self.submit)
+        googlespeech = myform.MyForm(self.uploadfile,
+                                     self.delstopwords,
+                                     self.email,
+                                     self.taskname,
+                                     self.submit)
         form = googlespeech()
         x = web.input(uploadfile={})
 
@@ -241,9 +252,9 @@ class googlespeech:
                 service = self.get_speech_service()
                 total_msg = []
 
-                # TODO: chunks are just the intervals. need to get the actual files 
-                for ci, chunk in enumerate(chunks): 
-                    # get the file and read it in 
+                # TODO: chunks are just the intervals. need to get the actual files
+                for ci, chunk in enumerate(chunks):
+                    # get the file and read it in
 
                     chunk_file = open(os.path.join(audiodir,'splits',filename+'.split{0:03d}.wav'.format(ci+1)))
                     speech_content = base64.b64encode(chunk_file.read())
@@ -272,7 +283,7 @@ class googlespeech:
 
                 # speech_content = base64.b64encode(speech.read())
 
-                
+
                 # # [END construct_request]
                 # # [START send_request]
                 # response = service_request.execute()
@@ -280,30 +291,29 @@ class googlespeech:
                 # return render.success(json.dumps(response))
 
 class uploadyt:
-
-    uploadfile = myform.MyFile('uploadfile',
-                               post='Your uploaded file is stored temporarily on the Dartmouth servers in order to process your job, and deleted after.',
-                               description='Your .wav or .mp3 file:')
-    email = form.Textbox('email',
-                         form.notnull,
-                         form.regexp(r'^[\w.+-]+@[\w.+-]+\.[\w.+-]+$',
-                                     'Please enter a valid email address'),
-                                     post='We will not store or distribute your address.',
-                                     description='Your e-mail address:')
+    uploadfile = make_uploadfile()
+    email = make_email()
     taskname = form.Hidden('taskname')
     submit = form.Button('submit', type='submit', description='Submit')
+
     soundvalid = [form.Validator('Please upload a sound file.',
                                  lambda x:x.uploadfile)]
 
     datadir = utilities.read_filepaths()['DATA']
 
     def GET(self):
-        uploadyt = myform.MyForm(self.uploadfile, self.email, self.taskname, self.submit)
+        uploadyt = myform.MyForm(self.uploadfile,
+                                 self.email,
+                                 self.taskname,
+                                 self.submit)
         form = uploadyt()
         return render.speakersyt(form)
 
     def POST(self):
-        uploadyt = myform.MyForm(self.uploadfile, self.email, self.taskname, self.submit)
+        uploadyt = myform.MyForm(self.uploadfile,
+                                 self.email,
+                                 self.taskname,
+                                 self.submit)
         form = uploadyt()
         x = web.input(uploadfile={})
 
@@ -352,12 +362,8 @@ class downloadsrttrans:
     taskname = form.Textbox('taskname',
                             form.notnull,
                             description='The taskname ID sent to your e-mail')
-    email = form.Textbox('email',
-                         form.notnull,
-                         form.regexp(r'^[\w.+-]+@[\w.+-]+\.[\w.+-]+$',
-                                     'Please enter a valid email address'),
-                                     post='We will not store or distribute your address.',
-                                     description='Your e-mail address:')
+    delstopwords = make_delstopwords()
+    email = make_email()
 
     submit = form.Button('submit', type='submit', description='Submit')
     soundvalid = [form.Validator('Please enter a taskname and video ID to continue with your job',
@@ -367,6 +373,7 @@ class downloadsrttrans:
 
     def GET(self):
         downloadsrttrans = myform.MyForm(self.taskname,
+                                         self.delstopwords,
                                         self.email,
                                         self.submit)
         form = downloadsrttrans()
@@ -374,6 +381,7 @@ class downloadsrttrans:
 
     def POST(self):
         downloadsrttrans = myform.MyForm(self.taskname,
+                                         self.delstopwords,
                                         self.email,
                                         self.submit)
         form = downloadsrttrans()
@@ -415,32 +423,24 @@ class downloadsrttrans:
         filenames = [(filename, filename)]
 
         utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+'.chunks'))
-        utilities.gen_argfiles(self.datadir, taskname, filename, 'boundalign', form.email.value, samprate)
+        utilities.gen_argfiles(self.datadir, taskname, filename, 'boundalign', form.email.value, samprate, form.delstopwords.value)
 
         speakers = speaker_form(filename, taskname)
 
         return render.speakerssrttrans(form, speakers)
 
 class uploadtxttrans:
-    uploadfile = myform.MyFile('uploadfile',
-                               post='Your uploaded files are stored temporarily on the Dartmouth servers in order to process your job, and deleted after.',
-                               description='Your .wav or .mp3 file:')
-    filelink = form.Textbox('filelink',
-                            form.regexp(r'^$|https\://www\.youtube\.com/watch\?v\=\S+', 'Check your link. It should start with https://www.youtube.com/watch?v='),
-                            post='',
-                            description='or copy and paste a link to a YouTube video:')
+    uploadfile = make_uploadfile()
     uploadtxtfile = myform.MyFile('uploadtxtfile',
                                     form.notnull,
                                     post='We recommend creating this file using Notepad or TextEdit (with <a href="http://scttdvd.com/post/65242711516/how-to-get-rid-of-smart-quotes-osx-mavericks" target="_blank">smart replace turned off</a>) or emacs or any other plaintext editor. Transcripts created by "rich text" editors like Word may contain markup that will interfere with your results.',
                                   description='Manual transcription as a .txt file:')
-    email = form.Textbox('email',
-                         form.notnull,
-                         form.regexp(r'^[\w.+-]+@[\w.+-]+\.[\w.+-]+$',
-                                     'Please enter a valid email address'),
-                                     post='We will not store or distribute your address.',
-                                     description='Your e-mail address:')
+    filelink = make_filelink()
+    delstopwords = make_delstopwords()
+    email = make_email()
     taskname = form.Hidden('taskname')
     submit = form.Button('submit', type='submit', description='Submit')
+
     soundvalid = [form.Validator('Please upload a file or enter a video link (but not both).',
                                  lambda x: (x.filelink!='' or x.uploadfile) and not (x.uploadfile and x.filelink!=''))]
 
@@ -450,6 +450,7 @@ class uploadtxttrans:
         uploadtxttrans = myform.MyForm(self.uploadfile,
                                     self.filelink,
                                     self.uploadtxtfile,
+                                    self.delstopwords,
                                     self.email, self.taskname, self.submit)
         form = uploadtxttrans()
         return render.speakerstxttrans(form, "")
@@ -458,6 +459,7 @@ class uploadtxttrans:
         uploadtxttrans = myform.MyForm(self.uploadfile,
                                  self.filelink,
                                  self.uploadtxtfile,
+                                 self.delstopwords,
                                  self.email, self.taskname, self.submit,
                                  validators = self.soundvalid)
         form = uploadtxttrans()
@@ -516,30 +518,21 @@ class uploadtxttrans:
 
             filenames = [(filename, x.filelink)]
 
-        utilities.gen_argfiles(self.datadir, form.taskname.value, filename, 'txtalign', form.email.value, samprate)
+        utilities.gen_argfiles(self.datadir, form.taskname.value, filename, 'txtalign', form.email.value, samprate, form.delstopwords.value)
 
         speakers = speaker_form(filename, taskname)
 
         return render.speakerstxttrans(form, speakers)
 
 class uploadboundtrans:
-    uploadfile = myform.MyFile('uploadfile',
-                           post='Your uploaded files are stored temporarily on the Dartmouth servers in order to process your job, and deleted after.',
-                           description='Your .wav or .mp3 file:')
-    filelink = form.Textbox('filelink',
-                            form.regexp(r'^$|https\://www\.youtube\.com/watch\?v\=\S+', 'Check your link. It should start with https://www.youtube.com/watch?v='),
-                              post='',
-                              description='or copy and paste a link to a YouTube video:')
+    uploadfile = make_uploadfile()
+    filelink = make_filelink()
     uploadboundfile = myform.MyFile('uploadboundfile',
                                  form.notnull,
                            post = 'Textgrid should contain a tier named "sentence" with sentence/breath group intervals.',
                            description='Manual transcription as a .TextGrid file:')
-    email = form.Textbox('email',
-                         form.notnull,
-                         form.regexp(r'^[\w.+-]+@[\w.+-]+\.[\w.+-]+$',
-                                     'Please enter a valid email address'),
-                                     post='We will not store or distribute your address.',
-                                     description='Your e-mail address:')
+    delstopwords = make_delstopwords()
+    email = make_email()
     taskname = form.Hidden('taskname')
     submit = form.Button('submit', type='submit', description='Submit')
 
@@ -552,6 +545,7 @@ class uploadboundtrans:
         uploadboundtrans = myform.MyForm(self.uploadfile,
                                     self.filelink,
                                     self.uploadboundfile,
+                                    self.delstopwords,
                                     self.email, self.taskname, self.submit)
         form = uploadboundtrans()
         return render.speakersboundtrans(form, "")
@@ -560,6 +554,7 @@ class uploadboundtrans:
         uploadboundtrans = myform.MyForm(self.uploadfile,
                                  self.filelink,
                                  self.uploadboundfile,
+                                 self.delstopwords,
                                  self.email, self.taskname, self.submit,
                                  validators = self.soundvalid)
         form = uploadboundtrans()
@@ -627,30 +622,21 @@ class uploadboundtrans:
             filenames = [(filename, x.filelink)]
 
         utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+'.chunks'))
-        utilities.gen_argfiles(self.datadir, form.taskname.value, filename, 'boundalign', form.email.value, samprate)
+        utilities.gen_argfiles(self.datadir, form.taskname.value, filename, 'boundalign', form.email.value, samprate, form.delstopwords.value)
 
         speakers = speaker_form(filename, taskname)
 
         return render.speakersboundtrans(form, speakers)
 
 class uploadtextgrid:
-    uploadfile = myform.MyFile('uploadfile',
-                           post='Your uploaded files are stored temporarily on the Dartmouth servers in order to process your job, and deleted after.',
-                           description='Your .wav or .mp3 file:')
-    filelink = form.Textbox('filelink',
-                            form.regexp(r'^$|https\://www\.youtube\.com/watch\?v\=\S+', 'Check your link. It should start with https://www.youtube.com/watch?v='),
-                              post='',
-                              description='or copy and paste a link to a YouTube video:')
+    uploadfile = make_uploadfile()
+    filelink = make_filelink()
     uploadTGfile = myform.MyFile('uploadTGfile',
                                  form.notnull,
                            post = '',
                            description='Corrected .TextGrid file')
-    email = form.Textbox('email',
-                         form.notnull,
-                         form.regexp(r'^[\w.+-]+@[\w.+-]+\.[\w.+-]+$',
-                                     'Please enter a valid email address'),
-                                     post='We will not store or distribute your address.',
-                                     description='Your e-mail address:')
+    delstopwords = make_delstopwords()
+    email = make_email()
     taskname = form.Hidden('taskname')
     submit = form.Button('submit', type='submit', description='Submit')
 
@@ -663,6 +649,7 @@ class uploadtextgrid:
         uploadtextgrid = myform.MyForm(self.uploadfile,
                                     self.filelink,
                                     self.uploadTGfile,
+                                    self.delstopwords,
                                        self.email, self.taskname, self.submit,
                                        validators = self.soundvalid)
         form = uploadtextgrid()
@@ -672,6 +659,7 @@ class uploadtextgrid:
         uploadtextgrid = myform.MyForm(self.uploadfile,
                                  self.filelink,
                                  self.uploadTGfile,
+                                 self.delstopwords,
                                  self.email, self.taskname, self.submit,
                                  validators = self.soundvalid)
         form = uploadtextgrid()
@@ -735,7 +723,7 @@ class uploadtextgrid:
 
         utilities.write_textgrid(self.datadir, form.taskname.value, filename, utilities.read_textupload(x.uploadTGfile.file.read()))
 
-        utilities.gen_argfiles(self.datadir, form.taskname.value, filename, 'extract', form.email.value)
+        utilities.gen_argfiles(self.datadir, form.taskname.value, filename, 'extract', form.email.value, delstopwords=form.delstopwords.value)
 
         speakers = speaker_form(filename, taskname)
 

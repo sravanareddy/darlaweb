@@ -57,7 +57,7 @@ def parse_web_params(source):
         split = form_input.split("=")
         parameters[split[0]] = split[1]
     return parameters
-    
+
 def send_ytupload_email(video_id, taskname, receiver, filename):
     filepaths = read_filepaths()
     password = open(filepaths['PASSWORD']).read().strip()
@@ -582,7 +582,7 @@ def sox_conversion(filename, audiodir, dochunk=None):
             m = re.search("(=\s)(.*)(\ssamples)", line)
             file_size = float(m.group(2))
             file_size = file_size / sample_rate #gets duration, in seconds of the file.
-            file_size /= 60.0 # gets in minutes.l 
+            file_size /= 60.0 # gets in minutes.l
 
     #converts wav file to 16000kHz sampling rate if sampling rate is more than
     if sample_rate >= 16000:
@@ -641,7 +641,7 @@ def sox_conversion(filename, audiodir, dochunk=None):
 
     return sample_rate, file_size, chunks, ""
 
-def gen_argfiles(datadir, taskname, uploadfilename, task, email, samprate=None, lw=None, dialect=None):
+def gen_argfiles(datadir, taskname, uploadfilename, task, email, samprate=None, delstopwords='Y'):
     filepaths = read_filepaths()
     acoustic_dir = (filepaths['ACOUSTICMODELS']);
     """create ctl files if applicable"""
@@ -708,7 +708,7 @@ def gen_argfiles(datadir, taskname, uploadfilename, task, email, samprate=None, 
                         'fdict': os.path.join(hmm, 'noisedict'),
                         'hmm': hmm,
                         'lm': filepaths['LM'],
-                        'lw': str(lw),
+                        'lw': '7',
                         'samprate': str(samprate),
                         'bestpath': 'no',
                         'lowerf': '130',    #starting from here, echo the acoustic model
@@ -737,6 +737,7 @@ def gen_argfiles(datadir, taskname, uploadfilename, task, email, samprate=None, 
         o.write(acoustic_dir + 'htkpenn16kplp ')
 
     o.write(email+' ')
-    o.write(task+'\n')
+    o.write(task+' ')
+    o.write(delstopwords+' ')
     o.close()
     return
