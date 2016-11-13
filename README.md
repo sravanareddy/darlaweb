@@ -41,7 +41,8 @@ For cross-computer compatibility, create a file named `filepaths.json` containin
 "URLBASE": "http://base.url.on.this.machine",
 "ACOUSTICMODELS": /absolute/path/to/directory/withacousticmodels,
 "LM": "/absolute/path/to/languagemodel",
-"APPDIR": "/absolute/path/to/directory/with/applications/"}
+"APPDIR": "/absolute/path/to/directory/with/applications/",
+"GOOGLESPEECH": "/absolute/path/to/googleprivatekeyjson"}
 ```
 
 Do *not* push `filepaths.json` to the repo, since it is dependent on the local environment.

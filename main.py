@@ -16,6 +16,7 @@ import asredit
 import time
 import srt_to_textgrid
 import json
+import sys
 import base64
 from mturk import mturk, mturksubmit
 #google
@@ -23,6 +24,7 @@ from googleapiclient import discovery
 import httplib2
 from oauth2client.client import GoogleCredentials
 # [END import_libraries]
+
 
 render = web.template.render('templates/', base='layout')
 
@@ -191,10 +193,13 @@ class uploadsound:
             return render.speakerssound(form, speakers)
 
 class googlespeech:
-    datadir = utilities.read_filepaths()['DATA']
+    filepaths = utilities.read_filepaths()
+    datadir = filepaths['DATA']
     # [START authenticating]
     DISCOVERY_URL = ('https://{api}.googleapis.com/$discovery/rest?'
                      'version={apiVersion}')
+    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = filepaths['GOOGLESPEECH']
+
     uploadfile = make_uploadfile()
     delstopwords = make_delstopwords()
     email = make_email()

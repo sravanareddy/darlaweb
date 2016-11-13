@@ -40,7 +40,7 @@ fi
 #get alignments (uploadsound, uploadboundtrans, uploadtxttrans, asredit)
 if [ $task == 'asr' ] || [ $task == 'boundalign' ] || [ $task == 'txtalign' ] || [ $task == 'asredit' ]; then
     export PYTHONPATH=$appdir/'Prosodylab-Aligner'
-    python3 -m aligner -r $hmm -d $stressdict -a $taskname.wavlab > /dev/null 2> /dev/null
+    python3 -m aligner -r $hmm -d $stressdict -a $taskname.wavlab &>> aligner.log 
     echo
 fi
 
