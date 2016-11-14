@@ -4,14 +4,14 @@ taskname=$1
 hmm=$2
 task=$3
 delstopwords=$4
-minbandwidth=$5
+maxbandwidth=$5
 appdir=$6
 
 dot="$(cd "$(dirname "$0")"; pwd)"
 favedir=$dot'/FAVE-extract'
 
 stressdict='cmudict.forhtk.txt'
-stopwords='stopwords.txt'
+stopwords=$dot'/stopwords.txt'
 
 #convert ASR hypotheses to PL aligner .lab files
 if [ $task == 'asr' ]; then
@@ -61,13 +61,14 @@ if [ $task == 'extract' ] ; then
 fi
 
 #run FAVE-extract
-python $favedir/bin/extractFormants.py
-    --means=$favedir/means.txt
-    --covariances=$favedir/covs.txt
-    --phoneset=$favedir/cmu_phoneset.txt
-    --speaker=$taskname.speaker
-    --removeStopWords=$delstopwords
-    --minBandwidth=$minbandwidth
+python $favedir/bin/extractFormants.py \
+    --means=$favedir/means.txt \
+    --covariances=$favedir/covs.txt \
+    --phoneset=$favedir/cmu_phoneset.txt \
+    --speaker=$taskname.speaker \
+    --removeStopWords=$delstopwords \
+    --stopWordsFile=$stopwords \
+    --maxBandwidth=$maxbandwidth \
     $taskname.audio/converted_*.wav $taskname.merged.TextGrid $taskname.aggvowels &> $taskname.errors;
 
 #plot

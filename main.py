@@ -110,8 +110,8 @@ def make_delstopwords():
 def make_filterbandwidths():
     f = myform.MyRadio('filterbandwidths',
                        [('300', 'Yes ', '300'),
-                        ('0', 'No ', '0')],
-                       description='Filter out vowels with F1, F2, or F3 bandwidths over 300? ')
+                        ('10000000000', 'No ', '10000000000')],
+                       description='Filter out vowels whose F1 or F2 bandwidths are over 300? ')
     f.value = '300'  # default
     return f
 
@@ -150,6 +150,7 @@ class uploadsound:
         uploadsound = myform.MyForm(self.uploadfile,
                                     self.filelink,
                                     self.delstopwords,
+                                    self.filterbandwidths,
                                     self.email, self.taskname, self.submit)
         form = uploadsound()
         return render.speakerssound(form, "")
@@ -158,6 +159,7 @@ class uploadsound:
         uploadsound = myform.MyForm(self.uploadfile,
                                     self.filelink,
                                     self.delstopwords,
+                                    self.filterbandwidths,
                                     self.email, self.taskname, self.submit,
                                     validators = self.soundvalid)
         form = uploadsound()
@@ -257,6 +259,7 @@ class googlespeech:
     def GET(self):
         googlespeech = myform.MyForm(self.uploadfile,
                                      self.delstopwords,
+                                     self.filterbandwidths,
                                      self.email,
                                      self.taskname,
                                      self.submit)
@@ -266,6 +269,7 @@ class googlespeech:
     def POST(self):
         googlespeech = myform.MyForm(self.uploadfile,
                                      self.delstopwords,
+                                     self.filterbandwidths,
                                      self.email,
                                      self.taskname,
                                      self.submit)
@@ -415,16 +419,18 @@ class downloadsrttrans:
     def GET(self):
         downloadsrttrans = myform.MyForm(self.taskname,
                                          self.delstopwords,
-                                        self.email,
-                                        self.submit)
+                                         self.filterbandwidths,
+                                         self.email,
+                                         self.submit)
         form = downloadsrttrans()
         return render.speakerssrttrans(form, "")
 
     def POST(self):
         downloadsrttrans = myform.MyForm(self.taskname,
                                          self.delstopwords,
-                                        self.email,
-                                        self.submit)
+                                         self.filterbandwidths,
+                                         self.email,
+                                         self.submit)
         form = downloadsrttrans()
 
         if not form.validates(): #not validated
@@ -490,20 +496,22 @@ class uploadtxttrans:
 
     def GET(self):
         uploadtxttrans = myform.MyForm(self.uploadfile,
-                                    self.filelink,
-                                    self.uploadtxtfile,
-                                    self.delstopwords,
-                                    self.email, self.taskname, self.submit)
+                                       self.filelink,
+                                       self.uploadtxtfile,
+                                       self.delstopwords,
+                                       self.filterbandwidths,
+                                       self.email, self.taskname, self.submit)
         form = uploadtxttrans()
         return render.speakerstxttrans(form, "")
 
     def POST(self):
         uploadtxttrans = myform.MyForm(self.uploadfile,
-                                 self.filelink,
-                                 self.uploadtxtfile,
-                                 self.delstopwords,
-                                 self.email, self.taskname, self.submit,
-                                 validators = self.soundvalid)
+                                       self.filelink,
+                                       self.uploadtxtfile,
+                                       self.delstopwords,
+                                       self.filterbandwidths,
+                                       self.email, self.taskname, self.submit,
+                                       validators = self.soundvalid)
         form = uploadtxttrans()
         x = web.input(uploadfile={}, uploadtxtfile={})
 
@@ -586,19 +594,21 @@ class uploadboundtrans:
 
     def GET(self):
         uploadboundtrans = myform.MyForm(self.uploadfile,
-                                    self.filelink,
-                                    self.uploadboundfile,
-                                    self.delstopwords,
-                                    self.email, self.taskname, self.submit)
+                                         self.filelink,
+                                         self.uploadboundfile,
+                                         self.delstopwords,
+                                         self.filterbandwidths,
+                                         self.email, self.taskname, self.submit)
         form = uploadboundtrans()
         return render.speakersboundtrans(form, "")
 
     def POST(self):
         uploadboundtrans = myform.MyForm(self.uploadfile,
-                                 self.filelink,
-                                 self.uploadboundfile,
-                                 self.delstopwords,
-                                 self.email, self.taskname, self.submit,
+                                         self.filelink,
+                                         self.uploadboundfile,
+                                         self.delstopwords,
+                                         self.filterbandwidths,
+                                         self.email, self.taskname, self.submit,
                                  validators = self.soundvalid)
         form = uploadboundtrans()
         x = web.input(uploadfile={}, uploadboundfile={})
@@ -691,9 +701,10 @@ class uploadtextgrid:
 
     def GET(self):
         uploadtextgrid = myform.MyForm(self.uploadfile,
-                                    self.filelink,
-                                    self.uploadTGfile,
-                                    self.delstopwords,
+                                       self.filelink,
+                                       self.uploadTGfile,
+                                       self.delstopwords,
+                                       self.filterbandwidths,
                                        self.email, self.taskname, self.submit,
                                        validators = self.soundvalid)
         form = uploadtextgrid()
@@ -701,11 +712,12 @@ class uploadtextgrid:
 
     def POST(self):
         uploadtextgrid = myform.MyForm(self.uploadfile,
-                                 self.filelink,
-                                 self.uploadTGfile,
-                                 self.delstopwords,
-                                 self.email, self.taskname, self.submit,
-                                 validators = self.soundvalid)
+                                       self.filelink,
+                                       self.uploadTGfile,
+                                       self.delstopwords,
+                                       self.filterbandwidths,
+                                       self.email, self.taskname, self.submit,
+                                       validators = self.soundvalid)
         form = uploadtextgrid()
         x = web.input(uploadfile={}, uploadTGfile={})
 
@@ -767,7 +779,7 @@ class uploadtextgrid:
 
         utilities.write_textgrid(self.datadir, form.taskname.value, filename, utilities.read_textupload(x.uploadTGfile.file.read()))
 
-        utilities.gen_argfiles(self.datadir, form.taskname.value, filename, 'extract', form.email.value, delstopwords=form.delstopwords.value, minbandwidth=form.filterbandwidths.value)
+        utilities.gen_argfiles(self.datadir, form.taskname.value, filename, 'extract', form.email.value, delstopwords=form.delstopwords.value, maxbandwidth=form.filterbandwidths.value)
 
         speakers = speaker_form(filename, taskname)
 

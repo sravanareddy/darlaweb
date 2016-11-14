@@ -1420,8 +1420,8 @@ def outputMeasurements(outputFormat, measurements, m_means, speaker, outputFile,
 
         # individual measurements
         for vm in measurements:
-            if vm.b1 < opts.minBandwidth or vm.b2 < opts.minBandwidth or vm.b3 < opts.minBandwidth:
-                continue  # ignore (default of minBandwidth is 0)
+            if vm.b1 > opts.maxBandwidth or vm.b2 > opts.maxBandwidth:
+                continue  # ignore (default of maxBandwidth is 1e10)
 
             for speaker_attr in s_keys:
                 fw.write(str(s_dict[speaker_attr]))
@@ -1775,7 +1775,7 @@ def setup_parser():
                         help = "*.speaker file, if used")
     parser.add_argument("--tracks", action="store_true",
                         help = "Write full formant tracks.")
-    parser.add_argument("--minBandwidth", default=0,
+    parser.add_argument("--maxBandwidth", type=float, default=1e10,
                         help = "Ignore tokens with F1 or F2 or F3 above this.")
     parser.add_argument("--vowelSystem", choices = ['phila', 'Phila', 'PHILA', 'NorthAmerican', 'simplifiedARPABET'],
                         default="NorthAmerican",help="If set to Phila, a number of vowels will be reclassified to reflect the phonemic distinctions of the Philadelphia vowel system.")
