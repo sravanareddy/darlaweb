@@ -37,11 +37,12 @@ def align_extract(taskname, appdir):
     if alext_args['tasktype']!='asr':
         send_init_email(alext_args['tasktype'], alext_args['email'], alext_args['filename'])
 
-    args = ' '.join(["./align_and_extract.sh", 
-                     taskname, 
-                     alext_args['hmm'], 
+    args = ' '.join(["./align_and_extract.sh",
+                     taskname,
+                     alext_args['hmm'],
                      alext_args['tasktype'],
                      alext_args['delstopwords'],
+                     alext_args['minbandwidth'],
                      appdir])
 
     align = subprocess.Popen(shlex.split(args), stderr=subprocess.STDOUT)

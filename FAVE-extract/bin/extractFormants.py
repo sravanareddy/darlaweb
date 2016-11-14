@@ -1420,6 +1420,9 @@ def outputMeasurements(outputFormat, measurements, m_means, speaker, outputFile,
 
         # individual measurements
         for vm in measurements:
+            if vm.b1 < opts.minBandwidth or vm.b2 < opts.minBandwidth or vm.b3 < opts.minBandwidth:
+                continue  # ignore (default of minBandwidth is 0)
+
             for speaker_attr in s_keys:
                 fw.write(str(s_dict[speaker_attr]))
                 fw.write(',')
@@ -1763,7 +1766,7 @@ def setup_parser():
                         help = "save vowel measurement information as a picklefile")
     parser.add_argument("--remeasurement", action="store_true",
                         help="Do a second pass is performed on the data, using the speaker's own system as the base of comparison for the Mahalanobis distance")
-    parser.add_argument("--removeStopWords", action="store_true",
+    parser.add_argument("--removeStopWords",
                         help="Don't measure vowels in stop words." )
     parser.add_argument("--stopWordsFile", help="list of stop words to ignore")
     parser.add_argument("--speechSoftware", choices = ['praat', 'Praat', 'esps', 'ESPS'], default = "Praat",
@@ -1772,6 +1775,8 @@ def setup_parser():
                         help = "*.speaker file, if used")
     parser.add_argument("--tracks", action="store_true",
                         help = "Write full formant tracks.")
+    parser.add_argument("--minBandwidth", default=0,
+                        help = "Ignore tokens with F1 or F2 or F3 above this.")
     parser.add_argument("--vowelSystem", choices = ['phila', 'Phila', 'PHILA', 'NorthAmerican', 'simplifiedARPABET'],
                         default="NorthAmerican",help="If set to Phila, a number of vowels will be reclassified to reflect the phonemic distinctions of the Philadelphia vowel system.")
     parser.add_argument("--verbose", "-v", action="store_false",
@@ -2035,7 +2040,7 @@ def extractFormants(wavInput, tgInput, output, opts, SPATH='', PPATH=''):
     meansFile = opts.means
     covsFile = opts.covariances
     phonesetFile = opts.phoneset
-    
+
     if opts.stopWordsFile:
         opts.stopWords = parseStopWordsFile(opts.stopWordsFile)
 
@@ -2234,7 +2239,7 @@ def extractFormants(wavInput, tgInput, output, opts, SPATH='', PPATH=''):
                 if dur < minVowelDuration:
                     count_too_short += 1
                     if opts.verbose:
-                        print 
+                        print
                         print "\t\t\tvowel {0} in {1} is shorter than {2}".format(p.label, w.transcription, minVowelDuration)
                     continue
 
@@ -2345,6 +2350,12 @@ if __name__ == '__main__':
     parser = setup_parser()
 
     opts = parser.parse_args()
+
+    if opts.removeStopWords=='Y':
+        opts.removeStopWords = True
+    else:
+        opts.removeStopWords = False
+
     wavInput = opts.wavInput
     tgInput = opts.tgInput
     output = opts.output

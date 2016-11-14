@@ -4,7 +4,8 @@ taskname=$1
 hmm=$2
 task=$3
 delstopwords=$4
-appdir=$5
+minbandwidth=$5
+appdir=$6
 
 dot="$(cd "$(dirname "$0")"; pwd)"
 favedir=$dot'/FAVE-extract'
@@ -41,12 +42,12 @@ fi
 #get alignments (uploadsound, uploadboundtrans, uploadtxttrans, asredit)
 if [ $task == 'asr' ] || [ $task == 'boundalign' ] || [ $task == 'txtalign' ] || [ $task == 'asredit' ]; then
     export PYTHONPATH=$appdir/'Prosodylab-Aligner'
-    python3 -m aligner -r $hmm -d $stressdict -a $taskname.wavlab &>> aligner.log 
+    python3 -m aligner -r $hmm -d $stressdict -a $taskname.wavlab &>> aligner.log
     echo
 fi
 
 #merge chunked textgrids (uploadsound, uploadboundtrans)
-if [ $task == 'asr' ] || [ $task == 'boundalign' ] || [ $task == 'asredit' ]; then    
+if [ $task == 'asr' ] || [ $task == 'boundalign' ] || [ $task == 'asredit' ]; then
     python insert_sil_tg.py $taskname
     python merge_grids.py $taskname
 fi
@@ -58,14 +59,16 @@ fi
 if [ $task == 'extract' ] ; then
     cp $taskname.mergedtg/*.TextGrid $taskname.merged.TextGrid;
 fi
- 
+
 #run FAVE-extract
-if [ $delstopwords == 'Y' ]; then
-    python $favedir/bin/extractFormants.py --means=$favedir/means.txt --covariances=$favedir/covs.txt --phoneset=$favedir/cmu_phoneset.txt --speaker=$taskname.speaker --removeStopWords --stopWordsFile=$stopwords $taskname.audio/converted_*.wav $taskname.merged.TextGrid $taskname.aggvowels &> $taskname.errors;
-else
-   python $favedir/bin/extractFormants.py --means=$favedir/means.txt --covaria\
-nces=$favedir/covs.txt --phoneset=$favedir/cmu_phoneset.txt --speaker=$taskname.speaker $taskname.audio/converted_*.wav $taskname.merged.TextGrid $taskname.aggvowels &> $taskname.errors;
-fi
+python $favedir/bin/extractFormants.py
+    --means=$favedir/means.txt
+    --covariances=$favedir/covs.txt
+    --phoneset=$favedir/cmu_phoneset.txt
+    --speaker=$taskname.speaker
+    --removeStopWords=$delstopwords
+    --minBandwidth=$minbandwidth
+    $taskname.audio/converted_*.wav $taskname.merged.TextGrid $taskname.aggvowels &> $taskname.errors;
 
 #plot
 Rscript plot_vowels.r $taskname.aggvowels_formants.csv $taskname.fornorm.tsv $taskname.plot.pdf

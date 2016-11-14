@@ -100,11 +100,19 @@ def make_email():
 
 def make_delstopwords():
     f = myform.MyRadio('delstopwords',
-                                     [('Y', 'Yes ', 'Y'),
-                                      ('N', 'No ', 'N')],
-                                     description='Filter out stop-words? ',
-                                     post='<a href="stopwords" target="_blank">This is the list</a> of stop-words we remove. (Link opens in a new tab.)')
+                       [('Y', 'Yes ', 'Y'),
+                        ('N', 'No ', 'N')],
+                       description='Filter out stop-words? ',
+                       post='<a href="stopwords" target="_blank">This is the list</a> of stop-words we remove. (Link opens in a new tab.)')
     f.value = 'Y'  # default
+    return f
+
+def make_filterbandwidths():
+    f = myform.MyRadio('filterbandwidths',
+                       [('300', 'Yes ', '300'),
+                        ('0', 'No ', '0')],
+                       description='Filter out vowels with F1, F2, or F3 bandwidths over 300? ')
+    f.value = '300'  # default
     return f
 
 def speaker_form(filename, taskname):
@@ -128,6 +136,7 @@ class uploadsound:
     uploadfile = make_uploadfile()
     filelink = make_filelink()
     delstopwords = make_delstopwords()
+    filterbandwidths = make_filterbandwidths()
     email = make_email()
     taskname = form.Hidden('taskname')
     submit = form.Button('submit', type='submit', description='Submit')
@@ -211,7 +220,7 @@ class uploadsound:
                 form.note = "Warning: Your file totals only {:.2f} minutes of speech. We recommend at least {:.0f} minutes for best results.".format(total_size, MINDURATION)
 
             #generate argument files
-            utilities.gen_argfiles(self.datadir, form.taskname.value, filename, 'asr', form.email.value, samprate, form.delstopwords.value)
+            utilities.gen_argfiles(self.datadir, form.taskname.value, filename, 'asr', form.email.value, samprate, form.delstopwords.value, form.filterbandwidths.value)
 
             #show speaker form by adding fields to existing form and re-rendering
             speakers = speaker_form(filename, form.taskname.value)
@@ -227,6 +236,7 @@ class googlespeech:
 
     uploadfile = make_uploadfile()
     delstopwords = make_delstopwords()
+    filterbandwidths = make_filterbandwidths()
     email = make_email()
     taskname = form.Hidden('taskname')
     submit = form.Button('submit', type='submit', description='Submit')
@@ -393,6 +403,7 @@ class downloadsrttrans:
                             form.notnull,
                             description='The taskname ID sent to your e-mail')
     delstopwords = make_delstopwords()
+    filterbandwidths = make_filterbandwidths()
     email = make_email()
 
     submit = form.Button('submit', type='submit', description='Submit')
@@ -453,7 +464,7 @@ class downloadsrttrans:
         filenames = [(filename, filename)]
 
         utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+'.chunks'))
-        utilities.gen_argfiles(self.datadir, taskname, filename, 'boundalign', form.email.value, samprate, form.delstopwords.value)
+        utilities.gen_argfiles(self.datadir, taskname, filename, 'boundalign', form.email.value, samprate, form.delstopwords.value, form.filterbandwidths.value)
 
         speakers = speaker_form(filename, taskname)
 
@@ -467,6 +478,7 @@ class uploadtxttrans:
                                   description='Manual transcription as a .txt file:')
     filelink = make_filelink()
     delstopwords = make_delstopwords()
+    filterbandwidths = make_filterbandwidths()
     email = make_email()
     taskname = form.Hidden('taskname')
     submit = form.Button('submit', type='submit', description='Submit')
@@ -548,7 +560,7 @@ class uploadtxttrans:
 
             filenames = [(filename, x.filelink)]
 
-        utilities.gen_argfiles(self.datadir, form.taskname.value, filename, 'txtalign', form.email.value, samprate, form.delstopwords.value)
+        utilities.gen_argfiles(self.datadir, form.taskname.value, filename, 'txtalign', form.email.value, samprate, form.delstopwords.value, form.filterbandwidths.value)
 
         speakers = speaker_form(filename, taskname)
 
@@ -562,6 +574,7 @@ class uploadboundtrans:
                            post = 'Textgrid should contain a tier named "sentence" with sentence/breath group intervals.',
                            description='Manual transcription as a .TextGrid file:')
     delstopwords = make_delstopwords()
+    filterbandwidths = make_filterbandwidths()
     email = make_email()
     taskname = form.Hidden('taskname')
     submit = form.Button('submit', type='submit', description='Submit')
@@ -652,7 +665,7 @@ class uploadboundtrans:
             filenames = [(filename, x.filelink)]
 
         utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+'.chunks'))
-        utilities.gen_argfiles(self.datadir, form.taskname.value, filename, 'boundalign', form.email.value, samprate, form.delstopwords.value)
+        utilities.gen_argfiles(self.datadir, form.taskname.value, filename, 'boundalign', form.email.value, samprate, form.delstopwords.value, form.filterbandwidths.value)
 
         speakers = speaker_form(filename, taskname)
 
@@ -666,6 +679,7 @@ class uploadtextgrid:
                            post = '',
                            description='Corrected .TextGrid file')
     delstopwords = make_delstopwords()
+    filterbandwidths = make_filterbandwidths()
     email = make_email()
     taskname = form.Hidden('taskname')
     submit = form.Button('submit', type='submit', description='Submit')
@@ -753,7 +767,7 @@ class uploadtextgrid:
 
         utilities.write_textgrid(self.datadir, form.taskname.value, filename, utilities.read_textupload(x.uploadTGfile.file.read()))
 
-        utilities.gen_argfiles(self.datadir, form.taskname.value, filename, 'extract', form.email.value, delstopwords=form.delstopwords.value)
+        utilities.gen_argfiles(self.datadir, form.taskname.value, filename, 'extract', form.email.value, delstopwords=form.delstopwords.value, minbandwidth=form.filterbandwidths.value)
 
         speakers = speaker_form(filename, taskname)
 

@@ -645,7 +645,7 @@ def sox_conversion(filename, audiodir, dochunk=None):
 
     return sample_rate, file_size, chunks, ""
 
-def gen_argfiles(datadir, taskname, uploadfilename, task, email, samprate=None, delstopwords='Y'):
+def gen_argfiles(datadir, taskname, uploadfilename, task, email, samprate=None, delstopwords='Y', minbandwidth='300'):
     filepaths = read_filepaths()
     acoustic_dir = (filepaths['ACOUSTICMODELS']);
     """create ctl files if applicable"""
@@ -736,7 +736,8 @@ def gen_argfiles(datadir, taskname, uploadfilename, task, email, samprate=None, 
     alext_args = {'filename': uploadfilename,
                   'email': email,
                   'tasktype': task,
-                  'delstopwords': delstopwords}
+                  'delstopwords': delstopwords,
+                  'minbandwidth': minbandwidth}
     if samprate==8000:
         alext_args['hmm'] = os.path.join(acoustic_dir, 'htkpenn8kplp')
     else:
