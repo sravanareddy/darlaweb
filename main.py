@@ -344,8 +344,8 @@ class googlespeech:
                 print error
                 # TODO: do something with this error 
                 utilities.write_speaker_info(os.path.join(self.datadir, taskname+'.speaker'), x.name, x.sex)
-                
-                utilities.gen_argfiles(self.datadir, taskname, filename, 'txtalign', x.email, samprate, form.delstopwords.value, form.filterbandwidths.value)
+
+                utilities.gen_argfiles(self.datadir, taskname, filename, 'txtalign', x.email, samprate, x.delstopwords, x.filterbandwidths)
 
                 if celeryon:
                     result = align_extract.delay(os.path.join(self.datadir, taskname), self.appdir)
