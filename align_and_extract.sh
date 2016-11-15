@@ -42,8 +42,7 @@ fi
 #get alignments (uploadsound, uploadboundtrans, uploadtxttrans, asredit)
 if [ $task == 'asr' ] || [ $task == 'boundalign' ] || [ $task == 'txtalign' ] || [ $task == 'asredit' ]; then
     export PYTHONPATH=$appdir/'Prosodylab-Aligner'
-    python3 -m aligner -r $hmm -d $stressdict -a $taskname.wavlab &>> aligner.log
-    echo
+    python3 -m aligner -r $hmm -d $stressdict -a $taskname.wavlab >> aligner.log
 fi
 
 #merge chunked textgrids (uploadsound, uploadboundtrans)
@@ -60,6 +59,9 @@ if [ $task == 'extract' ] ; then
     cp $taskname.mergedtg/*.TextGrid $taskname.merged.TextGrid;
 fi
 
+echo $taskname
+head $taskname.aggvowels
+head $taskname.merged.TextGrid
 #run FAVE-extract
 python $favedir/bin/extractFormants.py \
     --means=$favedir/means.txt \

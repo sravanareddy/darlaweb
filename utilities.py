@@ -371,15 +371,25 @@ def norm_dollar_signs(word):
     return word
 
 def process_usertext(inputstring):
-    """clean up unicode, translate numbers"""
+    """cleans up unicode, translate numbers, outputs as a list of unicode words."""
     transfrom = '\xd5\xd3\xd2\xd0\xd1\xcd\xd4'
     transto = '\'""--\'\''
     unimaketrans = string.maketrans(transfrom, transto)
+    
+    if(isinstance(inputstring, str)):
     #MS line breaks and stylized characters that stupid TextEdit inserts. (is there an existing module that does this?)
-    cleaned = string.translate(inputstring.lower(),
-                            unimaketrans).replace("\xe2\x80\x93", " - ").replace('\xe2\x80\x94', " - ").replace('\xe2\x80\x99', "'").replace('\xe2\x80\x9c', '"').replace('\xe2\x80\x9d', '"').replace('\r\n', '\n').replace('\r', '\n').strip()
-    cleaned = to_unicode(cleaned, encoding='utf-8', errors='ignore')   # catch-all?
-    cleaned = cleaned.replace('[', '').replace(']', '')  # common in linguists' transcriptions
+    
+        inputstring = string.translate(inputstring,
+                                unimaketrans).replace("\xe2\x80\x93"
+                                , " - ").replace('\xe2\x80\x94'
+                                , " - ").replace('\xe2\x80\x99'
+                                , "'").replace('\xe2\x80\x9c'
+                                    , '"').replace('\xe2\x80\x9d'
+                                    , '"').replace('\r\n'
+                                    , '\n').replace('\r', '\n').strip()
+        inputstring = to_unicode(inputstring, encoding='utf-8', errors='ignore')   # catch-all? 
+
+    cleaned = inputstring.replace('[', '').replace(']', '')  # common in linguists' transcriptions
     cleaned = cleaned.replace('-', ' ').replace('/', ' ').strip(string.punctuation)  # one more tok pass
     # convert digits and normalize $n
     digitconverter = inflect.engine()
@@ -395,18 +405,18 @@ def process_usertext(inputstring):
 
 def write_hyp(datadir, taskname, filename, txtfilecontent, cmudictfile):
     os.system('mkdir -p '+os.path.join(datadir, taskname+'.wavlab'))
-    try:
-        o = open(os.path.join(datadir, taskname+'.wavlab', filename+'.lab'), 'w')
-        words = map(lambda word: word.strip(string.punctuation),
-                    process_usertext(txtfilecontent).split())
-        words = map(lambda word: word.replace("'", "\\'"), words)
-        o.write(' '.join(words)+'\n')
-        o.close()
-        #make dictionary for OOVs
-        g2p(os.path.join(datadir, taskname), set(words), cmudictfile)
-        return ""
-    except:
-        return "Error processing transcript file. Please check plaintext format and try again."
+    o = open(os.path.join(datadir, taskname+'.wavlab', filename+'.lab'), 'w')
+    words = map(lambda word: word.strip(string.punctuation),
+                process_usertext(txtfilecontent.lower()).split())
+    print words
+    print 'words written to lab'
+    print taskname
+    words = map(lambda word: word.replace("'", "\\'"), words)
+    o.write(' '.join(words)+'\n')
+    o.close()
+    #make dictionary for OOVs
+    g2p(os.path.join(datadir, taskname), set(words), cmudictfile)
+    return ""
 
 def write_sentgrid_as_lab(datadir, taskname, filename, txtfile, cmudictfile):
     os.system('mkdir -p '+os.path.join(datadir, taskname+'.wavlab'))

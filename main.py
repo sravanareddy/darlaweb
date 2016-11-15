@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+celeryon = True  #whether or not to use celery
+
 import web
 import shutil
 import codecs
@@ -23,6 +25,7 @@ from mturk import mturk, mturksubmit
 from googleapiclient import discovery
 import httplib2
 from oauth2client.client import GoogleCredentials
+from featrec import align_extract
 # [END import_libraries]
 
 
@@ -229,7 +232,11 @@ class uploadsound:
             return render.speakerssound(form, speakers)
 
 class googlespeech:
+    speaker_name = form.Textbox('name', description='Speaker ID: ')
+    sex = myform.MyRadio('sex', [('M','Male ', 'M'), ('F','Female ', 'F'), ('F','Child ', 'C')], description='Speaker Sex: ')
+    sex.value = 'M'  # default if not checked
     filepaths = utilities.read_filepaths()
+    appdir = filepaths['APPDIR']
     datadir = filepaths['DATA']
     # [START authenticating]
     DISCOVERY_URL = ('https://{api}.googleapis.com/$discovery/rest?'
@@ -257,11 +264,14 @@ class googlespeech:
             'speech', 'v1beta1', http=http, discoveryServiceUrl=self.DISCOVERY_URL)
 
     def GET(self):
+        
         googlespeech = myform.MyForm(self.uploadfile,
                                      self.delstopwords,
                                      self.filterbandwidths,
                                      self.email,
                                      self.taskname,
+                                     self.speaker_name,
+                                     self.sex,
                                      self.submit)
         form = googlespeech()
         return render.googlespeech(form)
@@ -272,6 +282,8 @@ class googlespeech:
                                      self.filterbandwidths,
                                      self.email,
                                      self.taskname,
+                                     self.sex,
+                                     self.speaker_name,
                                      self.submit)
         form = googlespeech()
         x = web.input(uploadfile={})
@@ -296,6 +308,7 @@ class googlespeech:
                 service = self.get_speech_service()
                 total_msg = []
 
+
                 # TODO: chunks are just the intervals. need to get the actual files
                 for ci, chunk in enumerate(chunks):
                     # get the file and read it in
@@ -308,7 +321,7 @@ class googlespeech:
                             # There are a bunch of config options you can specify. See
                             # https://goo.gl/KPZn97 for the full list.
                             'encoding': 'LINEAR16',  # raw 16-bit signed LE samples
-                            'sampleRate': 16000,  # 16 khz
+                            'sampleRate': samprate,  # 16 khz
                             # See https://goo.gl/A9KJ1A for a list of supported languages.
                             'languageCode': 'en-US',  # a BCP-47 language tag
                         },
@@ -317,11 +330,31 @@ class googlespeech:
                             }
                         })
                     response = service_request.execute()
-                    sentences = "".join(map(lambda x: x['alternatives'][0]['transcript'], response['results']))
+                    sentences = ''.join(map(lambda x: x['alternatives'][0]['transcript'], response['results']))
                     total_msg.append(sentences)
 
+                print "Got Google Speech ASR results: "
+                print total_msg
+                print taskname
 
-                return render.success(" ".join(total_msg))
+                # save this as into formants file 
+                error = utilities.write_hyp(self.datadir, taskname,
+                    filename, ' '.join(total_msg), 'cmudict.forhtk.txt')
+                print "past write hyp"
+                print error
+                # TODO: do something with this error 
+                utilities.write_speaker_info(os.path.join(self.datadir, taskname+'.speaker'), x.name, x.sex)
+                
+                utilities.gen_argfiles(self.datadir, taskname, filename, 'txtalign', x.email, samprate, form.delstopwords.value, form.filterbandwidths.value)
+
+                if celeryon:
+                    result = align_extract.delay(os.path.join(self.datadir, taskname), self.appdir)
+                    while not result.ready():
+                        pass
+                else:
+                    align_extract(os.path.join(datadir, taskname),self.appdir)
+
+                return render.success(total_msg)
 
 
 
