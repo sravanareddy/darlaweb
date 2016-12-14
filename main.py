@@ -333,16 +333,11 @@ class googlespeech:
                     sentences = ''.join(map(lambda x: x['alternatives'][0]['transcript'], response['results']))
                     total_msg.append(sentences)
 
-                print "Got Google Speech ASR results: "
-                print total_msg
-                print taskname
-
                 # save this as into formants file 
                 error = utilities.write_hyp(self.datadir, taskname,
                     filename, ' '.join(total_msg), 'cmudict.forhtk.txt')
-                print "past write hyp"
-                print error
-                # TODO: do something with this error 
+
+                # TODO: do something with this error - send email?
                 utilities.write_speaker_info(os.path.join(self.datadir, taskname+'.speaker'), x.name, x.sex)
 
                 utilities.gen_argfiles(self.datadir, taskname, filename, 'txtalign', x.email, samprate, x.delstopwords, x.filterbandwidths)
@@ -354,18 +349,8 @@ class googlespeech:
                 else:
                     align_extract(os.path.join(datadir, taskname),self.appdir)
 
-                return render.success(total_msg)
+                return render.success("You may now close this window. We will email you the results")
 
-
-
-                # speech_content = base64.b64encode(speech.read())
-
-
-                # # [END construct_request]
-                # # [START send_request]
-                # response = service_request.execute()
-                # print(json.dumps(response))
-                # return render.success(json.dumps(response))
 
 class uploadyt:
     uploadfile = make_uploadfile()

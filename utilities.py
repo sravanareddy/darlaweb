@@ -408,9 +408,7 @@ def write_hyp(datadir, taskname, filename, txtfilecontent, cmudictfile):
     o = open(os.path.join(datadir, taskname+'.wavlab', filename+'.lab'), 'w')
     words = map(lambda word: word.strip(string.punctuation),
                 process_usertext(txtfilecontent.lower()).split())
-    print words
-    print 'words written to lab'
-    print taskname
+
     words = map(lambda word: word.replace("'", "\\'"), words)
     o.write(' '.join(words)+'\n')
     o.close()
