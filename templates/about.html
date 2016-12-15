@@ -131,7 +131,8 @@ Of course, there will be instances of vowel error, but the effect of these error
        <div class="collapse" id="limitsbody">
 <p> DARLA's completely automated system cannot provide perfect transcriptions. The automatic
 transcriptions typically contain a very large number of errors,
-especially in free speech data, even using YouTube's ASR. Current technology simply cannot match the accuracy of human manual transcriptions.</p>
+especially in free speech data, even using Google's ASR. 
+Current technology cannot match the accuracy of human manual transcriptions.</p>
 
 <p>DARLA's completely automated approach to sociophonetics may help open the way
 toward large-scale audio analysis, but there is a tradeoff. As with
@@ -171,15 +172,22 @@ You can also upload manually aligned/corrected TextGrids for formant
 	 in FAVE, like creating pronunciations of words that are not
 	 in the dictionary, are automated.</p>
 
-<p> For research requiring perfect transcriptions, we recommend either
-using either the "Boundaries" option OR using the
-YouTubeClosedCaptions ASR as a first pass and then correcting it
-online with our playback tool. The plaintext
+<p> For research requiring perfect transcriptions:
+<ol>
+<li>
+Use the <a href="googlespeech">completely automated ASR</a> option 
+as a first pass and then correct the transcriptions
+online with our playback tool, OR
+
+<li>If you can spend the time to produce manual transcriptions,
+using the semi-automated <a href="uploadboundtrans">Boundaries</a> option.
+The semi-automated <a href="uploadtxttrans">plaintext</a>
 method works just as well, but you will need to delete noises,
 laughter, interviewer's voice, etc. With the Boundaries method, such
 deletions aren't necessary since you are simply putting boundaries
 around the parts of the recording that you want.</p>
-
+</ol>
+</p>
        </div>
 
             <li class="list-group-item">
