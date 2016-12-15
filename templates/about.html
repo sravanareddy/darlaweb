@@ -1,8 +1,8 @@
 <div class="container">
-  
+
   <h2>FAQs</h2>
 
-  
+
   <ol class="list-group">
     <li class="list-group-item">
     <a href="#" data-toggle="collapse" data-target="#whatbody"><h3
@@ -13,11 +13,11 @@
       <p>DARLA is a web application providing two main functionalities for vowel
     extraction from speech: completely
     automated and semi-automated.</p>
-    
+
 <p>The completely automated system transcribes the input
     speech data using automatic speech recognition (ASR), and then
     runs it through forced alignment and formant extraction.</p>
-    
+
     <p>The semi-automated system is a <a
     href="http://fave.ling.upenn.edu/">FAVE-based</a> approach that
     aligns and extracts vowel formants from speech with manual
@@ -32,60 +32,29 @@
        <div id="outputbody" class="collapse">
 <p>We e-mail a set of files to you: a vowel plot showing the mean of stressed vowels
 after filtering out grammatical function words, a spreadsheet with
-both unnormalized and Lobanov-normalized formant measurements, 
+formant measurements,
 the same spreadsheet formatted for convenient uploading to <a
 href="http://lvc.uoregon.edu/norm/about_norm1.php">NORM</a>, the
 alignments, and the transcriptions.
-You can select whether you want to filter out stop words 
-<a href="/static/content/stopwords.txt">(from this list)</a> 
-and high-bandwidth vowels. 
+You can select whether you want to filter out stop words
+<a href="/static/content/stopwords.txt">(from this list)</a>
+and high-bandwidth vowels.
 </p>
 
 <p>If you are using the completely automated feature, you also have the option of
 editing the transcriptions online, and seamlessly re-running your task
 	 through the system.</p>
        </div>
-       
+
     </li>
-    
+
     <li class="list-group-item">
     <a href="#" data-toggle="collapse" data-target="#asrbody">
     <h3 id="asr">What ASR is used for the completely automated feature?</h3></a>
 
      <div id="asrbody" class="collapse">
-    <p>We give you two options: our in-house ASR, and YouTube's
-    closed captioning.</p>
-
-    <ul>
-      <li>
-      <p>The in-house ASR is a research system built with the <a
-    href="http://cmusphinx.sourceforge.net/">CMU Sphinx</a> toolkit.
-    It is the fastest method, and works reasonably well for some kinds
-    of recordings.
-    However, the results often have a fair number of transcription
-      errors, since we don't have the resources to match the commercial
-   state-of-the-art.</p>
-      
-    <p>For this reason, we have added a convenient option to make manual
-    corrections: the initial results e-mailed to you 
-    include a link to an online playback tool which divides your
-    recording and ASR transcription into 20-second audio chunks that
-    can be corrected and then directly resubmitted to DARLA. </p></li>
-    
-<li> The other option uses Google's state-of-the-art ASR through
-    YouTube's Closed Captioning. Your audio is uploaded to YouTube (to a private secure
-    account), and the transcriptions are extracted.</p>
-
-      <p>One drawback is that YouTube often takes 5+ hours to
-    produce captions. (The transcriptions are typically quite good,
-    so it's worth the wait.) Note that you don't have to upload anything to
-    YouTube or convert your audio into a video yourself; DARLA takes care of
-    that for you! See the <a href="cave">system page</a> for details.</p>
- 
-    
-  
-    </li>
-  </ul>
+    <p>We use the <a href="https://cloud.google.com/speech/">Google Speech API</a>,
+    one of the current state-of-art technologies in speech recognition.</p>
      </div></li>
 
        <li class="list-group-item">
@@ -99,11 +68,11 @@ editing the transcriptions online, and seamlessly re-running your task
    transcription error rates for words, phonemes, and stressed vowels. Simply
     upload the ASR transcription and the manual transcription in
     plaintext format.</p>
-    
+
 </div></li>
 
 
-     
+
   <li class="list-group-item">
   <a href="#eval" data-toggle="collapse" data-target="#techbody">
       <h3 id="tech">What do you use for alignment and extraction?</h3></a>
@@ -131,9 +100,9 @@ editing the transcriptions online, and seamlessly re-running your task
   from hours of recordings, including YouTube and vast audio
     archives. DARLA takes a step in this direction. </p>
   </div>
-  
+
       </li>
-      
+
       <li class="list-group-item">
 <a href="#why" data-toggle="collapse" data-target="#errorsbody">
       <h3 id="errors">How do we deal with ASR errors?</h3></a>
@@ -142,7 +111,7 @@ editing the transcriptions online, and seamlessly re-running your task
 <p>While ASR is far from perfect, we believe sociophoneticians do not need to wait for years to take advantage of speech recognition. Unlike applications like dictation software where accurate word recognition is the primary goal, sociophonetics typically focuses on a much narrower objective: extracting a representative vowel space for speakers, based on stressed vowel tokens.
 For example, it would usually not be crucial to know that the stressed vowel in the word "turning" was extracted from "turn it" rather than "turning", or that "tack" was wrongly transcribed as "sack".  Such differences will have little effect on the speaker's vowel space for many sociophonetic questions. </p>
 
-<p>It turns out that most ASR errors affect the identity of the <i>words</i> but not the identity of the <i>vowels</i> (especially stressed vowels), making it an ideal technology for automated vowel analysis. 
+<p>It turns out that most ASR errors affect the identity of the <i>words</i> but not the identity of the <i>vowels</i> (especially stressed vowels), making it an ideal technology for automated vowel analysis.
 Of course, there will be instances of vowel error, but the effect of these errors is reduced by the large amount of data with hundreds or thousands of vowel tokens.</p>
 
 <p>Important contrasts like "cot" versus "caught" tend to be handled by ASR's modeling of grammatical plausibility (using a <a href="http://en.wikipedia.org/wiki/Language_model">language model</a>). The system would be unlikely to transcribe "I caught the ball" as "I cot the ball" since the latter would be improbable under an English language model.</p>
@@ -153,13 +122,13 @@ Of course, there will be instances of vowel error, but the effect of these error
 	versus pit/pet.</p>
       </div>
       </li>
-      
+
       <li class="list-group-item">
 
       <a href="#errors" data-toggle="collapse" data-target="#limitsbody">
       <h3 id="limits">Sounds great! What's the catch with the completely automated system?</h3></a>
 
-       <div class="collapse" id="limitsbody">  
+       <div class="collapse" id="limitsbody">
 <p> DARLA's completely automated system cannot provide perfect transcriptions. The automatic
 transcriptions typically contain a very large number of errors,
 especially in free speech data, even using YouTube's ASR. Current technology simply cannot match the accuracy of human manual transcriptions.</p>
@@ -174,16 +143,16 @@ that the system can be useful for extracting a representative vowel
 	 data analysis requires a higher tolerance of noise in the
 	 data. In you need greater accuracy, please use our semi-automated system instead.</p>
        </div>
-       
+
        </li>
-       
+
 
        <li class="list-group-item">
        <a href="#limits" data-toggle="collapse" data-target="#semibody">
        <h3 id="semi">What is the semi-automated functionality? How
        does it differ from FAVE and other such tools?</h3></a>
 
-       <div class="collapse" id="semibody">  
+       <div class="collapse" id="semibody">
 <p>This is designed for research that requires accurate human
 transcription.
 Our semi-automated system relies heavily on code from ProsodyLab
@@ -231,7 +200,7 @@ around the parts of the recording that you want.</p>
       you might want to consider manually transcribing with the
       semi-automated method rather than the completely automated
 	 one.</p>
-	 
+
 	<p>However, it is easy to manually delete extraneous sounds and
 	voices in Praat (select the noise and
 	click Cmd+X or Ctrl+X). </p>
@@ -241,7 +210,7 @@ around the parts of the recording that you want.</p>
 	 for the ASR and aligner.
 	 The best solution is to delete the interviewer voice (see
 	 above), but here are some other options:</p>
-	 
+
 	 <ol>
 	   <li> Try "smoothing out" the amplitude of all voices on the
 	 recording: Load your file in Audacity, then click Effects >
@@ -252,7 +221,7 @@ around the parts of the recording that you want.</p>
 <li> Try reducing the amplitude of the whole recording (in Audacity,
 	 click Effects > Amplify) so that the quieter voice is
 	   non-existent.</li>
-	   This may help remove quiet background voices that would be a problem for the aligner. 
+	   This may help remove quiet background voices that would be a problem for the aligner.
 <li> You can also try increasing the amplitude of all voices so that
 	 the ASR transcription can "hear" all of them clearly: In
 	   Audacity, click Effects > Amplify.</li>
@@ -270,12 +239,12 @@ around the parts of the recording that you want.</p>
       data-target="#techbody">See this question</a> for links to the alignment,
       extraction, and plotting code written by other researchers that we are
       building upon.
-    
+
 <p>Our code for the rest of the system -- the web interface, the ASR,
       the YouTube features, online correction and evaluation of transcripts,
-      handling different file formats, 
-      etc. -- is currently not public because 
-      it is under active development. We also think that most users 
+      handling different file formats,
+      etc. -- is currently not public because
+      it is under active development. We also think that most users
       prefer the convenience of the web interface rather than
       installing and wrangling with several programs on their computers.</p>
 
@@ -287,9 +256,9 @@ around the parts of the recording that you want.</p>
     </div>
       </li>
 
-      
+
     </ul>   <!-- ends list-group ul -->
-    
-    
+
+
 
 </div>   <!-- ends container -->
