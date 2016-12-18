@@ -97,6 +97,7 @@ def send_init_email(tasktype, receiver, filename):
         sender = username+'@gmail.com'
 
         subjectmap = {'asr': 'Completely Automated Vowel Extraction',
+                      'googleasr': 'Completely Automated Vowel Extraction',
                       'txtalign': 'Alignment and Extraction',
                       'boundalign': 'Alignment and Extraction',
                       'extract': 'Formant Extraction',
@@ -147,6 +148,7 @@ def send_email(tasktype, receiver, filename, taskname, error_check):
         alext_args = json.load(open(taskname+'.alext_args'))
 
         subjectmap = {'asr': 'Completely Automated Vowel Extraction',
+                      'googleasr': 'Completely Automated Vowel Extraction',
                       'txtalign': 'Alignment and Extraction',
                       'boundalign': 'Alignment and Extraction',
                       'extract': 'Formant Extraction',
@@ -156,14 +158,18 @@ def send_email(tasktype, receiver, filename, taskname, error_check):
         body = 'The formant extraction results for your data are attached:\n\n'
         body += '(1) formants.csv contains detailed information on bandwidths and phonetic environments. '
         if alext_args['delstopwords'] == 'Y':
-            body += 'You elected to remove stop-words ({0}/stopwords).\n'.format(filepaths['URLBASE'])
+            body += 'You elected to remove stop-words ({0}/stopwords). '.format(filepaths['URLBASE'])
         else:
-            body += 'You elected to retain stop-words.\n'
+            body += 'You elected to retain stop-words. '
+        if int(alext_args['maxbandwidth']) < 1e10:
+            body += 'You elected to filter our tokens with F1 or F2 bandwidths over {0} Hz. '.format(alext_args['maxbandwidth'])
+        else:
+            body += 'You elected not to filter out high bandwidth tokens. '
+        body += '\n'
         body += '(2) formants.fornorm.tsv can be uploaded to the NORM online tool (http://lvc.uoregon.edu/norm/index.php) for additional normalization and plotting options\n'
         body += '(3) plot.pdf shows the F1/F2 (stressed) vowel space of your speakers\n'
         body += '(4) The .TextGrid file contains the transcription aligned with the audio\n'
-        if tasktype == 'asr' or tasktype == 'asredit' or tasktype == 'boundalign':
-            #TODO: make special keyword for youtube instead of boundalign
+        if tasktype == 'asr' or tasktype == 'googleasr' or tasktype == 'asredit' or tasktype == 'boundalign':
             body += '(5) transcription.txt contains the transcriptions.\n\n'
             body += 'If you manually correct the alignments in the TextGrid, you may re-upload your data with the new TextGrid to '
             body += filepaths['URLBASE']+'/uploadtextgrid and receive revised formant measurements and plots.\n'
@@ -184,20 +190,24 @@ def send_email(tasktype, receiver, filename, taskname, error_check):
         message['Date'] = formatdate(localtime = True)
 
         message.attach(MIMEText(body, 'plain'))
-        for nicename, filename in [('formants.csv', taskname+'.aggvowels_formants.csv'), ('formants.fornorm.tsv', taskname+'.fornorm.tsv'), ('plot.pdf', taskname+'.plot.pdf'), (filename+'.TextGrid', taskname+'.merged.TextGrid')]:
+        for nicename, realfilename in [('formants.csv', taskname+'.aggvowels_formants.csv'), ('formants.fornorm.tsv', taskname+'.fornorm.tsv'), ('plot.pdf', taskname+'.plot.pdf'), (filename+'.TextGrid', taskname+'.merged.TextGrid')]:
                 part = MIMEBase('application', "octet-stream")
                 try:
-                    part.set_payload( open(filename,"rb").read() )
+                    part.set_payload( open(realfilename,"rb").read() )
                     encoders.encode_base64(part)
                     part.add_header('Content-Disposition', 'attachment; filename='+nicename)
                     message.attach(part)
                 except:
                     error_check = send_error_email(receiver, filename, "Your job was not completed.", error_check) # returns false after error sends
-        if tasktype == 'asr' or tasktype == 'asredit' or tasktype == 'boundalign': #send transcription
+        if tasktype == 'asr' or tasktype == 'googleasr' or tasktype == 'asredit' or tasktype == 'boundalign': #send transcription
             try:
-                consolidate_hyp(taskname+'.wavlab', taskname+'.orderedhyp')
                 part = MIMEBase('application', "octet-stream")
-                part.set_payload( open(taskname+'.orderedhyp', "rb").read() )
+                if tasktype == 'googleasr':
+                    part.set_payload( open(os.path.join(taskname+'.wavlab',
+                                                        filename+'.lab'), "rb").read().replace("\\'", "'") )
+                else:
+                    consolidate_hyp(taskname+'.wavlab', taskname+'.orderedhyp')
+                    part.set_payload( open(taskname+'.orderedhyp', "rb").read() )
                 part.add_header('Content-Disposition', 'attachment; filename=transcription.txt')
                 message.attach(part)
             except:
