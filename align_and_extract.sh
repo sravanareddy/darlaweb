@@ -29,8 +29,8 @@ if [ $task == 'asr' ] || [ $task == 'boundalign' ]; then
     done
 fi
 
-#prepare Viterbi phone alignment of whole file (uploadtxttrans)
-if [ $task == 'txtalign' ]; then
+#prepare Viterbi phone alignment of whole file (uploadtxttrans and google)
+if [ $task == 'txtalign' ] || [ $task == 'googleasr' ]; then
     for f in $taskname.wavlab/*.lab;
       do
 	basename=${f##*/}
@@ -40,7 +40,7 @@ if [ $task == 'txtalign' ]; then
 fi
 
 #get alignments (uploadsound, uploadboundtrans, uploadtxttrans, asredit)
-if [ $task == 'asr' ] || [ $task == 'boundalign' ] || [ $task == 'txtalign' ] || [ $task == 'asredit' ]; then
+if [ $task == 'asr' ] || [ $task == 'googleasr' ] || [ $task == 'boundalign' ] || [ $task == 'txtalign' ] || [ $task == 'asredit' ]; then
     export PYTHONPATH=$appdir/'Prosodylab-Aligner'
     python3 -m aligner -r $hmm -d $stressdict -a $taskname.wavlab >> aligner.log
 fi
@@ -51,7 +51,7 @@ if [ $task == 'asr' ] || [ $task == 'boundalign' ] || [ $task == 'asredit' ]; th
     python merge_grids.py $taskname
 fi
 
-if [ $task == 'txtalign' ] ; then
+if [ $task == 'txtalign' ] || [ $task == 'googleasr' ]; then
     cp $taskname.wavlab/*.TextGrid $taskname.merged.TextGrid;
 fi
 
@@ -59,9 +59,9 @@ if [ $task == 'extract' ] ; then
     cp $taskname.mergedtg/*.TextGrid $taskname.merged.TextGrid;
 fi
 
-echo $taskname
-head $taskname.aggvowels
-head $taskname.merged.TextGrid
+#echo $taskname
+#head $taskname.aggvowels
+#head $taskname.merged.TextGrid
 #run FAVE-extract
 python $favedir/bin/extractFormants.py \
     --means=$favedir/means.txt \
