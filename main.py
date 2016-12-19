@@ -284,7 +284,7 @@ class googlespeech:
             utilities.write_speaker_info(os.path.join(self.datadir, taskname+'.speaker'), x.name, x.sex)
             
             if celeryon:
-                result = asyncrec.delay(service,
+                result = syncrec.delay(service,
                                        self.datadir,
                                        taskname,
                                        audiodir,
@@ -296,7 +296,7 @@ class googlespeech:
                 samprate = result.get()
 
             else:
-                samprate = asyncrec(service,
+                samprate = syncrec(service,
                         self.datadir,
                         taskname,
                         audiodir,

@@ -76,7 +76,7 @@ def asyncrec(service, datadir, taskname, audiodir, filename, extension, uploadfi
                                                                   filename,
                                                                   extension,
                                                                   uploadfilecontents,
-                                                                  dochunk=79*60)
+                                                                  dochunk=50)
 
     total_msg = []
 
