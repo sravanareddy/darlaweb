@@ -19,12 +19,9 @@ import time
 import srt_to_textgrid
 import json
 import sys
-import base64
 from mturk import mturk, mturksubmit
 #google
-from googleapiclient import discovery
-import httplib2
-from oauth2client.client import GoogleCredentials
+from googleapi import *
 from featrec import align_extract
 # [END import_libraries]
 
@@ -238,10 +235,6 @@ class googlespeech:
     filepaths = utilities.read_filepaths()
     appdir = filepaths['APPDIR']
     datadir = filepaths['DATA']
-    # [START authenticating]
-    DISCOVERY_URL = ('https://{api}.googleapis.com/$discovery/rest?'
-                     'version={apiVersion}')
-    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = filepaths['GOOGLESPEECH']
 
     uploadfile = make_uploadfile()
     delstopwords = make_delstopwords()
@@ -252,19 +245,9 @@ class googlespeech:
 
     soundvalid = [form.Validator('Please upload a sound file.',
                                  lambda x:x.uploadfile)]
-    # Application default credentials provided by env variable
-    # GOOGLE_APPLICATION_CREDENTIALS
-    def get_speech_service(self):
-        credentials = GoogleCredentials.get_application_default().create_scoped(
-            ['https://www.googleapis.com/auth/cloud-platform'])
-        http = httplib2.Http()
-        credentials.authorize(http)
-
-        return discovery.build(
-            'speech', 'v1beta1', http=http, discoveryServiceUrl=self.DISCOVERY_URL)
 
     def GET(self):
-        
+
         googlespeech = myform.MyForm(self.uploadfile,
                                      self.delstopwords,
                                      self.filterbandwidths,
@@ -294,62 +277,44 @@ class googlespeech:
             form.note = "Please upload a .wav or .mp3 file."
             return render.speakersyt(form)
         else:
-            with x.uploadfile.file as speech:
-            # Base64 encode the binary audio file for inclusion in the JSON
-            # request.
-                # split into minute chunks
-                taskname, audiodir, error = utilities.make_task(self.datadir)
-                filename, extension = utilities.get_basename(x.uploadfile.filename)
-                samprate, total_size, chunks, error = utilities.process_audio(audiodir,
-                                                                                 filename,
-                                                                                 extension,
-                                                                                 x.uploadfile.file.read(),
-                                                                                 dochunk=50)
-                service = self.get_speech_service()
-                total_msg = []
+            service = get_speech_service(self.filepaths['GOOGLESPEECH'])
+            taskname, audiodir, error = utilities.make_task(self.datadir)
+            filename, extension = utilities.get_basename(x.uploadfile.filename)
 
+            utilities.write_speaker_info(os.path.join(self.datadir, taskname+'.speaker'), x.name, x.sex)
+            
+            if celeryon:
+                result = asyncrec.delay(service,
+                                       self.datadir,
+                                       taskname,
+                                       audiodir,
+                                       filename,
+                                       extension,
+                                       x.uploadfile.file.read())
+                while not result.ready():
+                    pass
+                samprate = result.get()
 
-                # TODO: chunks are just the intervals. need to get the actual files
-                for ci, chunk in enumerate(chunks):
-                    # get the file and read it in
+            else:
+                samprate = asyncrec(service,
+                        self.datadir,
+                        taskname,
+                        audiodir,
+                        filename,
+                        extension,
+                        x.uploadfile.file.read())
+            #TODO: why do we need datadir, audiodir, etc? Reduce redundancy in these filenames
 
-                    chunk_file = open(os.path.join(audiodir,'splits',filename+'.split{0:03d}.wav'.format(ci+1)))
-                    speech_content = base64.b64encode(chunk_file.read())
-                    service_request = service.speech().syncrecognize(
-                    body={
-                        'config': {
-                            # There are a bunch of config options you can specify. See
-                            # https://goo.gl/KPZn97 for the full list.
-                            'encoding': 'LINEAR16',  # raw 16-bit signed LE samples
-                            'sampleRate': samprate,  # 16 khz
-                            # See https://goo.gl/A9KJ1A for a list of supported languages.
-                            'languageCode': 'en-US',  # a BCP-47 language tag
-                        },
-                        'audio': {
-                            'content': speech_content.decode('UTF-8')
-                            }
-                        })
-                    response = service_request.execute()
-                    sentences = ''.join(map(lambda x: x['alternatives'][0]['transcript'], response['results']))
-                    total_msg.append(sentences)
+            utilities.gen_argfiles(self.datadir, taskname, filename, 'googleasr', x.email, samprate, x.delstopwords, x.filterbandwidths)
 
-                # save this as into formants file 
-                error = utilities.write_hyp(self.datadir, taskname,
-                    filename, ' '.join(total_msg), 'cmudict.forhtk.txt')
+            if celeryon:
+                result = align_extract.delay(os.path.join(self.datadir, taskname), self.appdir)
+                while not result.ready():
+                    pass
+            else:
+                align_extract(os.path.join(self.datadir, taskname),self.appdir)
 
-                # TODO: do something with this error - send email?
-                utilities.write_speaker_info(os.path.join(self.datadir, taskname+'.speaker'), x.name, x.sex)
-
-                utilities.gen_argfiles(self.datadir, taskname, filename, 'googleasr', x.email, samprate, x.delstopwords, x.filterbandwidths)
-
-                if celeryon:
-                    result = align_extract.delay(os.path.join(self.datadir, taskname), self.appdir)
-                    while not result.ready():
-                        pass
-                else:
-                    align_extract(os.path.join(datadir, taskname),self.appdir)
-
-                return render.success("You may now close this window. We will email you the results.")
+            return render.success("You may now close this window. We will email you the results.")
 
 
 class uploadyt:

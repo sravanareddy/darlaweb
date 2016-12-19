@@ -385,10 +385,10 @@ def process_usertext(inputstring):
     transfrom = '\xd5\xd3\xd2\xd0\xd1\xcd\xd4'
     transto = '\'""--\'\''
     unimaketrans = string.maketrans(transfrom, transto)
-    
+
     if(isinstance(inputstring, str)):
     #MS line breaks and stylized characters that stupid TextEdit inserts. (is there an existing module that does this?)
-    
+
         inputstring = string.translate(inputstring,
                                 unimaketrans).replace("\xe2\x80\x93"
                                 , " - ").replace('\xe2\x80\x94'
@@ -397,7 +397,7 @@ def process_usertext(inputstring):
                                     , '"').replace('\xe2\x80\x9d'
                                     , '"').replace('\r\n'
                                     , '\n').replace('\r', '\n').strip()
-        inputstring = to_unicode(inputstring, encoding='utf-8', errors='ignore')   # catch-all? 
+        inputstring = to_unicode(inputstring, encoding='utf-8', errors='ignore')   # catch-all?
 
     cleaned = inputstring.replace('[', '').replace(']', '')  # common in linguists' transcriptions
     cleaned = cleaned.replace('-', ' ').replace('/', ' ').strip(string.punctuation)  # one more tok pass
