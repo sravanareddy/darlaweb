@@ -2,6 +2,8 @@ import utilities
 import base64
 import os
 from googleapiclient import discovery
+from googleapiclient.http import MediaFileUpload
+from googleapiclient.errors import HttpError
 import httplib2
 from oauth2client.client import GoogleCredentials
 
@@ -9,6 +11,23 @@ from celery.task import task
 import subprocess
 import shlex
 import time
+
+# While the api library is still supported via discovery, 
+# google suggests trying the newer Cloud Client Library for Cloud Storage JSON, 
+# https://cloud.google.com/storage/docs/reference/libraries
+# newer one is: pip install --upgrade google-cloud-storage
+def get_storage_service(keyloc):
+    DISCOVERY_URL = ('https://{api}.googleapis.com/$discovery/rest?'
+                     'version={apiVersion}')
+    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = keyloc
+    # Application default credentials provided by env variable
+
+    credentials = GoogleCredentials.get_application_default().create_scoped(
+            ['https://www.googleapis.com/auth/cloud-platform'])
+    http = httplib2.Http()
+    credentials.authorize(http)
+
+    return discovery.build('storage', 'v1', http=http)
 
 def get_speech_service(keyloc):
     # [START authenticating]
@@ -26,9 +45,49 @@ def get_speech_service(keyloc):
                            'v1beta1',
                            http=http, discoveryServiceUrl=DISCOVERY_URL)
 
+# uploads file from the directory audiodir to gs bucket audiouploads
+def gcloudupload(storageservice, audiodir, filename, uploadfilecontents):
+    RETRYABLE_ERRORS = (httplib2.HttpLib2Error, IOError)
+    CHUNKSIZE = 2 * 1024 * 1024 # 2 MB
+
+    media = MediaFileUpload(os.path.join(audiodir,filename+'.wav'), chunksize=CHUNKSIZE, resumable=True)
+    request = storageservice.objects().insert(bucket='audiouploads', name=taskname, media_body=media)
+    # https://github.com/GoogleCloudPlatform/storage-file-transfer-json-python/blob/master/chunked_transfer.py
+    progressless_iters = 0
+    response = None
+    while response is None:
+        error = None
+        try:
+            progress, response = request.next_chunk()
+            if progress:
+                sys.stdout.write('Upload %d%% \n' % (100 * progress.progress()))
+        except HttpError, err:
+            error = err
+            if err.resp.status < 500:
+                raise
+        except RETRYABLE_ERRORS, err:
+            error = err
+
+        if error:
+            progressless_iters += 1
+            handle_progressless_iter(error, progressless_iters, taskname)
+        else:
+            progressless_iters = 0
+    return 
+
+
+def handle_progressless_iter(error, progressless_iters, taskname):
+    if progressless_iters > NUM_RETRIES:
+        sys.stderr.write('Failed to make progress for too many consecutive iterations for task {0}'.format(taskname))
+        raise error
+
+    sleeptime = random.random() * (2**progressless_iters)
+    sys.stderr.write('Caught exception for task {3} : ({0}). Sleeping for {1} seconds before retry #{2}.'
+        .format(str(error), sleeptime, progressless_iters, taskname))
+    time.sleep(sleeptime)
 
 @task(serializer='json')
-def syncrec(service, datadir, taskname, audiodir, filename, extension, uploadfilecontents):
+def syncrec(service, datadir, taskname, audiodir, filename, extension, uploadfilecontents, phrasehints = []):
     samprate, total_size, chunks, error = utilities.process_audio(audiodir,
                                                                   filename,
                                                                   extension,
@@ -51,6 +110,9 @@ def syncrec(service, datadir, taskname, audiodir, filename, extension, uploadfil
                             'sampleRate': samprate,  # 16 khz
                             # See https://goo.gl/A9KJ1A for a list of supported languages.
                             'languageCode': 'en-US',  # a BCP-47 language tag
+                            'speechContext': {
+                                'phrases': phrasehints
+                            }
                         },
                         'audio': {
                             'content': speech_content.decode('UTF-8')
@@ -71,12 +133,12 @@ def syncrec(service, datadir, taskname, audiodir, filename, extension, uploadfil
     return samprate
 
 @task(serializer='json')
-def asyncrec(service, datadir, taskname, audiodir, filename, extension, uploadfilecontents):
+def asyncrec(service, datadir, taskname, audiodir, filename, extension, uploadfilecontents, phrasehints = []):
     samprate, total_size, chunks, error = utilities.process_audio(audiodir,
                                                                   filename,
                                                                   extension,
                                                                   uploadfilecontents,
-                                                                  dochunk=50)
+                                                                  dochunk=None)
 
     total_msg = []
 
@@ -94,9 +156,13 @@ def asyncrec(service, datadir, taskname, audiodir, filename, extension, uploadfi
                             'sampleRate': samprate,  # 16 khz
                             # See https://goo.gl/A9KJ1A for a list of supported languages.
                             'languageCode': 'en-US',  # a BCP-47 language tag
+                            'speechContext': {
+                                'phrases': phrasehints
+                            }
                         },
                         'audio': {
                             'content': speech_content.decode('UTF-8')
+                            # 'uri': 'gs://audiouploads/' + taskname
                             }
                         })
         response = service_request.execute()
