@@ -552,10 +552,10 @@ def process_audio(audiodir, filename, extension, filecontent, dochunk):
         o.close()
 
     if extension == '.mp3':
-        print 'converting mp3 to wav', os.path.join(audiodir, filename+extension)  #TODO: try and except here
+        sys.stdout.write('converting mp3 to wav {0}'.format(os.path.join(audiodir, filename+extension)))  #TODO: try and except here
         #os.system("mpg123 "+"-w "+os.path.join(audiodir, filename+'.wav')+' '+os.path.join(audiodir, filename+extension))
-        audio = subprocess.Popen(shlex.split("mpg123 "+"-w "+os.path.join(audiodir, filename+'.wav')+' '+os.path.join(audiodir, filename+extension)), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
-        retval = audio.wait()
+        audio = subprocess.Popen(shlex.split("mpg123 "+"-w "+os.path.join(audiodir, filename+'.wav')+' '+os.path.join(audiodir, filename+extension)), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        audio.wait()
 
         extension = '.wav'
 
@@ -595,7 +595,10 @@ def sox_conversion(filename, audiodir, dochunk=None):
         return sample_rate, file_size, 0, error_message
 
     for line in sox.stdout.readlines():
-        # print line
+        if "File Size" in line:
+            line = line.split(':')
+            num_bytes = line[1]
+
         if "Sample Rate" in line:
             line = line.split(':')
             sample_rate = int(line[1].strip())
