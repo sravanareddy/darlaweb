@@ -26,10 +26,10 @@ urls = {
 	 }
 
 class asredit:
-        filepaths = utilities.read_filepaths()
-        datadir = filepaths['DATA']
-        appdir = filepaths['APPDIR']
-	def GET(self):
+    filepaths = utilities.read_filepaths()
+    datadir = filepaths['DATA']
+    appdir = filepaths['APPDIR']
+    def GET(self):
         taskname = web.input()['taskname']
         #copy sound files to public
         if not os.path.exists(os.path.join('static', 'usersounds', taskname)):
