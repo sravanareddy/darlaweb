@@ -8,6 +8,7 @@ from googleapiclient.errors import HttpError
 import httplib2
 from oauth2client.client import GoogleCredentials
 import json 
+import mimetypes
 
 from celery.task import task
 import subprocess
@@ -62,7 +63,10 @@ def gcloudupload(storageservice, audiodir, filename, taskname):
             stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
     audio.wait()
 
-    media = MediaFileUpload(os.path.join(audiodir,filename+'.raw'), chunksize=CHUNKSIZE, resumable=True)
+    (mime, encoding) = mimetypes.guess_type(os.path.join(audiodir,filename+'.raw'))
+    if mime == None:
+        mime = "application/octet-stream"
+    media = MediaFileUpload(os.path.join(audiodir,filename+'.raw'), chunksize=CHUNKSIZE, mimetype=mime, resumable=True)
     request = storageservice.objects().insert(bucket='audiouploads', name=taskname, media_body=media)
 
     progressless_iters = 0

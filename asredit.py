@@ -34,7 +34,7 @@ class asredit:
         #copy sound files to public
         if not os.path.exists(os.path.join('static', 'usersounds', taskname)):
             os.mkdir(os.path.join('static', 'usersounds', taskname))
-        tasktype = json.load(open(os.path.join(self.datadir, taskname+'.alext_args'))) # get task type
+        tasktype = json.load(open(os.path.join(self.datadir, taskname+'.alext_args')))['tasktype'] # get task type
         if tasktype in ['asr', 'boundalign']: # splits
             for wavfile in os.listdir(os.path.join(self.datadir, taskname+'.audio/splits/')):
                 shutil.copyfile(os.path.join(self.datadir,
@@ -47,9 +47,9 @@ class asredit:
         else:  #no splits, single file starting with converted_
             wavfile = filter(lambda x:x.startswith('converted_'),
                              os.listdir(os.path.join(self.datadir,
-                                                     taskname+'.audio/splits')))[0]
+                                                     taskname+'.audio/')))[0]
             shutil.copyfile(os.path.join(self.datadir,
-                                         taskname+'.audio/splits',
+                                         taskname+'.audio/',
                                          wavfile),
                             os.path.join('static',
                                          'usersounds',
