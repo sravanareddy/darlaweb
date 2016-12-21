@@ -277,32 +277,50 @@ class googlespeech:
             form.note = "Please upload a .wav or .mp3 file."
             return render.speakersyt(form)
         else:
+            gstorage = get_storage_service(self.filepaths['GOOGLESPEECH'])
             service = get_speech_service(self.filepaths['GOOGLESPEECH'])
             taskname, audiodir, error = utilities.make_task(self.datadir)
             filename, extension = utilities.get_basename(x.uploadfile.filename)
 
             utilities.write_speaker_info(os.path.join(self.datadir, taskname+'.speaker'), x.name, x.sex)
             
-            if celeryon:
+            if celeryon: 
+                # upload entire file onto google cloud storage
+                samprate, total_size, chunks, error = utilities.process_audio(audiodir,
+                                                                  filename,
+                                                                  extension,
+                                                                  x.uploadfile.file.read(),
+                                                                  dochunk=None)
+                result = gcloudupload.delay(gstorage,
+                                            audiodir,
+                                            filename, 
+                                            taskname)
+                while not result.ready():
+                    pass
+
                 result = asyncrec.delay(service,
                                        self.datadir,
                                        taskname,
                                        audiodir,
                                        filename,
-                                       extension,
-                                       x.uploadfile.file.read())
+                                       samprate)
                 while not result.ready():
                     pass
-                samprate = result.get()
 
             else:
-                samprate = syncrec(service,
+                # create chunked files
+                samprate, total_size, chunks, error = utilities.process_audio(audiodir,
+                                                                  filename,
+                                                                  extension,
+                                                                  x.uploadfile.file.read(),
+                                                                  dochunk=50)
+                syncrec(service,
                         self.datadir,
                         taskname,
                         audiodir,
                         filename,
-                        extension,
-                        x.uploadfile.file.read())
+                        chunks,
+                        samprate)
             #TODO: why do we need datadir, audiodir, etc? Reduce redundancy in these filenames
 
             utilities.gen_argfiles(self.datadir, taskname, filename, 'googleasr', x.email, samprate, x.delstopwords, x.filterbandwidths)
