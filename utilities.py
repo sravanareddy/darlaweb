@@ -139,6 +139,33 @@ def consolidate_hyp(wavlab, outfile):
         o.write('\n')
     o.close()
 
+def send_traceback_email(tasktype, filename, taskname, traceback):
+    filepaths = read_filepaths()
+    password = open(filepaths['PASSWORD']).read().strip()
+    username = 'darla.dartmouth'
+    sender = username+'@gmail.com'
+    subject = 'Error occured for task {0}'.format(taskname)
+    body = 'Traceback for taskname {0}, tasktype {1}, audiofile {2}'.format(taskname, audiofile)
+    body += traceback
+    message = MIMEMultipart()
+    message['From'] = 'DARLA <'+sender+'>'
+    message['To'] = sender # sends to us
+    message['Subject'] = subject
+    message['Date'] = formatdate(localtime = True)
+
+    message.attach(MIMEText(body, 'plain'))
+
+    try:
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(username, password)
+        server.sendmail(sender, receiver, message.as_string())
+        server.quit()
+        return False
+
+    except smtplib.SMTPException:
+        print 'Unable to send e-mail '
+
 def send_email(tasktype, receiver, filename, taskname, error_check):
         filepaths = read_filepaths()
         password = open(filepaths['PASSWORD']).read().strip()
@@ -205,22 +232,22 @@ def send_email(tasktype, receiver, filename, taskname, error_check):
                 if tasktype == 'googleasr':
                     part.set_payload( open(os.path.join(taskname+'.wavlab',
                                                         filename+'.lab'), "rb").read().replace("\\'", "'") )
-                else:
+                else:   
                     consolidate_hyp(taskname+'.wavlab', taskname+'.orderedhyp')
                     part.set_payload( open(taskname+'.orderedhyp', "rb").read() )
                 part.add_header('Content-Disposition', 'attachment; filename=transcription.txt')
                 message.attach(part)
             except:
-                    error_check = send_error_email(receiver, filename, "There was a problem attaching the transcription.", error_check)
+                error_check = send_error_email(receiver, filename, "There was a problem attaching the transcription.", error_check)
         try:
-                server = smtplib.SMTP('smtp.gmail.com', 587)
-                server.starttls()
-                server.login(username, password)
-                server.sendmail(sender, receiver, message.as_string())
-                server.quit()
+            server = smtplib.SMTP('smtp.gmail.com', 587)
+            server.starttls()
+            server.login(username, password)
+            server.sendmail(sender, receiver, message.as_string())
+            server.quit()
 
         except smtplib.SMTPException:
-                print 'Unable to send e-mail '
+            print 'Unable to send e-mail '
 
 
 def send_error_email(receiver, filename, message, first):
@@ -237,7 +264,8 @@ def send_error_email(receiver, filename, message, first):
         sender = username+'@gmail.com'
         subject = 'Error trying to process '+filename
         body = 'Unfortunately, there was an error running your job for '+filename + ". "+message
-
+        body += '\nTo help us try and identify what exactly the problem is, please message us with attached file(s) at darla.dartmouth@gmail.com.'
+        body += '\nSorry about the inconvenience. We will try to identify and solve the problem shortly.'
         message = MIMEMultipart()
         message['From'] = 'DARLA <'+sender+'>'
         message['To'] = receiver
@@ -247,17 +275,17 @@ def send_error_email(receiver, filename, message, first):
         message.attach(MIMEText(body, 'plain'))
 
         try:
-                server = smtplib.SMTP('smtp.gmail.com', 587)
-                server.starttls()
-                server.login(username, password)
-                server.sendmail(sender, receiver, message.as_string())
-                server.quit()
-                return False
+            server = smtplib.SMTP('smtp.gmail.com', 587)
+            server.starttls()
+            server.login(username, password)
+            server.sendmail(sender, receiver, message.as_string())
+            server.quit()
+            return False
 
         except smtplib.SMTPException:
-                print 'Unable to send e-mail '
+            print 'Unable to send e-mail '
     else:
-        #print 'Error email already sent. for ' + receiver; #printing cannot work with celery
+        #print 'Error email already sent. for ' + receiver; #printing cannot work with dev
         sys.stderr.write('Error email already sent')
         return False
 

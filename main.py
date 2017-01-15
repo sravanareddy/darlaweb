@@ -284,6 +284,7 @@ class googlespeech:
 
             utilities.write_speaker_info(os.path.join(self.datadir, taskname+'.speaker'), x.name, x.sex)
             
+            send_init_email('googleasr', x.email, filename)
             if celeryon: 
                 # upload entire file onto google cloud storage
                 samprate, total_size, chunks, error = utilities.process_audio(audiodir,
