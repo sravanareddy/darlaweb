@@ -65,8 +65,8 @@ class asredit:
         audiolist = [form.Hidden('taskname', value=taskname)]
         for wavfile in wavfiles:
             audiolist.append(form.Textarea(wavfile,
-                                                       value=hyps[wavfile[:-4]].replace("\\'", "'"),
-                                                       description = '<p><audio controls><source src="{0}" type="audio/wav"></audio></p>'.format(os.path.join('../static', 'usersounds', taskname, wavfile))))
+                                           value=hyps[wavfile[:-4]].replace("\\'", "'"),
+                                           description = '<p><audio controls style="width: 100%;"><source src="{0}" type="audio/wav">Your browser does not support audio playback.</audio></p>'.format(os.path.join('../static', 'usersounds', taskname, wavfile))))
         transedit = myform.ListToForm(audiolist)
         return render.asredit(transedit)
 
@@ -95,10 +95,10 @@ class asredit:
             if os.path.exists(os.path.join(self.datadir, taskname+'.wavlab', wavfile[:-4]+'.TextGrid')):
                 os.remove(os.path.join(self.datadir, taskname+'.wavlab', wavfile[:-4]+'.TextGrid'))
         #change task type
-        alext_args = json.load(open(os.path.join(self.datadir, taskname+'.alext_args')))
-        alext_args['tasktype'] = 'asredit'
-        with open(os.path.join(self.datadir, taskname+'.alext_args'), 'w') as o:
-            json.dump(alext_args, o)
+        #alext_args = json.load(open(os.path.join(self.datadir, taskname+'.alext_args')))
+        #alext_args['tasktype'] = 'asredit'
+        #with open(os.path.join(self.datadir, taskname+'.alext_args'), 'w') as o:
+        #    json.dump(alext_args, o)
 
         #now re-run alignment and extraction
         if celeryon:
@@ -107,6 +107,6 @@ class asredit:
                 pass
         else:
             align_extract(os.path.join(self.datadir, taskname), self.appdir)
-            return render.success('')
+        return render.success("You may now close this window. We will email you the results.")
 
 app_asredit = web.application(urls, locals())

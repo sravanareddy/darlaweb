@@ -53,7 +53,7 @@ urls = ('/', 'index',
 app = web.application(urls, globals())
 web.config.debug = True
 
-MINDURATION = 30 # minimum uploaded audio duration in minutes
+MINDURATION = 2 # minimum uploaded audio duration in minutes
 
 class index:
     def GET(self):

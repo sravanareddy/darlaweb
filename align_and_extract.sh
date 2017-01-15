@@ -40,13 +40,13 @@ if [ $task == 'txtalign' ] || [ $task == 'googleasr' ]; then
 fi
 
 #get alignments (uploadsound, uploadboundtrans, uploadtxttrans, asredit)
-if [ $task == 'asr' ] || [ $task == 'googleasr' ] || [ $task == 'boundalign' ] || [ $task == 'txtalign' ] || [ $task == 'asredit' ]; then
+if [ $task == 'asr' ] || [ $task == 'googleasr' ] || [ $task == 'boundalign' ] || [ $task == 'txtalign' ] ; then
     export PYTHONPATH=$appdir/'Prosodylab-Aligner'
     python3 -m aligner -r $hmm -d $stressdict -a $taskname.wavlab >> aligner.log
 fi
 
 #merge chunked textgrids (uploadsound, uploadboundtrans)
-if [ $task == 'asr' ] || [ $task == 'boundalign' ] || [ $task == 'asredit' ]; then
+if [ $task == 'asr' ] || [ $task == 'boundalign' ] ; then
     python insert_sil_tg.py $taskname
     python merge_grids.py $taskname
 fi

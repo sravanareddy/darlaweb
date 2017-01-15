@@ -20,6 +20,7 @@ textarea {
    font-family: Courier;
    width: 50em;
    height: 6em;
+   resize: both;
 }
 
 .formrequired {
