@@ -9,6 +9,7 @@ import httplib2
 from oauth2client.client import GoogleCredentials
 import json 
 import mimetypes
+import random
 
 from celery.task import task
 import subprocess
@@ -16,6 +17,10 @@ import shlex
 import time
 
 import subprocess
+# max num wait time is 2 ^ 8 = 256 seconds. 
+MAXIMUM_BACKOFF = 8
+# max retries for a request. 
+NUM_RETRIES = 1000 
 
 # While the api library is still supported via discovery, 
 # google suggests trying the newer Cloud Client Library for Cloud Storage JSON, 
@@ -53,7 +58,7 @@ def get_speech_service(keyloc):
 # uploads file from the directory audiodir to gs bucket audiouploads
 # https://github.com/GoogleCloudPlatform/storage-file-transfer-json-python/blob/master/chunked_transfer.py
 @task(serializer='json')
-def gcloudupload(storageservice, audiodir, filename, taskname):
+def gcloudupload(storageservice, audiodir, filename, taskname, email):
     RETRYABLE_ERRORS = (httplib2.HttpLib2Error, IOError)
     CHUNKSIZE = 2 * 1024 * 1024 # 2 MB
 
@@ -70,7 +75,9 @@ def gcloudupload(storageservice, audiodir, filename, taskname):
     request = storageservice.objects().insert(bucket='audiouploads', name=taskname, media_body=media)
 
     progressless_iters = 0
+    err_msg = 'Audio File Upload failed to Google Cloud Storage'
     response = None
+
     while response is None:
         error = None
         try:
@@ -79,34 +86,39 @@ def gcloudupload(storageservice, audiodir, filename, taskname):
                 sys.stdout.write('Upload %d%% \n' % (100 * progress.progress()))
         except HttpError, err:
             error = err
-            if err.resp.status < 500:
-                raise
+            if err.resp.status < 410:
+                send_error_email(email, filename, err_message, 1)
+                send_traceback_email('GStorage Upload Failed', '', taskname, str(error))
+                raise # oh i think this just makes everything stop. 
         except RETRYABLE_ERRORS, err:
             error = err
 
         if error:
             progressless_iters += 1
-            handle_progressless_iter(error, progressless_iters, taskname)
+            if progressless_iters > NUM_RETRIES:
+                sys.stderr.write('Failed to make progress for too many consecutive iterations for task {0}'.format(taskname))
+                send_error_email(email, filename, err_message, 1)
+                send_traceback_email(tasktype, '', taskname, str(error))
+                raise error
+            else:
+                handle_progressless_iter(error, progressless_iters, taskname, 'GStorage Upload Failed')
         else:
             progressless_iters = 0
-
+    
     sys.stdout.write('Upload complete \n')
     sys.stdout.flush()
     return 
 
-
-def handle_progressless_iter(error, progressless_iters, taskname):
-    if progressless_iters > NUM_RETRIES:
-        sys.stderr.write('Failed to make progress for too many consecutive iterations for task {0}'.format(taskname))
-        raise error
-
-    sleeptime = random.random() * (2**progressless_iters)
+# exponential backoff
+def handle_progressless_iter(error, progressless_iters, taskname, tasktype):
+    sleeptime = random.random() + (2**progressless_iters)
     sys.stderr.write('Caught exception for task {3} : ({0}). Sleeping for {1} seconds before retry #{2}.'
         .format(str(error), sleeptime, progressless_iters, taskname))
     time.sleep(sleeptime)
+    return 
 
 @task(serializer='json')
-def syncrec(service, datadir, taskname, audiodir, filename, chunks, samprate, phrasehints = []):
+def syncrec(service, datadir, taskname, audiodir, filename, chunks, samprate, email, phrasehints = []):
     total_msg = []
 
     for ci, chunk in enumerate(chunks):
@@ -146,7 +158,7 @@ def syncrec(service, datadir, taskname, audiodir, filename, chunks, samprate, ph
 
 # instead of getting speech on each chunk, get speech rec on file in google storage. 
 @task(serializer='json')
-def asyncrec(service, datadir, taskname, audiodir, filename, samprate, phrasehints = []):
+def asyncrec(service, datadir, taskname, audiodir, filename, samprate, email, phrasehints = []):
     total_msg = []
     service_request = service.speech().asyncrecognize(
                 body={
@@ -170,15 +182,25 @@ def asyncrec(service, datadir, taskname, audiodir, filename, samprate, phrasehin
     name = response['name']
     # Construct a GetOperation request.
     service_request = service.operations().get(name=name)
-
+    n = 1 # number of tries
     while True:
-        # Give the server a few seconds to process.
-        time.sleep(1)
         # Get the long running operation with response.
-        response = service_request.execute()
+        try:
+            response = service_request.execute()
 
-        if 'done' in response and response['done']:
-            break
+            if 'done' in response and response['done']:
+                break
+        except HttpError, err:
+            # too many requests. exponential backoff
+            if err.resp.status == 429 and n < NUM_RETRIES:
+                handle_progressless_iter(err, n, taskname, 'Google Speech ASR Failed')
+                if (n <= MAXIMUM_BACKOFF):
+                    n += 1
+            else: 
+                sys.stderr.write('Failed to get audio for task {0}'.format(taskname))
+                utilities.send_error_email(email, filename, 'Google Speech ASR API Failed', 1)
+                utilities.send_traceback_email('Google Speech ASR Failed', '', taskname, str(error))
+                raise
 
     response = response['response']
 

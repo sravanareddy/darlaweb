@@ -34,7 +34,7 @@ def align_extract(taskname, appdir):
 
     error_check = True
     alext_args = json.load(open(taskname+'.alext_args'))
-    if alext_args['tasktype']!='asr':
+    if alext_args['tasktype']!='asr' and alext_args['tasktype']!= 'googleasr':
         send_init_email(alext_args['tasktype'], alext_args['email'], alext_args['filename'])
 
     args = ' '.join(["./align_and_extract.sh",
@@ -49,8 +49,7 @@ def align_extract(taskname, appdir):
     retval = align.wait()
 
     if retval != 0:
-
-        send_error_email(alext_args['email'], alext_args['filename'], "Alignment and extraction process failed.", error_check) ## not working
+        send_error_email(alext_args['email'], alext_args['filename'], "Alignment and extraction process failed.", error_check) 
         return False
     else:
         send_email(alext_args['tasktype'], alext_args['email'], alext_args['filename'], taskname, True) #passes in true for no errors so no multiple emails. Will have to change if anything is done before align_extract and before featrec that could send error emails.
