@@ -164,7 +164,7 @@ def send_traceback_email(tasktype, filename, taskname, traceback):
         return False
 
     except smtplib.SMTPException:
-        print 'Unable to send e-mail '
+        sys.stderr.write('Unable to send traceback email')
 
 def send_email(tasktype, receiver, filename, taskname, error_check):
         filepaths = read_filepaths()
@@ -247,7 +247,7 @@ def send_email(tasktype, receiver, filename, taskname, error_check):
             server.quit()
 
         except smtplib.SMTPException:
-            print 'Unable to send e-mail '
+            sys.stderr.write('Unable to send e-mail ')
 
 
 def send_error_email(receiver, filename, message, first):
@@ -283,9 +283,8 @@ def send_error_email(receiver, filename, message, first):
             return False
 
         except smtplib.SMTPException:
-            print 'Unable to send e-mail '
+            sys.stderr.write('Unable to send error e-mail message: \n {0} \n to {1}'.format(body, receiver))
     else:
-        #print 'Error email already sent. for ' + receiver; #printing cannot work with dev
         sys.stderr.write('Error email already sent')
         return False
 
@@ -619,7 +618,6 @@ def sox_conversion(filename, audiodir, dochunk=None):
 
     if retval != 0:
         error_message = 'Could not process your audio file. Please check that the file is valid and not blank.'
-        # print 'Could not call subprocess '
         return sample_rate, file_size, 0, error_message
 
     for line in sox.stdout.readlines():
@@ -656,11 +654,9 @@ def sox_conversion(filename, audiodir, dochunk=None):
     #convert to 16-bit, signed, little endian as well as downsample
     conv = subprocess.Popen(['sox', os.path.join(audiodir, filename), '-r', ratecode, '-b', '16', '-e', 'signed', '-L', os.path.join(audiodir, 'converted_'+filename), 'channels', '1'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     retval = conv.wait()
-    #print 'Converted', retval
 
     if retval != 0:
         error_message = 'Could not downsample file'
-        # print error_message
         return sample_rate, file_size, 0, error_message
 
     #split into chunks as specified. TODO: split on silence
