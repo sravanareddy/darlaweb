@@ -10,6 +10,7 @@ from oauth2client.client import GoogleCredentials
 import json 
 import mimetypes
 import random
+import web
 
 from celery.task import task
 import subprocess
@@ -111,7 +112,7 @@ def gcloudupload(storageservice, audiodir, filename, taskname, email):
 
 # exponential backoff
 def handle_progressless_iter(error, progressless_iters, taskname, tasktype):
-    sleeptime = random.random() + (2**progressless_iters)
+    sleeptime = random.random() + min((2**progressless_iters), 2**MAXIMUM_BACKOFF)
     sys.stderr.write('Caught exception for task {3} : ({0}). Sleeping for {1} seconds before retry #{2}.'
         .format(str(error), sleeptime, progressless_iters, taskname))
     time.sleep(sleeptime)
@@ -194,8 +195,7 @@ def asyncrec(service, datadir, taskname, audiodir, filename, samprate, email, ph
             # too many requests. exponential backoff
             if err.resp.status == 429 and n < NUM_RETRIES:
                 handle_progressless_iter(err, n, taskname, 'Google Speech ASR Failed')
-                if (n <= MAXIMUM_BACKOFF):
-                    n += 1
+                n += 1
             else: 
                 sys.stderr.write('Failed to get audio for task {0}'.format(taskname))
                 utilities.send_error_email(email, filename, 'Google Speech ASR API Failed', 1)
