@@ -4,7 +4,7 @@ tsvfile <- args[2]
 plotfile <- args[3]
 data <- read.csv(csvfile, header=T)
 
-data <- subset(data, data$B1<300 & data$B2<300 & data$stress!=0)
+data <- subset(data, data$stress!=0)
 
 mydata <- c()
 mydata$speaker_id <- data$name

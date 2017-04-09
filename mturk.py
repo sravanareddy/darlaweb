@@ -9,7 +9,7 @@ noheadrender = web.template.render('templates/', base='simple')
 
 req = '<span class="formrequired">*</span> '
 
-record_post = 'Follow the instructions to record yourself reading this passage and save the file. The passage should be read twice as shown.'
+record_post = 'Follow the instructions to record yourself reading this passage and save the file. The passage should be read <span class="formrequired">TWICE</span> as shown.'
 city_post = "Please list the ONE city/town which best answers this question. If it's the Boston area, please give the specific location, such as 'Charlestown', 'Mattapan', 'Lexington', etc."
 
 surveydir = 'surveyparams'
@@ -132,7 +132,7 @@ class mturk:
                             lambda x: x.consent!=''),
              ]
 
-    datadir = open('filepaths.txt').readline().split()[1]
+    datadir = utilities.read_filepaths()['DATA']
 
     fields = ['gender',
               'birth',

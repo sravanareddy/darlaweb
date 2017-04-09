@@ -1,53 +1,27 @@
 <div class="container">
 
   <h2 id="top">Completely Automated Alignment and Vowel Extraction</h2>
-  
-  <p class="lead">Our automated system takes uploaded audio files and returns ASR transcriptions, alignments, and vowel formant measurements.</p>
+
+  <p class="lead">Our automated system takes uploaded audio files and returns ASR
+    transcriptions, alignments, and vowel formant measurements.</p>
 
       <p> It is recommended that you look through the <a href="about">discussion</a> on the completely automated system's functionality and limitations before you begin. </p>
 
   <ul class="list-group">
-    <li class="list-group-item">
-    <h3>Audio with transcriptions from our automatic speech recognition system</h3>
-    <p>
-    This system uses ASR built upon the CMU Sphinx framework to transcribe your data and then runs it through automated alignment and extraction using ProsodyLab Aligner and FAVE-Extract.</p>
 
-    <p>
-    It also provides the facility to edit the transcripts produced by the speech recognizer, and
-    rerun the analysis.  </p>
-    <p> <a class="btn btn-xs btn-success" href="uploadsound" role="button">Try it out</a></p>
-    </li>
-    
-
-          <li class="list-group-item"><h3>Audio with transcriptions provided by YouTube closed captioning</h3>
-    <p>
-    Speech recognition developed by Google for YouTube captioning is much more accurate than the research-level ASR that we developed for DARLA.</p>
-
-    <p>Just upload your audio to at the link below, receive an email
-    with some information from us, wait a few hours for YouTube to
-    process the captions, and then revisit DARLA to input the codes
-    sent to your e-mail. DARLA will automatically extract YouTube captions (if available), and run your job through for forced alignment and extraction.</p>
-
-    <p>The quality of transcriptions is usually better than our in-built ASR, but there may be issues with reliability, since YouTube does not generate transcriptions for all uploaded videos. In addition, its spam detector sometimes rejects video uploads.</p>
-
-    <p>
-    Unlike our in-house ASR system, YouTube does not immediately transcribe the audio. If you use this option, you will have to wait 5+ hours after the initial upload so that YouTube can process the closed captions.
-    </p>
-
-        <p> <a class="btn btn-xs btn-success" href="uploadyt" role="button">Try it out</a></p>
-
-
+    <li class="list-group-item"><h3>Audio with transcriptions provided by Google's speech recognition</h3>
+    <p> <a class="btn btn-xs btn-success" href="googlespeech" role="button">Try it out</a></p>
 
     <li class="list-group-item">
 <h3>ASR evaluation</h3>
     <p>   Automated data analysis requires a higher tolerance of potential noise in the alignment and formant extraction results. You can estimate this noise using our transcription evaluation tool, which takes a <strong> manual transcription</strong> of your recording along with the <strong>ASR transcription</strong> of the same, and uses weighted <a href="https://en.wikipedia.org/wiki/Levenshtein_distance">Levenshtein distance</a> to compute error rates for words, phonemes, and stressed vowels.</p>
 
     <p> <a class="btn btn-xs btn-success" href="uploadeval" role="button">Evaluate</a></p>
-    
+
     </li>
-  
+
   </ul>
-    
-   
+
+
 
 </div> <!-- ends container -->

@@ -2,12 +2,12 @@ $def with (form)
 
 <div class="container">
 
-<h2>Compare transcription quality</h2><p><p>
+<h2>Compare transcription quality</h2>
 
-<p class="lead">This is an interface to an edit distance program 
+<p class="lead">This is an interface to an edit distance program
 for evaluating ASR transcription error rates at the word and phoneme level. You may also
   use this tool to compare two different manual transcriptions.</p>
-  
+
 <p><a href="uploadeval"><small>Click here at any time to cancel or start over.</small></a></p>
 
 <form action="uploadeval" name="uploadeval" method="post" enctype="multipart/form-data">
@@ -15,5 +15,9 @@ $if not form.valid: <p class="error">Correct the errors below.</p>
 $:form.render()
 </form>
 
+<div id="loading" style="display: none;">
+  <span class="note">Task processing...</span>
+<img src="/static/images/ajax-loader.gif"></img>
 </div>
 
+</div>

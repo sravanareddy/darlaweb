@@ -23,7 +23,8 @@ class extract:
 	def GET(self):
 		return render.error("That is not a valid link.", "uploadtextgrid")
 	def POST(self):
-		datadir = open('filepaths.txt').readline().split()[1]
+		filepaths = utilities.read_filepaths()
+                datadir = filepaths['DATA']
 		post_list = web.data().split("&")
 		parameters = {}
 

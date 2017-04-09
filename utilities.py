@@ -14,6 +14,7 @@ import shlex
 import re
 import smtplib
 import sys
+import json
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
@@ -46,10 +47,6 @@ def read_textupload(data):
                 pass
     return
 
-def read_filepaths():
-    """get data from filepaths.txt ans return dictionary. Assumes it is in the correct format!"""
-    return dict(map(lambda line: tuple(line.split()), open('filepaths.txt').readlines()))
-
 def parse_web_params(source):
     post_list = source.split("&")
     parameters = {}
@@ -57,7 +54,7 @@ def parse_web_params(source):
         split = form_input.split("=")
         parameters[split[0]] = split[1]
     return parameters
-    
+
 def send_ytupload_email(video_id, taskname, receiver, filename):
     filepaths = read_filepaths()
     password = open(filepaths['PASSWORD']).read().strip()
@@ -100,6 +97,7 @@ def send_init_email(tasktype, receiver, filename):
         sender = username+'@gmail.com'
 
         subjectmap = {'asr': 'Completely Automated Vowel Extraction',
+                      'googleasr': 'Completely Automated Vowel Extraction',
                       'txtalign': 'Alignment and Extraction',
                       'boundalign': 'Alignment and Extraction',
                       'extract': 'Formant Extraction',
@@ -141,13 +139,43 @@ def consolidate_hyp(wavlab, outfile):
         o.write('\n')
     o.close()
 
+def send_traceback_email(tasktype, filename, taskname, traceback):
+    filepaths = read_filepaths()
+    password = open(filepaths['PASSWORD']).read().strip()
+    username = 'darla.dartmouth'
+    sender = username+'@gmail.com'
+    subject = 'Error occured for task {0}'.format(taskname)
+    body = 'Traceback for taskname {0}, tasktype {1}, audiofile {2}'.format(taskname, audiofile)
+    body += traceback
+    message = MIMEMultipart()
+    message['From'] = 'DARLA <'+sender+'>'
+    message['To'] = sender # sends to us
+    message['Subject'] = subject
+    message['Date'] = formatdate(localtime = True)
+
+    message.attach(MIMEText(body, 'plain'))
+
+    try:
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(username, password)
+        server.sendmail(sender, receiver, message.as_string())
+        server.quit()
+        return False
+
+    except smtplib.SMTPException:
+        sys.stderr.write('Unable to send traceback email')
+
 def send_email(tasktype, receiver, filename, taskname, error_check):
         filepaths = read_filepaths()
         password = open(filepaths['PASSWORD']).read().strip()
         username = 'darla.dartmouth'
         sender = username+'@gmail.com'
 
+        alext_args = json.load(open(taskname+'.alext_args'))
+
         subjectmap = {'asr': 'Completely Automated Vowel Extraction',
+                      'googleasr': 'Completely Automated Vowel Extraction',
                       'txtalign': 'Alignment and Extraction',
                       'boundalign': 'Alignment and Extraction',
                       'extract': 'Formant Extraction',
@@ -155,18 +183,25 @@ def send_email(tasktype, receiver, filename, taskname, error_check):
 
         subject = '{0}: Vowel Analysis Results for {1}'.format(subjectmap[tasktype], filename)
         body = 'The formant extraction results for your data are attached:\n\n'
-        body += '(1) formants.csv contains detailed information on bandwidths and phonetic environments\n'
-        body += '(2) formants.fornorm.tsv can be uploaded to the NORM online tool (http://lvc.uoregon.edu/norm/index.php) \
-        for additional normalization and plotting options\n'
-        body += '(3) plot.pdf shows the F1/F2 vowel space of your speakers\n'
-        body += '(4) alignments.zip contains the TextGrids of the ASR transcriptions aligned with the audio\n'
-        if tasktype == 'asr' or tasktype == 'asredit' or tasktype == 'boundalign':
-            #TODO: make special keyword for youtube instead of boundalign
+        body += '(1) formants.csv contains detailed information on bandwidths and phonetic environments. '
+        if alext_args['delstopwords'] == 'Y':
+            body += 'You elected to remove stop-words ({0}/stopwords). '.format(filepaths['URLBASE'])
+        else:
+            body += 'You elected to retain stop-words. '
+        if int(alext_args['maxbandwidth']) < 1e10:
+            body += 'You elected to filter our tokens with F1 or F2 bandwidths over {0} Hz. '.format(alext_args['maxbandwidth'])
+        else:
+            body += 'You elected not to filter out high bandwidth tokens. '
+        body += '\n'
+        body += '(2) formants.fornorm.tsv can be uploaded to the NORM online tool (http://lvc.uoregon.edu/norm/index.php) for additional normalization and plotting options\n'
+        body += '(3) plot.pdf shows the F1/F2 (stressed) vowel space of your speakers\n'
+        body += '(4) The .TextGrid file contains the transcription aligned with the audio\n'
+        if tasktype == 'asr' or tasktype == 'googleasr' or tasktype == 'asredit' or tasktype == 'boundalign':
             body += '(5) transcription.txt contains the transcriptions.\n\n'
             body += 'If you manually correct the alignments in the TextGrid, you may re-upload your data with the new TextGrid to '
             body += filepaths['URLBASE']+'/uploadtextgrid and receive revised formant measurements and plots.\n'
 
-            body += '\nTo use our online playback tool to edit the ASR transcriptions (in 20-second clips) and then re-run alignment and extraction, go to '
+            body += '\nTo use our online playback tool to edit the ASR transcriptions and then re-run alignment and extraction, go to '
             body += filepaths['URLBASE']+'/asredit?taskname={0} \n'.format(os.path.basename(taskname))
             body += 'Note that this link is only guaranteed to work for 72 hours since we periodically delete user files.\n\n'
             body += 'Alternately, you may upload corrected plaintext transcriptions to '+filepaths['URLBASE']+'/uploadtxttrans \n'
@@ -182,33 +217,37 @@ def send_email(tasktype, receiver, filename, taskname, error_check):
         message['Date'] = formatdate(localtime = True)
 
         message.attach(MIMEText(body, 'plain'))
-        for nicename, filename in [('formants.csv', taskname+'.aggvowels_formants.csv'), ('formants.fornorm.tsv', taskname+'.fornorm.tsv'), ('plot.pdf', taskname+'.plot.pdf'), (filename+'.TextGrid', taskname+'.merged.TextGrid')]:
+        for nicename, realfilename in [('formants.csv', taskname+'.aggvowels_formants.csv'), ('formants.fornorm.tsv', taskname+'.fornorm.tsv'), ('plot.pdf', taskname+'.plot.pdf'), (filename+'.TextGrid', taskname+'.merged.TextGrid')]:
                 part = MIMEBase('application', "octet-stream")
                 try:
-                    part.set_payload( open(filename,"rb").read() )
+                    part.set_payload( open(realfilename,"rb").read() )
                     encoders.encode_base64(part)
                     part.add_header('Content-Disposition', 'attachment; filename='+nicename)
                     message.attach(part)
                 except:
                     error_check = send_error_email(receiver, filename, "Your job was not completed.", error_check) # returns false after error sends
-        if tasktype == 'asr' or tasktype == 'asredit' or tasktype == 'boundalign': #send transcription
+        if tasktype == 'asr' or tasktype == 'googleasr' or tasktype == 'asredit' or tasktype == 'boundalign': #send transcription
             try:
-                consolidate_hyp(taskname+'.wavlab', taskname+'.orderedhyp')
                 part = MIMEBase('application', "octet-stream")
-                part.set_payload( open(taskname+'.orderedhyp', "rb").read() )
+                if tasktype == 'googleasr':
+                    part.set_payload( open(os.path.join(taskname+'.wavlab',
+                                                        filename+'.lab'), "rb").read().replace("\\'", "'") )
+                else:   
+                    consolidate_hyp(taskname+'.wavlab', taskname+'.orderedhyp')
+                    part.set_payload( open(taskname+'.orderedhyp', "rb").read() )
                 part.add_header('Content-Disposition', 'attachment; filename=transcription.txt')
                 message.attach(part)
             except:
-                    error_check = send_error_email(receiver, filename, "There was a problem attaching the transcription.", error_check)
+                error_check = send_error_email(receiver, filename, "There was a problem attaching the transcription.", error_check)
         try:
-                server = smtplib.SMTP('smtp.gmail.com', 587)
-                server.starttls()
-                server.login(username, password)
-                server.sendmail(sender, receiver, message.as_string())
-                server.quit()
+            server = smtplib.SMTP('smtp.gmail.com', 587)
+            server.starttls()
+            server.login(username, password)
+            server.sendmail(sender, receiver, message.as_string())
+            server.quit()
 
         except smtplib.SMTPException:
-                print 'Unable to send e-mail '
+            sys.stderr.write('Unable to send e-mail ')
 
 
 def send_error_email(receiver, filename, message, first):
@@ -225,7 +264,8 @@ def send_error_email(receiver, filename, message, first):
         sender = username+'@gmail.com'
         subject = 'Error trying to process '+filename
         body = 'Unfortunately, there was an error running your job for '+filename + ". "+message
-
+        body += '\nTo help us try and identify what exactly the problem is, please message us with attached file(s) at darla.dartmouth@gmail.com.'
+        body += '\nSorry about the inconvenience. We will try to identify and solve the problem shortly.'
         message = MIMEMultipart()
         message['From'] = 'DARLA <'+sender+'>'
         message['To'] = receiver
@@ -235,23 +275,25 @@ def send_error_email(receiver, filename, message, first):
         message.attach(MIMEText(body, 'plain'))
 
         try:
-                server = smtplib.SMTP('smtp.gmail.com', 587)
-                server.starttls()
-                server.login(username, password)
-                server.sendmail(sender, receiver, message.as_string())
-                server.quit()
-                return False
+            server = smtplib.SMTP('smtp.gmail.com', 587)
+            server.starttls()
+            server.login(username, password)
+            server.sendmail(sender, receiver, message.as_string())
+            server.quit()
+            return False
 
         except smtplib.SMTPException:
-                print 'Unable to send e-mail '
+            sys.stderr.write('Unable to send error e-mail message: \n {0} \n to {1}'.format(body, receiver))
     else:
-        #print 'Error email already sent. for ' + receiver; #printing cannot work with celery
         sys.stderr.write('Error email already sent')
         return False
 
 def read_prdict(dictfile):
     spam = map(lambda line: line.split(), open(dictfile).readlines())
     return dict(map(lambda line: (line[0], line[1:]), spam))
+
+def read_filepaths():
+    return json.load(open('filepaths.json'))
 
 def g2p(taskname, transwords, cmudictfile):
     """Predict pronunciations of words not in dictionary and add"""
@@ -366,15 +408,25 @@ def norm_dollar_signs(word):
     return word
 
 def process_usertext(inputstring):
-    """clean up unicode, translate numbers"""
+    """cleans up unicode, translate numbers, outputs as a list of unicode words."""
     transfrom = '\xd5\xd3\xd2\xd0\xd1\xcd\xd4'
     transto = '\'""--\'\''
     unimaketrans = string.maketrans(transfrom, transto)
+
+    if(isinstance(inputstring, str)):
     #MS line breaks and stylized characters that stupid TextEdit inserts. (is there an existing module that does this?)
-    cleaned = string.translate(inputstring.lower(),
-                            unimaketrans).replace("\xe2\x80\x93", " - ").replace('\xe2\x80\x94', " - ").replace('\xe2\x80\x99', "'").replace('\xe2\x80\x9c', '"').replace('\xe2\x80\x9d', '"').replace('\r\n', '\n').replace('\r', '\n').strip()
-    cleaned = to_unicode(cleaned, encoding='utf-8', errors='ignore')   # catch-all?
-    cleaned = cleaned.replace('[', '').replace(']', '')  # common in linguists' transcriptions
+
+        inputstring = string.translate(inputstring,
+                                unimaketrans).replace("\xe2\x80\x93"
+                                , " - ").replace('\xe2\x80\x94'
+                                , " - ").replace('\xe2\x80\x99'
+                                , "'").replace('\xe2\x80\x9c'
+                                    , '"').replace('\xe2\x80\x9d'
+                                    , '"').replace('\r\n'
+                                    , '\n').replace('\r', '\n').strip()
+        inputstring = to_unicode(inputstring, encoding='utf-8', errors='ignore')   # catch-all?
+
+    cleaned = inputstring.replace('[', '').replace(']', '')  # common in linguists' transcriptions
     cleaned = cleaned.replace('-', ' ').replace('/', ' ').strip(string.punctuation)  # one more tok pass
     # convert digits and normalize $n
     digitconverter = inflect.engine()
@@ -390,18 +442,16 @@ def process_usertext(inputstring):
 
 def write_hyp(datadir, taskname, filename, txtfilecontent, cmudictfile):
     os.system('mkdir -p '+os.path.join(datadir, taskname+'.wavlab'))
-    try:
-        o = open(os.path.join(datadir, taskname+'.wavlab', filename+'.lab'), 'w')
-        words = map(lambda word: word.strip(string.punctuation),
-                    process_usertext(txtfilecontent).split())
-        words = map(lambda word: word.replace("'", "\\'"), words)
-        o.write(' '.join(words)+'\n')
-        o.close()
-        #make dictionary for OOVs
-        g2p(os.path.join(datadir, taskname), set(words), cmudictfile)
-        return ""
-    except:
-        return "Error processing transcript file. Please check plaintext format and try again."
+    o = open(os.path.join(datadir, taskname+'.wavlab', filename+'.lab'), 'w')
+    words = map(lambda word: word.strip(string.punctuation),
+                process_usertext(txtfilecontent.lower()).split())
+
+    words = map(lambda word: word.replace("'", "\\'"), words)
+    o.write(' '.join(words)+'\n')
+    o.close()
+    #make dictionary for OOVs
+    g2p(os.path.join(datadir, taskname), set(words), cmudictfile)
+    return ""
 
 def write_sentgrid_as_lab(datadir, taskname, filename, txtfile, cmudictfile):
     os.system('mkdir -p '+os.path.join(datadir, taskname+'.wavlab'))
@@ -462,7 +512,7 @@ def get_entry_id(url):
         return str(url).split('/')[-2][:-1]
 
 def upload_youtube(taskname, videofile):
-        passfile = open('filepaths.txt').readlines()[1].split()[1]
+        passfile = utilities.read_filepaths()['PASSWORD']
 
         try:
                 yt_service = gdata.youtube.service.YouTubeService()
@@ -493,11 +543,10 @@ def upload_youtube(taskname, videofile):
                 return 0, "Failed to upload to YouTube. Check your file and try again. If you tried uploading the same or similar file recently, YouTube's spam detector probably rejected your upload."
 
 def download_youtube(audiodir, filename, video_id):
-        passfile = open('filepaths.txt').readlines()[1].split()[1]
+        password = open(read_filepaths()['PASSWORD']).read().strip()
 
         try:
                 email = 'darla.dartmouth@gmail.com'
-                password = open(passfile).read().strip()
                 dl = subprocess.Popen(shlex.split('youtube-dl --write-auto-sub --skip-download https://www.youtube.com/watch?v='+str(video_id)+' -u '+email+' -p '+password+' -o '+os.path.join(audiodir, filename+'.srt')), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 r = dl.wait()
 
@@ -530,15 +579,15 @@ def process_audio(audiodir, filename, extension, filecontent, dochunk):
         o.close()
 
     if extension == '.mp3':
-        # print 'converting', os.path.join(audiodir, filename+extension)  #TODO: try and except here
-        os.system("mpg123 "+"-w "+os.path.join(audiodir, filename+'.wav')+' '+os.path.join(audiodir, filename+extension))
-        #audio = subprocess.Popen(shlex.split("mpg123 "+"-w "+os.path.join(audiodir, filename+'.wav')+' '+os.path.join(audiodir, filename+extension)), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
-        #retval = audio.wait()
+        sys.stdout.write('converting mp3 to wav {0}'.format(os.path.join(audiodir, filename+extension)))  #TODO: try and except here
+        #os.system("mpg123 "+"-w "+os.path.join(audiodir, filename+'.wav')+' '+os.path.join(audiodir, filename+extension))
+        audio = subprocess.Popen(shlex.split("mpg123 "+"-w "+os.path.join(audiodir, filename+'.wav')+' '+os.path.join(audiodir, filename+extension)), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        audio.wait()
 
         extension = '.wav'
 
     #split and convert frequency
-    samprate, filesize, chunks, soxerror = soxConversion(filename+extension, audiodir, dochunk)
+    samprate, filesize, chunks, soxerror = sox_conversion(filename+extension, audiodir, dochunk)
     return samprate, filesize, chunks, soxerror
 
 def youtube_wav(url,audiodir, taskname):
@@ -557,22 +606,25 @@ def write_speaker_info(speakerfile, name, sex):
             name = 'speakername'  # defaults
         o.write('--name='+name+'\n--sex='+sex+'\n')
 
-def soxConversion(filename, audiodir, dochunk=None):
-    sample_rate = 0
-    file_size = 0.0
+def sox_info(filename, audiodir):
     args = "sox --i "+os.path.join(audiodir, filename)
     sox = subprocess.Popen(shlex.split(args), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    #print "I AM HERE"
-    #print sox.stdout.readlines()
-    retval = sox.wait()
+    return [sox.wait(), sox]
+
+def sox_conversion(filename, audiodir, dochunk=None):
+    sample_rate = 0
+    file_size = 0.0
+    [retval, sox] = sox_info(filename, audiodir)
 
     if retval != 0:
         error_message = 'Could not process your audio file. Please check that the file is valid and not blank.'
-        # print 'Could not call subprocess '
         return sample_rate, file_size, 0, error_message
 
     for line in sox.stdout.readlines():
-        # print line
+        if "File Size" in line:
+            line = line.split(':')
+            num_bytes = line[1]
+
         if "Sample Rate" in line:
             line = line.split(':')
             sample_rate = int(line[1].strip())
@@ -581,7 +633,7 @@ def soxConversion(filename, audiodir, dochunk=None):
             m = re.search("(=\s)(.*)(\ssamples)", line)
             file_size = float(m.group(2))
             file_size = file_size / sample_rate #gets duration, in seconds of the file.
-            file_size /= 60.0
+            file_size /= 60.0 # gets in minutes.l
 
     #converts wav file to 16000kHz sampling rate if sampling rate is more than
     if sample_rate >= 16000:
@@ -602,11 +654,9 @@ def soxConversion(filename, audiodir, dochunk=None):
     #convert to 16-bit, signed, little endian as well as downsample
     conv = subprocess.Popen(['sox', os.path.join(audiodir, filename), '-r', ratecode, '-b', '16', '-e', 'signed', '-L', os.path.join(audiodir, 'converted_'+filename), 'channels', '1'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     retval = conv.wait()
-    #print 'Converted', retval
 
     if retval != 0:
         error_message = 'Could not downsample file'
-        # print error_message
         return sample_rate, file_size, 0, error_message
 
     #split into chunks as specified. TODO: split on silence
@@ -617,8 +667,8 @@ def soxConversion(filename, audiodir, dochunk=None):
 
         basename, _ = os.path.splitext(filename)
 
-        if type(dochunk) is int:
-            chunks = map(lambda i: (i, i+20), range(0, int(file_size*60), 20))
+        if type(dochunk) is int: # group 2 dochunk (s) intervals
+            chunks = map(lambda i: (i, i+dochunk), range(0, int(file_size*60), dochunk))
 
             conv = subprocess.Popen(['sox', os.path.join(audiodir, 'converted_'+filename), os.path.join(audiodir, 'splits', basename+'.split.wav'), 'trim', '0', str(dochunk), ':', 'newfile', ':', 'restart'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             retval = conv.wait()
@@ -629,7 +679,7 @@ def soxConversion(filename, audiodir, dochunk=None):
                 convrm = subprocess.Popen(['rm', os.path.join(audiodir, 'splits', basename+'.split{0:03d}.wav'.format(len(chunks)))])
                 convrm.wait()
 
-        elif type(dochunk) is list:
+        elif type(dochunk) is list: # is a list of tuples
             chunks = dochunk
             for ci, chunk in enumerate(dochunk):
                 conv = subprocess.Popen(['sox', os.path.join(audiodir, 'converted_'+filename), os.path.join(audiodir, 'splits', basename+'.split{0:03d}.wav'.format(ci+1)), 'trim', str(chunk[0]), str(chunk[1]-chunk[0])], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -640,7 +690,9 @@ def soxConversion(filename, audiodir, dochunk=None):
 
     return sample_rate, file_size, chunks, ""
 
-def gen_argfiles(datadir, taskname, uploadfilename, task, email, samprate=None, lw=None, dialect=None):
+def gen_argfiles(datadir, taskname, uploadfilename, task, email, samprate=None, delstopwords='Y', maxbandwidth='10000000000'):
+    filepaths = read_filepaths()
+    acoustic_dir = (filepaths['ACOUSTICMODELS']);
     """create ctl files if applicable"""
     if task=='asr':
         filelist = map(lambda filename: filename[:-4],
@@ -691,11 +743,11 @@ def gen_argfiles(datadir, taskname, uploadfilename, task, email, samprate=None, 
         """recognition"""
         options = {}
         if samprate==8000:
-            hmm = '/home/darla/acousticmodels/sphinx-8'
+            hmm = acoustic_dir + 'sphinx-8'
             options.update({'nfilt': '20',
                             'upperf': '3500'})
         else:
-            hmm = '/home/darla/acousticmodels/sphinx-16'
+            hmm = acoustic_dir + 'sphinx-16'
             options.update({'nfilt': '25',
                             'upperf': '6800'})
 
@@ -704,8 +756,8 @@ def gen_argfiles(datadir, taskname, uploadfilename, task, email, samprate=None, 
                         'dict': 'cmudict.nostress.txt',
                         'fdict': os.path.join(hmm, 'noisedict'),
                         'hmm': hmm,
-                        'lm': '/home/darla/languagemodels/en-us.lm.dmp',
-                        'lw': str(lw),
+                        'lm': filepaths['LM'],
+                        'lw': '7',
                         'samprate': str(samprate),
                         'bestpath': 'no',
                         'lowerf': '130',    #starting from here, echo the acoustic model
@@ -726,14 +778,15 @@ def gen_argfiles(datadir, taskname, uploadfilename, task, email, samprate=None, 
         o.close()
 
     """Align and extract"""
-    o = open(os.path.join(datadir, taskname+'.alext_args'), 'w')
-    o.write(uploadfilename+' ')
+    alext_args = {'filename': uploadfilename,
+                  'email': email,
+                  'tasktype': task,
+                  'delstopwords': delstopwords,
+                  'maxbandwidth': maxbandwidth}
     if samprate==8000:
-        o.write('/home/darla/acousticmodels/htkpenn8kplp ')
+        alext_args['hmm'] = os.path.join(acoustic_dir, 'htkpenn8kplp')
     else:
-        o.write('/home/darla/acousticmodels/htkpenn16kplp ')
-
-    o.write(email+' ')
-    o.write(task+'\n')
-    o.close()
+        alext_args['hmm'] = os.path.join(acoustic_dir, 'htkpenn16kplp')
+    with open(os.path.join(datadir, taskname+'.alext_args'), 'w') as o:
+        json.dump(alext_args, o)
     return

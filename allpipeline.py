@@ -24,7 +24,9 @@ class allpipeline:
         return render.error("That is not a valid link.", "cave")
 
     def POST(self):
-        datadir = open('filepaths.txt').readline().split()[1]
+        filepaths = utilities.read_filepaths()
+        datadir = filepaths['DATA']
+        appdir = filepaths['APPDIR']
         post_list = web.data().split("&")
         parameters = {}
 
@@ -55,11 +57,11 @@ class allpipeline:
 
 
         if celeryon:
-            result = align_extract.delay(os.path.join(datadir, taskname))
+            result = align_extract.delay(os.path.join(datadir, taskname), appdir)
             while not result.ready():
                 pass
         else:
-            align_extract(os.path.join(datadir, taskname))
+            align_extract(os.path.join(datadir, taskname),appdir)
 
 	return render.success('')
 

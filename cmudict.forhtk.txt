@@ -12732,8 +12732,9 @@ bostick  B OW1 S T IH0 K
 bostock  B OW1 S T AA2 K
 boston  B AO1 S T AH0 N
 boston\'s  B AO1 S T AH0 N Z
+bostoner  B AO1 S T AH0 N ER2
 bostonian  B AO2 S T OW1 N IY0 AH0 N
-bostonians  B AA1 S T OW0 N IY0 AH0 N Z
+bostonians  B AO2 S T OW1 N IY0 AH0 N Z
 bostra  B AA1 S T R AH0
 bostrom  B AA1 S T R AH0 M
 bostwick  B AA1 S T W IH0 K
@@ -21504,7 +21505,7 @@ colonus  K AH0 L OW1 N AH0 S
 colony  K AA1 L AH0 N IY0
 colony\'s  K AA1 L AH0 N IY0 Z
 colopy  K AH0 L OW1 P IY0
-color  K AO1 L ER0
+color  K AH1 L ER0
 coloradan  K AA2 L ER0 AA1 D AH0 N
 coloradans  K AA2 L ER0 AA1 D AH0 N Z
 colorado  K AA2 L ER0 AE1 D OW0
@@ -23805,8 +23806,8 @@ cossiga  K AO2 S IY1 G AH0
 cossin  K AA1 S IH0 N
 cossman  K AO1 S M AH0 N
 cost  K AO1 S T
-costa  K AO1 S T AH0
-costa-rica  K AO1 S T AH0 R IY1 K AH0
+costa  K OW1 S T AH0
+costa-rica  K OW1 S T AH0 R IY1 K AH0
 costabile  K AO1 S T AH0 B AY2 L
 costain  K OW2 S T EY1 N
 costales  K AA1 S T AH0 L Z
@@ -32059,7 +32060,7 @@ droop  D R UW1 P
 drooped  D R UW1 P T
 drooping  D R UW1 P IH0 NG
 droopy  D R UW1 P IY0
-drop  D R AO1 P
+drop  D R AA1 P
 drop-off  D R AA1 P AO2 F
 drop-offs  D R AA1 P AO2 F S
 dropkin  D R AA1 P K IH0 N
@@ -54806,7 +54807,7 @@ infusion  IH0 N F Y UW1 ZH AH0 N
 infusions  IH0 N F Y UW1 ZH AH0 N Z
 ing  IH1 NG
 inga  IY1 NG G AH0
-ingalls  IH0 NG G AO1 L Z
+ingalls  IH1 NG G AH0 L Z
 ingalsbe  IH1 NG G AH0 L S B IY0
 ingar  IH1 NG G ER0
 ingber  IH1 NG B ER0
@@ -91041,7 +91042,7 @@ reallocated  R IY2 AE1 L AH0 K EY2 T IH0 D
 reallocating  R IY0 AE1 L AH0 K EY2 T IH0 NG
 reallocation  R IY0 AE2 L AH0 K EY1 SH AH0 N
 reallowance  R IY1 AH0 L AW1 AH0 N S
-really  R IY1 L IY0
+really  R IH1 L IY0
 realm  R EH1 L M
 realms  R EH1 L M Z
 realmuto  R AH0 L M UW1 T OW0
@@ -97820,7 +97821,7 @@ saylor  S EY1 L ER0
 saylors  S EY1 L ER0 Z
 sayre  S EH1 R
 sayres  S EH1 R Z
-says  S IH1 Z
+says  S EH1 Z
 sayyid  S AY1 IH0 D
 sazama  S AA0 Z AA1 M AH0
 sbarro  S B AA1 R OW0
@@ -112749,7 +112750,7 @@ toothy  T UW1 TH IY0
 tootle  T UW1 T AH0 L
 toots  T UW1 T S
 tootsie  T UW1 T S IY1
-top  T AO1 P
+top  T AA1 P
 top-up  T AA1 P AH2 P
 topalian  T AH0 P EY1 L IY0 AH0 N
 topanga  T OW0 P AE1 NG G AH0
@@ -119496,7 +119497,7 @@ waszak  V AA1 SH AH0 K
 waszkiewicz  V AA2 SH K EH1 V IH0 CH
 wat  W AO1 T
 watanabe  W AA2 T AA0 N AA1 B EY0
-watch  W AO1 CH
+watch  W AA1 CH
 watchdog  W AA1 CH D AO2 G
 watchdogs  W AA1 CH D AO2 G Z
 watched  W AO1 CH T
