@@ -482,7 +482,7 @@ def write_sentgrid_as_lab(datadir, taskname, filename, txtfile, cmudictfile):
                  'w')
             words = map(lambda word: word.strip(string.punctuation),
                     process_usertext(interval.mark.encode('utf8')).split())
-            words = map(lambda word: word.replace("'", "\\'"), words)
+            words = map(lambda word: word.replace("'", "\\'").lower(), words)
             for word in words:
                 allwords.add(word)
                 o.write(word+' ')
