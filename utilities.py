@@ -232,7 +232,7 @@ def send_email(tasktype, receiver, filename, taskname, error_check):
                 if tasktype == 'googleasr':
                     part.set_payload( open(os.path.join(taskname+'.wavlab',
                                                         filename+'.lab'), "rb").read().replace("\\'", "'") )
-                else:   
+                else:
                     consolidate_hyp(taskname+'.wavlab', taskname+'.orderedhyp')
                     part.set_payload( open(taskname+'.orderedhyp', "rb").read() )
                 part.add_header('Content-Disposition', 'attachment; filename=transcription.txt')
@@ -407,23 +407,30 @@ def norm_dollar_signs(word):
             return suffix
     return word
 
+
 def process_usertext(inputstring):
     """cleans up unicode, translate numbers, outputs as a list of unicode words."""
     transfrom = '\xd5\xd3\xd2\xd0\xd1\xcd\xd4'
     transto = '\'""--\'\''
     unimaketrans = string.maketrans(transfrom, transto)
 
+    replacement_mappings = {"\xe2\x80\x93": " - ",
+                            '\xe2\x80\x94': " - ",
+                            '\xe2\x80\x99': "'",
+                            '\xe2\x80\x9c': '"',
+                            '\xe2\x80\x9d': '"',
+                            '\xe2\x80\xa6': '...',
+                            '\r\n': '\n',
+                            '\r': '\n'}
+
     if(isinstance(inputstring, str)):
     #MS line breaks and stylized characters that stupid TextEdit inserts. (is there an existing module that does this?)
 
-        inputstring = string.translate(inputstring,
-                                unimaketrans).replace("\xe2\x80\x93"
-                                , " - ").replace('\xe2\x80\x94'
-                                , " - ").replace('\xe2\x80\x99'
-                                , "'").replace('\xe2\x80\x9c'
-                                    , '"').replace('\xe2\x80\x9d'
-                                    , '"').replace('\r\n'
-                                    , '\n').replace('\r', '\n').strip()
+        inputstring = string.translate(inputstring.strip(),
+                                       unimaketrans)
+        for ustr in replacement_mappings:
+            inputstring = inputstring.replace(ustr, replacement_mappings[ustr])
+
         inputstring = to_unicode(inputstring, encoding='utf-8', errors='ignore')   # catch-all?
 
     cleaned = inputstring.replace('[', '').replace(']', '')  # common in linguists' transcriptions
