@@ -107,6 +107,14 @@ def make_delstopwords():
     f.value = 'Y'  # default
     return f
 
+def make_delunstressedvowels():
+    f = myform.MyRadio('delunstressedvowels',
+                           [('Y', 'Yes ', 'Y'),
+                        ('N', 'No ', 'N')],
+                       description='Filter out unstressed vowels? ',
+    f.value = 'Y'  # default                                 
+    return f
+
 def make_filterbandwidths():
     f = myform.MyRadio('filterbandwidths',
                        [('300', 'Yes ', '300'),
@@ -136,6 +144,7 @@ class uploadsound:
     uploadfile = make_uploadfile()
     filelink = make_filelink()
     delstopwords = make_delstopwords()
+    delunstressedvowels = make_delunstressedvowels()
     filterbandwidths = make_filterbandwidths()
     email = make_email()
     taskname = form.Hidden('taskname')
@@ -150,6 +159,7 @@ class uploadsound:
         uploadsound = myform.MyForm(self.uploadfile,
                                     self.filelink,
                                     self.delstopwords,
+                                    self.delunstressedvowels,
                                     self.filterbandwidths,
                                     self.email, self.taskname, self.submit)
         form = uploadsound()
@@ -159,6 +169,7 @@ class uploadsound:
         uploadsound = myform.MyForm(self.uploadfile,
                                     self.filelink,
                                     self.delstopwords,
+                                    self.delunstressedvowels,
                                     self.filterbandwidths,
                                     self.email, self.taskname, self.submit,
                                     validators = self.soundvalid)
@@ -238,6 +249,7 @@ class googlespeech:
 
     uploadfile = make_uploadfile()
     delstopwords = make_delstopwords()
+    delunstressedvowels = make_delunstressedvowels()
     filterbandwidths = make_filterbandwidths()
     email = make_email()
     taskname = form.Hidden('taskname')
@@ -250,6 +262,7 @@ class googlespeech:
 
         googlespeech = myform.MyForm(self.uploadfile,
                                      self.delstopwords,
+                                     self.delunstressedvowels,
                                      self.filterbandwidths,
                                      self.email,
                                      self.taskname,
@@ -262,6 +275,7 @@ class googlespeech:
     def POST(self):
         googlespeech = myform.MyForm(self.uploadfile,
                                      self.delstopwords,
+                                     self.delunstressedvowels,
                                      self.filterbandwidths,
                                      self.email,
                                      self.taskname,
@@ -490,6 +504,7 @@ class uploadtxttrans:
                                   description='Manual transcription as a .txt file:')
     filelink = make_filelink()
     delstopwords = make_delstopwords()
+    delunstressedvowels = make_delunstressedvowels()
     filterbandwidths = make_filterbandwidths()
     email = make_email()
     taskname = form.Hidden('taskname')
@@ -588,6 +603,7 @@ class uploadboundtrans:
                            post = 'Textgrid should contain a tier named "sentence" with sentence/breath group intervals.',
                            description='Manual transcription as a .TextGrid file:')
     delstopwords = make_delstopwords()
+    delunstressedvowels = make_delunstressedvowels()
     filterbandwidths = make_filterbandwidths()
     email = make_email()
     taskname = form.Hidden('taskname')
@@ -695,6 +711,7 @@ class uploadtextgrid:
                            post = '',
                            description='Corrected .TextGrid file')
     delstopwords = make_delstopwords()
+    delunstressedvowels = make_delunstressedvowels()
     filterbandwidths = make_filterbandwidths()
     email = make_email()
     taskname = form.Hidden('taskname')
