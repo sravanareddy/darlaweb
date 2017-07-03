@@ -5,7 +5,8 @@ hmm=$2
 task=$3
 delstopwords=$4
 maxbandwidth=$5
-appdir=$6
+delunstressedvowels=$6
+appdir=$7
 
 dot="$(cd "$(dirname "$0")"; pwd)"
 favedir=$dot'/FAVE-extract'
@@ -69,6 +70,7 @@ python $favedir/bin/extractFormants.py \
     --phoneset=$favedir/cmu_phoneset.txt \
     --speaker=$taskname.speaker \
     --removeStopWords=$delstopwords \
+    --onlyMeasureStressed=$delunstressedvowels \
     --stopWordsFile=$stopwords \
     --maxBandwidth=$maxbandwidth \
     $taskname.audio/converted_*.wav $taskname.merged.TextGrid $taskname.aggvowels &> $taskname.errors;
