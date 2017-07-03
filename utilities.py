@@ -191,6 +191,10 @@ def send_email(tasktype, receiver, filename, taskname, error_check):
             body += 'You elected to filter our tokens with F1 or F2 bandwidths over {0} Hz. '.format(alext_args['maxbandwidth'])
         else:
             body += 'You elected not to filter out high bandwidth tokens. '
+        if alext_args['delunstressedvowels']=='Y':
+            body += 'You elected to ignore unstressed vowels. '
+        else:
+            body += 'You elected to retain unstressed vowels. '
         body += '\n'
         body += '(2) formants.fornorm.tsv can be uploaded to the NORM online tool (http://lvc.uoregon.edu/norm/index.php) for additional normalization and plotting options\n'
         body += '(3) plot.pdf shows the F1/F2 (stressed) vowel space of your speakers\n'
@@ -644,7 +648,7 @@ def sox_conversion(filename, audiodir, dochunk=None):
 
     return sample_rate, file_size, chunks, ""
 
-def gen_argfiles(datadir, taskname, uploadfilename, task, email, samprate=None, delstopwords='Y', maxbandwidth='10000000000'):
+def gen_argfiles(datadir, taskname, uploadfilename, task, email, samprate=None, delstopwords='Y', maxbandwidth='10000000000', delunstressedvowels='Y'):
     filepaths = read_filepaths()
     acoustic_dir = (filepaths['ACOUSTICMODELS']);
     """create ctl files if applicable"""
@@ -736,7 +740,8 @@ def gen_argfiles(datadir, taskname, uploadfilename, task, email, samprate=None, 
                   'email': email,
                   'tasktype': task,
                   'delstopwords': delstopwords,
-                  'maxbandwidth': maxbandwidth}
+                  'maxbandwidth': maxbandwidth,
+                  'delunstressedvowels': delunstressedvowels}
     if samprate==8000:
         alext_args['hmm'] = os.path.join(acoustic_dir, 'htkpenn8kplp')
     else:

@@ -43,6 +43,7 @@ def align_extract(taskname, appdir):
                      alext_args['tasktype'],
                      alext_args['delstopwords'],
                      alext_args['maxbandwidth'],
+                     alext_args['delunstressedvowels'],
                      appdir])
 
     align = subprocess.Popen(shlex.split(args), stderr=subprocess.STDOUT)
