@@ -244,7 +244,7 @@ class googlespeech:
     sex = myform.MyRadio('sex', [('M','Male ', 'M'), ('F','Female ', 'F'), ('F','Child ', 'C')], description='Speaker Sex: ')
     sex.value = 'M'  # default if not checked
     filepaths = utilities.read_filepaths()
-    appdir = filepaths['APPDIR']
+    appdir = '.'
     datadir = filepaths['DATA']
 
     uploadfile = make_uploadfile()

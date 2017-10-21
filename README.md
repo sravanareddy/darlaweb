@@ -41,9 +41,6 @@ For cross-computer compatibility, create a file named `filepaths.json` containin
 {"DATA": "/absolute/path/to/directory/where/user/uploads/will/be/processed",
 "PASSWORD": "/absolute/path/to/text/file/containing/the/GMail/password",
 "URLBASE": "http://base.url.on.this.machine",
-"ACOUSTICMODELS": /absolute/path/to/directory/withacousticmodels,
-"LM": "/absolute/path/to/languagemodel",
-"APPDIR": "/absolute/path/to/directory/with/applications/",
 "GOOGLESPEECH": "/absolute/path/to/googleprivatekeyjson"}
 ```
 

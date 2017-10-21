@@ -307,7 +307,7 @@ def g2p(taskname, transwords, cmudictfile):
     o = open(taskname+'.oov', 'w')
     o.write('\n'.join(map(lambda word:word.replace("\\'", "'"), oov))+'\n')
     o.close()
-    os.system('/usr/local/bin/g2p.py --model /home/darla/applications/g2p/model-6 --apply '+taskname+'.oov > '+taskname+'.oovprons')
+    os.system('g2p/g2p.py --model g2p/model-6 --apply '+taskname+'.oov > '+taskname+'.oovprons')
     newdict = {}
     for line in open(taskname+'.oovprons'):
         line = line.split()
@@ -650,7 +650,7 @@ def sox_conversion(filename, audiodir, dochunk=None):
 
 def gen_argfiles(datadir, taskname, uploadfilename, task, email, samprate=None, delstopwords='Y', maxbandwidth='10000000000', delunstressedvowels='Y'):
     filepaths = read_filepaths()
-    acoustic_dir = (filepaths['ACOUSTICMODELS']);
+    acoustic_dir = 'acoustic_dir'
     """create ctl files if applicable"""
     if task=='asr':
         filelist = map(lambda filename: filename[:-4],
@@ -714,7 +714,7 @@ def gen_argfiles(datadir, taskname, uploadfilename, task, email, samprate=None, 
                         'dict': 'cmudict.nostress.txt',
                         'fdict': os.path.join(hmm, 'noisedict'),
                         'hmm': hmm,
-                        'lm': filepaths['LM'],
+                        'lm': 'lm_dir/en-us.lm.dmp',
                         'lw': '7',
                         'samprate': str(samprate),
                         'bestpath': 'no',
