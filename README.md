@@ -1,12 +1,14 @@
 # Scripts for the DARLA server, built on the web.py framework.
 
+## Cloning
+
+Install [git-lfs](https://git-lfs.github.com/) for large-file support.
+
 ## Installation 
 ``` 
 pip install web.py inflect git+http://github.com/kylebgorman/textgrid.git celery
 ```
 You also must install
-
-- g2p (for OOV words in dictionary)
 
 - mpg123 for converting mp3 -> wav files 
 https://sourceforge.net/projects/mpg123/files/mpg123/
