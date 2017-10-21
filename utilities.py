@@ -701,11 +701,11 @@ def gen_argfiles(datadir, taskname, uploadfilename, task, email, samprate=None, 
         """recognition"""
         options = {}
         if samprate==8000:
-            hmm = acoustic_dir + 'sphinx-8'
+            hmm = os.path.join(acoustic_dir, 'sphinx-8')
             options.update({'nfilt': '20',
                             'upperf': '3500'})
         else:
-            hmm = acoustic_dir + 'sphinx-16'
+            hmm = os.path.join(acoustic_dir, 'sphinx-16')
             options.update({'nfilt': '25',
                             'upperf': '6800'})
 
