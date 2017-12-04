@@ -17423,7 +17423,7 @@ carryforward  K EH1 R IY0 F AO2 R W ER0 D
 carryforwards  K EH1 R IY0 F AO2 R W ER0 D Z
 carrying  K EH1 R IY0 IH0 NG
 carryover  K EH1 R Y OW2 V ER0
-cars  K AA1 Z
+cars  K AA1 R Z
 cars\'  K AA1 R Z
 carse  K AA1 R S
 carsey  K AA1 R S IY0
@@ -77579,7 +77579,7 @@ nicastro  N IH0 K AE1 S T R OW0
 niccoli  N IY0 K OW1 L IY0
 niccolite  N IH1 K AH0 L AY2 T
 niccum  N IH1 K AH0 M
-nice  N IY1 S
+nice  N AY1 S
 nicely  N AY1 S L IY0
 nicen  N AY1 S AH0 N
 niceness  N AY1 S N AH0 S
@@ -116414,7 +116414,7 @@ uruguay\'s  Y ER1 AH0 G W EY2 Z
 uruguayan  Y ER2 AH0 G W EY1 AH0 N
 urwin  ER1 W AH0 N
 ury  Y UW1 R IY0
-us  Y UW1 EH1 S
+us  AH1 S
 usa  Y UW1 EH1 S EY1
 usable  Y UW1 Z AH0 B AH0 L
 usafe  Y UW1 S EY0 F
