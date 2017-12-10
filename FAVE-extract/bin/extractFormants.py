@@ -1756,7 +1756,7 @@ def setup_parser():
                         help="Don't include output header in text output.")
     parser.add_argument("--nSmoothing", type=int, default=12,
                         help="Specifies the number of samples to be used for the smoothing of the formant tracks.")
-    parser.add_argument("--onlyMeasureStressed", action="store_true")
+    parser.add_argument("--onlyMeasureStressed", help="Only measure stressed vowels")
     parser.add_argument("--outputFormat",   "-o",  choices = ['txt', 'text', 'plotnik', 'Plotnik', 'plt', 'both'], default="txt",
                         help = "Output format. Tab delimited file, plotnik file, or both.")
     parser.add_argument("--preEmphasis", type=float, default=50,
@@ -1952,7 +1952,7 @@ def writeLog(filename, wavFile, maxTime, meansFile, covsFile, opts):
     f.write("\n\n")
     f.write("extractFormant settings:\n")
     f.write("- removeStopWords:\t\t%s\n" % opts.removeStopWords)
-    f.write("- measureUnstressed:\t\t%s\n" % (not opts.onlyMeasureStressed))
+    f.write("- measureUnstressed:\t\t%s\n" % (False if opts.onlyMeasureStressed=='Y' else True))
     f.write("- minVowelDuration:\t\t%.3f\n" % opts.minVowelDuration)
     f.write("- formantPredictionMethod:\t%s\n" % opts.formantPredictionMethod)
     f.write("- measurementPointMethod:\t%s\n" % opts.measurementPointMethod)
@@ -2058,7 +2058,7 @@ def extractFormants(wavInput, tgInput, output, opts, SPATH='', PPATH=''):
     #maxFormant = opts.maxFormant
     nSmoothing = opts.nSmoothing
     removeStopWords = opts.removeStopWords
-    measureUnstressed = not opts.onlyMeasureStressed
+    measureUnstressed = False if opts.onlyMeasureStressed=='Y' else True
     minVowelDuration = opts.minVowelDuration
     windowSize = opts.windowSize
     preEmphasis = opts.preEmphasis

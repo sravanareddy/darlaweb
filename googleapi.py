@@ -113,7 +113,7 @@ def gcloudupload(storageservice, audiodir, filename, taskname, email):
 # exponential backoff
 def handle_progressless_iter(error, progressless_iters, taskname, tasktype):
     sleeptime = random.random() + min((2**progressless_iters), 2**MAXIMUM_BACKOFF)
-    sys.stderr.write('Caught exception for task {3} : ({0}). Sleeping for {1} seconds before retry #{2}.'
+    sys.stderr.write('Caught exception for task {3} : ({0}). Sleeping for {1} seconds before retry #{2}. \n'
         .format(str(error), sleeptime, progressless_iters, taskname))
     time.sleep(sleeptime)
     return 
