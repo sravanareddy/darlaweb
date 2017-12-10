@@ -14,9 +14,7 @@ import json
 def featurize_recognize(taskname):
 
     alext_args = json.load(open(taskname+'.alext_args'))
-    receiver = alext_args['email']
-    filename = alext_args['filename']
-    send_init_email(alext_args['tasktype'], receiver, filename)
+    send_init_email(alext_args['tasktype'], alext_args['email'], alext_args['filename'])
     error_check = True
 
     args = "/usr/local/bin/sphinx_fe -argfile "+taskname+".featurize_args"
@@ -45,7 +43,6 @@ def align_extract(taskname, appdir):
                      alext_args['tasktype'],
                      alext_args['delstopwords'],
                      alext_args['maxbandwidth'],
-                     alext_args['delunstressedvowels'],
                      appdir])
 
     align = subprocess.Popen(shlex.split(args), stderr=subprocess.STDOUT)

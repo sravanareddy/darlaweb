@@ -107,14 +107,6 @@ def make_delstopwords():
     f.value = 'Y'  # default
     return f
 
-def make_delunstressedvowels():
-    f = myform.MyRadio('delunstressedvowels',
-                           [('Y', 'Yes ', 'Y'),
-                        ('N', 'No ', 'N')],
-                       description='Filter out unstressed vowels? ')
-    f.value = 'Y'  # default
-    return f
-
 def make_filterbandwidths():
     f = myform.MyRadio('filterbandwidths',
                        [('300', 'Yes ', '300'),
@@ -144,7 +136,6 @@ class uploadsound:
     uploadfile = make_uploadfile()
     filelink = make_filelink()
     delstopwords = make_delstopwords()
-    delunstressedvowels = make_delunstressedvowels()
     filterbandwidths = make_filterbandwidths()
     email = make_email()
     taskname = form.Hidden('taskname')
@@ -159,7 +150,6 @@ class uploadsound:
         uploadsound = myform.MyForm(self.uploadfile,
                                     self.filelink,
                                     self.delstopwords,
-                                    self.delunstressedvowels,
                                     self.filterbandwidths,
                                     self.email, self.taskname, self.submit)
         form = uploadsound()
@@ -169,7 +159,6 @@ class uploadsound:
         uploadsound = myform.MyForm(self.uploadfile,
                                     self.filelink,
                                     self.delstopwords,
-                                    self.delunstressedvowels,
                                     self.filterbandwidths,
                                     self.email, self.taskname, self.submit,
                                     validators = self.soundvalid)
@@ -233,7 +222,7 @@ class uploadsound:
                 form.note = "Warning: Your file totals only {:.2f} minutes of speech. We recommend at least {:.0f} minutes for best results.".format(total_size, MINDURATION)
 
             #generate argument files
-            utilities.gen_argfiles(self.datadir, form.taskname.value, filename, 'asr', form.email.value, samprate, form.delstopwords.value, form.filterbandwidths.value, form.delunstressedvowels.value)
+            utilities.gen_argfiles(self.datadir, form.taskname.value, filename, 'asr', form.email.value, samprate, form.delstopwords.value, form.filterbandwidths.value)
 
             #show speaker form by adding fields to existing form and re-rendering
             speakers = speaker_form(filename, form.taskname.value)
@@ -244,12 +233,11 @@ class googlespeech:
     sex = myform.MyRadio('sex', [('M','Male ', 'M'), ('F','Female ', 'F'), ('F','Child ', 'C')], description='Speaker Sex: ')
     sex.value = 'M'  # default if not checked
     filepaths = utilities.read_filepaths()
-    appdir = '.'
+    appdir = filepaths['APPDIR']
     datadir = filepaths['DATA']
 
     uploadfile = make_uploadfile()
     delstopwords = make_delstopwords()
-    delunstressedvowels = make_delunstressedvowels()
     filterbandwidths = make_filterbandwidths()
     email = make_email()
     taskname = form.Hidden('taskname')
@@ -262,7 +250,6 @@ class googlespeech:
 
         googlespeech = myform.MyForm(self.uploadfile,
                                      self.delstopwords,
-                                     self.delunstressedvowels,
                                      self.filterbandwidths,
                                      self.email,
                                      self.taskname,
@@ -275,7 +262,6 @@ class googlespeech:
     def POST(self):
         googlespeech = myform.MyForm(self.uploadfile,
                                      self.delstopwords,
-                                     self.delunstressedvowels,
                                      self.filterbandwidths,
                                      self.email,
                                      self.taskname,
@@ -297,9 +283,9 @@ class googlespeech:
             filename, extension = utilities.get_basename(x.uploadfile.filename)
 
             utilities.write_speaker_info(os.path.join(self.datadir, taskname+'.speaker'), x.name, x.sex)
-
+            
             utilities.send_init_email('googleasr', x.email, filename)
-            if celeryon:
+            if celeryon: 
                 # upload entire file onto google cloud storage
                 samprate, total_size, chunks, error = utilities.process_audio(audiodir,
                                                                   filename,
@@ -308,7 +294,7 @@ class googlespeech:
                                                                   dochunk=None)
                 result = gcloudupload.delay(gstorage,
                                             audiodir,
-                                            filename,
+                                            filename, 
                                             taskname,
                                             x.email)
                 while not result.ready():
@@ -342,7 +328,7 @@ class googlespeech:
                         samprate)
             #TODO: why do we need datadir, audiodir, etc? Reduce redundancy in these filenames
 
-            utilities.gen_argfiles(self.datadir, taskname, filename, 'googleasr', x.email, samprate, x.delstopwords, x.filterbandwidths, x.delunstressedvowels)
+            utilities.gen_argfiles(self.datadir, taskname, filename, 'googleasr', x.email, samprate, x.delstopwords, x.filterbandwidths)
 
             if celeryon:
                 result = align_extract.delay(os.path.join(self.datadir, taskname), self.appdir)
@@ -490,7 +476,7 @@ class downloadsrttrans:
         filenames = [(filename, filename)]
 
         utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+'.chunks'))
-        utilities.gen_argfiles(self.datadir, taskname, filename, 'boundalign', form.email.value, samprate, form.delstopwords.value, form.filterbandwidths.value, form.delunstressedvowels.value)
+        utilities.gen_argfiles(self.datadir, taskname, filename, 'boundalign', form.email.value, samprate, form.delstopwords.value, form.filterbandwidths.value)
 
         speakers = speaker_form(filename, taskname)
 
@@ -504,7 +490,6 @@ class uploadtxttrans:
                                   description='Manual transcription as a .txt file:')
     filelink = make_filelink()
     delstopwords = make_delstopwords()
-    delunstressedvowels = make_delunstressedvowels()
     filterbandwidths = make_filterbandwidths()
     email = make_email()
     taskname = form.Hidden('taskname')
@@ -520,7 +505,6 @@ class uploadtxttrans:
                                        self.filelink,
                                        self.uploadtxtfile,
                                        self.delstopwords,
-                                       self.delunstressedvowels,
                                        self.filterbandwidths,
                                        self.email, self.taskname, self.submit)
         form = uploadtxttrans()
@@ -531,7 +515,6 @@ class uploadtxttrans:
                                        self.filelink,
                                        self.uploadtxtfile,
                                        self.delstopwords,
-                                       self.delunstressedvowels,
                                        self.filterbandwidths,
                                        self.email, self.taskname, self.submit,
                                        validators = self.soundvalid)
@@ -591,7 +574,7 @@ class uploadtxttrans:
 
             filenames = [(filename, x.filelink)]
 
-        utilities.gen_argfiles(self.datadir, form.taskname.value, filename, 'txtalign', form.email.value, samprate, form.delstopwords.value, form.filterbandwidths.value, form.delunstressedvowels.value)
+        utilities.gen_argfiles(self.datadir, form.taskname.value, filename, 'txtalign', form.email.value, samprate, form.delstopwords.value, form.filterbandwidths.value)
 
         speakers = speaker_form(filename, taskname)
 
@@ -605,7 +588,6 @@ class uploadboundtrans:
                            post = 'Textgrid should contain a tier named "sentence" with sentence/breath group intervals.',
                            description='Manual transcription as a .TextGrid file:')
     delstopwords = make_delstopwords()
-    delunstressedvowels = make_delunstressedvowels()
     filterbandwidths = make_filterbandwidths()
     email = make_email()
     taskname = form.Hidden('taskname')
@@ -621,7 +603,6 @@ class uploadboundtrans:
                                          self.filelink,
                                          self.uploadboundfile,
                                          self.delstopwords,
-                                         self.delunstressedvowels,
                                          self.filterbandwidths,
                                          self.email, self.taskname, self.submit)
         form = uploadboundtrans()
@@ -632,7 +613,6 @@ class uploadboundtrans:
                                          self.filelink,
                                          self.uploadboundfile,
                                          self.delstopwords,
-                                         self.delunstressedvowels,
                                          self.filterbandwidths,
                                          self.email, self.taskname, self.submit,
                                  validators = self.soundvalid)
@@ -701,7 +681,7 @@ class uploadboundtrans:
             filenames = [(filename, x.filelink)]
 
         utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+'.chunks'))
-        utilities.gen_argfiles(self.datadir, form.taskname.value, filename, 'boundalign', form.email.value, samprate, form.delstopwords.value, form.filterbandwidths.value, form.delunstressedvowels.value)
+        utilities.gen_argfiles(self.datadir, form.taskname.value, filename, 'boundalign', form.email.value, samprate, form.delstopwords.value, form.filterbandwidths.value)
 
         speakers = speaker_form(filename, taskname)
 
@@ -715,7 +695,6 @@ class uploadtextgrid:
                            post = '',
                            description='Corrected .TextGrid file')
     delstopwords = make_delstopwords()
-    delunstressedvowels = make_delunstressedvowels()
     filterbandwidths = make_filterbandwidths()
     email = make_email()
     taskname = form.Hidden('taskname')
@@ -731,7 +710,6 @@ class uploadtextgrid:
                                        self.filelink,
                                        self.uploadTGfile,
                                        self.delstopwords,
-                                       self.delunstressedvowels,
                                        self.filterbandwidths,
                                        self.email, self.taskname, self.submit,
                                        validators = self.soundvalid)
@@ -743,7 +721,6 @@ class uploadtextgrid:
                                        self.filelink,
                                        self.uploadTGfile,
                                        self.delstopwords,
-                                       self.delunstressedvowels,
                                        self.filterbandwidths,
                                        self.email, self.taskname, self.submit,
                                        validators = self.soundvalid)
@@ -808,7 +785,7 @@ class uploadtextgrid:
 
         utilities.write_textgrid(self.datadir, form.taskname.value, filename, utilities.read_textupload(x.uploadTGfile.file.read()))
 
-        utilities.gen_argfiles(self.datadir, form.taskname.value, filename, 'extract', form.email.value, delstopwords=form.delstopwords.value, maxbandwidth=form.filterbandwidths.value, delunstressedvowels=form.delunstressedvowels.value)
+        utilities.gen_argfiles(self.datadir, form.taskname.value, filename, 'extract', form.email.value, delstopwords=form.delstopwords.value, maxbandwidth=form.filterbandwidths.value)
 
         speakers = speaker_form(filename, taskname)
 

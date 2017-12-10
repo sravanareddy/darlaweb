@@ -5,8 +5,7 @@ hmm=$2
 task=$3
 delstopwords=$4
 maxbandwidth=$5
-delunstressedvowels=$6
-appdir=$7
+appdir=$6
 
 dot="$(cd "$(dirname "$0")"; pwd)"
 favedir=$dot'/FAVE-extract'
@@ -42,7 +41,7 @@ fi
 
 #get alignments (uploadsound, uploadboundtrans, uploadtxttrans, asredit)
 if [ $task == 'asr' ] || [ $task == 'googleasr' ] || [ $task == 'boundalign' ] || [ $task == 'txtalign' ] ; then
-    export PYTHONPATH=$dot/'Prosodylab-Aligner'
+    export PYTHONPATH=$appdir/'Prosodylab-Aligner'
     python3 -m aligner -r $hmm -d $stressdict -a $taskname.wavlab >> aligner.log
 fi
 
@@ -70,7 +69,6 @@ python $favedir/bin/extractFormants.py \
     --phoneset=$favedir/cmu_phoneset.txt \
     --speaker=$taskname.speaker \
     --removeStopWords=$delstopwords \
-    --onlyMeasureStressed=$delunstressedvowels \
     --stopWordsFile=$stopwords \
     --maxBandwidth=$maxbandwidth \
     $taskname.audio/converted_*.wav $taskname.merged.TextGrid $taskname.aggvowels &> $taskname.errors;

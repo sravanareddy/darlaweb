@@ -30,14 +30,16 @@
       id="output">What output does the system return?</h3></a>
 
        <div id="outputbody" class="collapse">
-<p>We e-mail a set of files to you: a vowel plot showing the mean of all vowels
-  in your data (including both stressed and unstressed vowels), a spreadsheet with both unnormalized and Lobanov-normalized
+<p>We e-mail a set of files to you: a vowel plot showing the mean of stressed vowels
+after filtering out grammatical function words, a spreadsheet with
 formant measurements,
 the same spreadsheet formatted for convenient uploading to <a
 href="http://lvc.uoregon.edu/norm/about_norm1.php">NORM</a>, the
 alignments, and the transcriptions.
+You can select whether you want to filter out stop words
+<a href="/static/content/stopwords.txt">(from this list)</a>
+and high-bandwidth vowels.
 </p>
-
 
 <p>If you are using the completely automated feature, you also have the option of
 editing the transcriptions online, and seamlessly re-running your task
@@ -129,7 +131,7 @@ Of course, there will be instances of vowel error, but the effect of these error
        <div class="collapse" id="limitsbody">
 <p> DARLA's completely automated system cannot provide perfect transcriptions. The automatic
 transcriptions typically contain a very large number of errors,
-especially in free speech data, even using Google's ASR.
+especially in free speech data, even using Google's ASR. 
 Current technology cannot match the accuracy of human manual transcriptions.</p>
 
 <p>DARLA's completely automated approach to sociophonetics may help open the way
@@ -173,7 +175,7 @@ You can also upload manually aligned/corrected TextGrids for formant
 <p> For research requiring perfect transcriptions:
 <ol>
 <li>
-Use the <a href="googlespeech">completely automated ASR</a> option
+Use the <a href="googlespeech">completely automated ASR</a> option 
 as a first pass and then correct the transcriptions
 online with our playback tool, OR
 
