@@ -21,12 +21,13 @@ from email.mime.text import MIMEText
 from email.utils import COMMASPACE, formatdate
 from email import encoders
 from collections import defaultdict
+import inflect
 from textgrid.textgrid import TextGrid
 import gdata.youtube
 import gdata.youtube.service
 from datetime import datetime
 
-from textclean import process_usertext
+from kitchen.text.converters import to_unicode
 
 # ERROR = 0
 
@@ -191,10 +192,6 @@ def send_email(tasktype, receiver, filename, taskname, error_check):
             body += 'You elected to filter our tokens with F1 or F2 bandwidths over {0} Hz. '.format(alext_args['maxbandwidth'])
         else:
             body += 'You elected not to filter out high bandwidth tokens. '
-        if alext_args['delunstressedvowels']=='Y':
-            body += 'You elected to ignore unstressed vowels. '
-        else:
-            body += 'You elected to retain unstressed vowels. '
         body += '\n'
         body += '(2) formants.fornorm.tsv can be uploaded to the NORM online tool (http://lvc.uoregon.edu/norm/index.php) for additional normalization and plotting options\n'
         body += '(3) plot.pdf shows the F1/F2 (stressed) vowel space of your speakers\n'
@@ -235,7 +232,7 @@ def send_email(tasktype, receiver, filename, taskname, error_check):
                 if tasktype == 'googleasr':
                     part.set_payload( open(os.path.join(taskname+'.wavlab',
                                                         filename+'.lab'), "rb").read().replace("\\'", "'") )
-                else:
+                else:   
                     consolidate_hyp(taskname+'.wavlab', taskname+'.orderedhyp')
                     part.set_payload( open(taskname+'.orderedhyp', "rb").read() )
                 part.add_header('Content-Disposition', 'attachment; filename=transcription.txt')
@@ -307,7 +304,7 @@ def g2p(taskname, transwords, cmudictfile):
     o = open(taskname+'.oov', 'w')
     o.write('\n'.join(map(lambda word:word.replace("\\'", "'"), oov))+'\n')
     o.close()
-    os.system('g2p/g2p.py --model g2p/model-6 --apply '+taskname+'.oov > '+taskname+'.oovprons')
+    os.system('/usr/local/bin/g2p.py --model /home/darla/applications/g2p/model-6 --apply '+taskname+'.oov > '+taskname+'.oovprons')
     newdict = {}
     for line in open(taskname+'.oovprons'):
         line = line.split()
@@ -398,6 +395,51 @@ def write_transcript(datadir, taskname, reffilecontent, hypfilecontent, cmudictf
 
     return numreflines, numhyplines
 
+def norm_dollar_signs(word):
+    """convert $n to n dollars"""
+    if word.startswith('$'):
+        suffix = 'dollars'
+        if len(word)>1:
+            if word[1:] == '1':
+                suffix = 'dollar'
+            return word[1:]+' '+suffix
+        else:
+            return suffix
+    return word
+
+def process_usertext(inputstring):
+    """cleans up unicode, translate numbers, outputs as a list of unicode words."""
+    transfrom = '\xd5\xd3\xd2\xd0\xd1\xcd\xd4'
+    transto = '\'""--\'\''
+    unimaketrans = string.maketrans(transfrom, transto)
+
+    if(isinstance(inputstring, str)):
+    #MS line breaks and stylized characters that stupid TextEdit inserts. (is there an existing module that does this?)
+
+        inputstring = string.translate(inputstring,
+                                unimaketrans).replace("\xe2\x80\x93"
+                                , " - ").replace('\xe2\x80\x94'
+                                , " - ").replace('\xe2\x80\x99'
+                                , "'").replace('\xe2\x80\x9c'
+                                    , '"').replace('\xe2\x80\x9d'
+                                    , '"').replace('\r\n'
+                                    , '\n').replace('\r', '\n').strip()
+        inputstring = to_unicode(inputstring, encoding='utf-8', errors='ignore')   # catch-all?
+
+    cleaned = inputstring.replace('[', '').replace(']', '')  # common in linguists' transcriptions
+    cleaned = cleaned.replace('-', ' ').replace('/', ' ').strip(string.punctuation)  # one more tok pass
+    # convert digits and normalize $n
+    digitconverter = inflect.engine()
+    returnstr = ''
+    for line in cleaned.splitlines():
+        wordlist = line.split()
+        wordlist = ' '.join(map(norm_dollar_signs,
+                       wordlist)).split()
+        returnstr += ' '.join(map(lambda word:
+                        digitconverter.number_to_words(word).replace('-', ' ').replace(',', '') if word[0].isdigit() or (word[0]=="'" and len(word)>1 and word[1].isdigit()) else word,
+                        wordlist))+'\n'
+    return returnstr
+
 def write_hyp(datadir, taskname, filename, txtfilecontent, cmudictfile):
     os.system('mkdir -p '+os.path.join(datadir, taskname+'.wavlab'))
     o = open(os.path.join(datadir, taskname+'.wavlab', filename+'.lab'), 'w')
@@ -440,7 +482,7 @@ def write_sentgrid_as_lab(datadir, taskname, filename, txtfile, cmudictfile):
                  'w')
             words = map(lambda word: word.strip(string.punctuation),
                     process_usertext(interval.mark.encode('utf8')).split())
-            words = map(lambda word: word.replace("'", "\\'").lower(), words)
+            words = map(lambda word: word.replace("'", "\\'"), words)
             for word in words:
                 allwords.add(word)
                 o.write(word+' ')
@@ -648,9 +690,9 @@ def sox_conversion(filename, audiodir, dochunk=None):
 
     return sample_rate, file_size, chunks, ""
 
-def gen_argfiles(datadir, taskname, uploadfilename, task, email, samprate=None, delstopwords='Y', maxbandwidth='10000000000', delunstressedvowels='Y'):
+def gen_argfiles(datadir, taskname, uploadfilename, task, email, samprate=None, delstopwords='Y', maxbandwidth='10000000000'):
     filepaths = read_filepaths()
-    acoustic_dir = 'acoustic_dir'
+    acoustic_dir = (filepaths['ACOUSTICMODELS']);
     """create ctl files if applicable"""
     if task=='asr':
         filelist = map(lambda filename: filename[:-4],
@@ -701,11 +743,11 @@ def gen_argfiles(datadir, taskname, uploadfilename, task, email, samprate=None, 
         """recognition"""
         options = {}
         if samprate==8000:
-            hmm = os.path.join(acoustic_dir, 'sphinx-8')
+            hmm = acoustic_dir + 'sphinx-8'
             options.update({'nfilt': '20',
                             'upperf': '3500'})
         else:
-            hmm = os.path.join(acoustic_dir, 'sphinx-16')
+            hmm = acoustic_dir + 'sphinx-16'
             options.update({'nfilt': '25',
                             'upperf': '6800'})
 
@@ -714,7 +756,7 @@ def gen_argfiles(datadir, taskname, uploadfilename, task, email, samprate=None, 
                         'dict': 'cmudict.nostress.txt',
                         'fdict': os.path.join(hmm, 'noisedict'),
                         'hmm': hmm,
-                        'lm': 'lm_dir/en-us.lm.dmp',
+                        'lm': filepaths['LM'],
                         'lw': '7',
                         'samprate': str(samprate),
                         'bestpath': 'no',
@@ -740,8 +782,7 @@ def gen_argfiles(datadir, taskname, uploadfilename, task, email, samprate=None, 
                   'email': email,
                   'tasktype': task,
                   'delstopwords': delstopwords,
-                  'maxbandwidth': maxbandwidth,
-                  'delunstressedvowels': delunstressedvowels}
+                  'maxbandwidth': maxbandwidth}
     if samprate==8000:
         alext_args['hmm'] = os.path.join(acoustic_dir, 'htkpenn8kplp')
     else:
