@@ -22,8 +22,6 @@ from email.utils import COMMASPACE, formatdate
 from email import encoders
 from collections import defaultdict
 from textgrid.textgrid import TextGrid
-import gdata.youtube
-import gdata.youtube.service
 from datetime import datetime
 
 from textclean import process_usertext
@@ -89,9 +87,8 @@ def send_ytupload_email(video_id, taskname, receiver, filename):
     except smtplib.SMTPException:
         return 'Unable to send a confirmation e-mail. Please check your address. '+body
 
-def send_init_email(tasktype, receiver, filename):
-        filepaths = read_filepaths()
-        password = open(filepaths['PASSWORD']).read().strip()
+def send_init_email(tasktype, receiver, filename, passwordfile):
+        password = open(passwordfile).read().strip()
         username = 'darla.dartmouth'
         sender = username+'@gmail.com'
 
@@ -165,9 +162,8 @@ def send_traceback_email(tasktype, filename, taskname, traceback):
     except smtplib.SMTPException:
         sys.stderr.write('Unable to send traceback email')
 
-def send_email(tasktype, receiver, filename, taskname, error_check):
-        filepaths = read_filepaths()
-        password = open(filepaths['PASSWORD']).read().strip()
+def send_email(tasktype, receiver, filename, taskname, error_check, passwordfile, urlbase):
+        password = open(passwordfile).read().strip()
         username = 'darla.dartmouth'
         sender = username+'@gmail.com'
 
@@ -202,10 +198,10 @@ def send_email(tasktype, receiver, filename, taskname, error_check):
         if tasktype == 'asr' or tasktype == 'googleasr' or tasktype == 'asredit' or tasktype == 'boundalign':
             body += '(5) transcription.txt contains the transcriptions.\n\n'
             body += 'If you manually correct the alignments in the TextGrid, you may re-upload your data with the new TextGrid to '
-            body += filepaths['URLBASE']+'/uploadtextgrid and receive revised formant measurements and plots.\n'
+            body += urlbase+'/uploadtextgrid and receive revised formant measurements and plots.\n'
 
             body += '\nTo use our online playback tool to edit the ASR transcriptions and then re-run alignment and extraction, go to '
-            body += filepaths['URLBASE']+'/asredit?taskname={0} \n'.format(os.path.basename(taskname))
+            body += urlbase+'/asredit?taskname={0} \n'.format(os.path.basename(taskname))
             body += 'Note that this link is only guaranteed to work for 72 hours since we periodically delete user files.\n\n'
             body += 'Alternately, you may upload corrected plaintext transcriptions to '+filepaths['URLBASE']+'/uploadtxttrans \n'
 
@@ -228,7 +224,7 @@ def send_email(tasktype, receiver, filename, taskname, error_check):
                     part.add_header('Content-Disposition', 'attachment; filename='+nicename)
                     message.attach(part)
                 except:
-                    error_check = send_error_email(receiver, filename, "Your job was not completed.", error_check) # returns false after error sends
+                    error_check = send_error_email(receiver, filename, "Your job was not completed.", error_check, passwordfile) # returns false after error sends
         if tasktype == 'asr' or tasktype == 'googleasr' or tasktype == 'asredit' or tasktype == 'boundalign': #send transcription
             try:
                 part = MIMEBase('application', "octet-stream")
@@ -241,7 +237,7 @@ def send_email(tasktype, receiver, filename, taskname, error_check):
                 part.add_header('Content-Disposition', 'attachment; filename=transcription.txt')
                 message.attach(part)
             except:
-                error_check = send_error_email(receiver, filename, "There was a problem attaching the transcription.", error_check)
+                error_check = send_error_email(receiver, filename, "There was a problem attaching the transcription.", error_check, passwordfile)
         try:
             server = smtplib.SMTP('smtp.gmail.com', 587)
             server.starttls()
@@ -253,7 +249,7 @@ def send_email(tasktype, receiver, filename, taskname, error_check):
             sys.stderr.write('Unable to send e-mail ')
 
 
-def send_error_email(receiver, filename, message, first):
+def send_error_email(receiver, filename, message, first, passwordfile):
     # sends error email, returns false so can use this return value to send again for "first" so task
     # global ERROR;
 
@@ -261,13 +257,12 @@ def send_error_email(receiver, filename, message, first):
 
         sys.stderr.write('First and only error email sent')
 
-        filepaths = read_filepaths()
-        password = open(filepaths['PASSWORD']).read().strip()
+        password = open(passwordfile).read().strip()
         username = 'darla.dartmouth'
         sender = username+'@gmail.com'
         subject = 'Error trying to process '+filename
         body = 'Unfortunately, there was an error running your job for '+filename + ". "+message
-        body += '\nTo help us try and identify what exactly the problem is, please message us with attached file(s) at darla.dartmouth@gmail.com.'
+        body += '\nTo help us try and identify what exactly the problem is, please message us with the attached file(s) at darla.dartmouth@gmail.com.'
         body += '\nSorry about the inconvenience. We will try to identify and solve the problem shortly.'
         message = MIMEMultipart()
         message['From'] = 'DARLA <'+sender+'>'
@@ -282,7 +277,7 @@ def send_error_email(receiver, filename, message, first):
             server.starttls()
             server.login(username, password)
             server.sendmail(sender, receiver, message.as_string())
-            server.quit()
+            server.close()
             return False
 
         except smtplib.SMTPException:
@@ -529,21 +524,12 @@ def write_chunks(chunks, filepath):
         o.write('{0} {1}\n'.format(chunk[0], chunk[1]))
     o.close()
 
-def process_audio(audiodir, filename, extension, filecontent, dochunk):
-
-    if filecontent:
-        o = open(os.path.join(audiodir, filename+extension), 'w')
-        o.write(filecontent)
-        o.close()
-
+def process_audio(audiodir, filename, extension, dochunk):
     if extension == '.mp3':
         sys.stdout.write('converting mp3 to wav {0}'.format(os.path.join(audiodir, filename+extension)))  #TODO: try and except here
-        #os.system("mpg123 "+"-w "+os.path.join(audiodir, filename+'.wav')+' '+os.path.join(audiodir, filename+extension))
         audio = subprocess.Popen(shlex.split("mpg123 "+"-w "+os.path.join(audiodir, filename+'.wav')+' '+os.path.join(audiodir, filename+extension)), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         audio.wait()
-
         extension = '.wav'
-
     #split and convert frequency
     samprate, filesize, chunks, soxerror = sox_conversion(filename+extension, audiodir, dochunk)
     return samprate, filesize, chunks, soxerror

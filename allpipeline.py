@@ -1,68 +1,29 @@
-"""class that calls alignment things """
-
-celeryon = True  #whether or not to use celery
-
-import web
-from web import form
-import myform
 import utilities
 import os
-import sys
 from featrec import featurize_recognize, align_extract
+from flask import render_template
 
-render = web.template.render('templates/', base='layout')
+def allpipeline(datadir, taskname, filename, speaker_name, speaker_sex, passwordfile, urlbase):
+	try:
+		utilities.write_speaker_info(os.path.join(datadir, taskname+'.speaker'),
+									 speaker_name,
+									 speaker_sex)
+	except IOError:
+		return render_template("error.html",
+							   error = "Error creating a CAVE job for "+filename,
+							   uploadlink = "cavejob")
 
-if celeryon:
-	from celery import group
+	result = featurize_recognize.delay(os.path.join(datadir, taskname), passwordfile, urlbase)
+	while not result.ready():
+		pass
 
-urls = {
-	 '/?', 'allpipeline'
-	 }
+	if result.get() == False:
+		return render_template("error.html",
+							   error = "There is something wrong with your audio file. We could not extract acoustic features or run ASR.",
+							   uploadlink = "cavejob")
 
-class allpipeline:
-    def GET(self):
-        return render.error("That is not a valid link.", "cave")
+	result = align_extract.delay(os.path.join(datadir, taskname), passwordfile, urlbase)
+	while not result.ready():
+		pass
 
-    def POST(self):
-        filepaths = utilities.read_filepaths()
-        datadir = filepaths['DATA']
-        appdir = filepaths['APPDIR']
-        post_list = web.data().split("&")
-        parameters = {}
-
-        for form_input in post_list:
-            split = form_input.split("=")
-            parameters[split[0]] = split[1]
-
-        taskname = parameters["taskname"]
-
-        filename = parameters["filename"]
-        if filename=='ytvideo.wav':
-            filename = 'ytvideo'
-        try:
-            utilities.write_speaker_info(os.path.join(datadir, taskname+'.speaker'), parameters["name"], parameters["sex"])
-        except IOError:
-            return render.error("Error creating a job for {0}.".format(filename), "uploadsound")
-
-        if celeryon:
-            result = featurize_recognize.delay(os.path.join(datadir, taskname))
-            while not result.ready():
-                pass
-
-            if result.get() == False:
-                return render.error("There is something wrong with your audio file. We could not extract acoustic features or run ASR.", "uploadsound")
-        else:
-            if not featurize_recognize(os.path.join(datadir, taskname)):
-                return render.error("There is something wrong with your audio file. We could not extract acoustic features or run ASR.", "uploadsound")
-
-
-        if celeryon:
-            result = align_extract.delay(os.path.join(datadir, taskname), appdir)
-            while not result.ready():
-                pass
-        else:
-            align_extract(os.path.join(datadir, taskname),appdir)
-
-	return render.success('')
-
-app_allpipeline = web.application(urls, locals())
+	return render_template("success.html", message='')

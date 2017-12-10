@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+{% block title %}CAVE{% endblock %}
+{% from "_formhelpers.html" import render_field %}
+{% block content %}
+<div class="container">
+
+  <h2>Completely Automated Vowel Extraction (with in-house ASR)</h2>
+
+ <p><a href=""><small>Click here at any time to cancel or start over.</small></a></p>
+
+ <form name="cavejob" method=post enctype="multipart/form-data">
+   <dl>
+     {{ render_field(form.audio) }}
+     {{ render_field(form.email) }}
+     {{ render_field(form.speaker_name) }}
+     {{ render_field(form.speaker_sex) }}
+     {{ render_field(form.delstopwords) }}
+     {{ render_field(form.delunstressedvowels) }}
+     {{ render_field(form.filterbandwidths) }}
+   </dl>
+   <p><input type=submit value="Submit">
+ </form>
+
+	<div id="loading" style="display: none;">
+	  <span class="note">Task processing. You may now close this window and we will email you the results.</span>
+	<img src="/static/images/ajax-loader.gif"></img>
+	</div>
+	<br>
+
+</div>
+{% endblock %}

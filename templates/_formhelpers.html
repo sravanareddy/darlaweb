@@ -1,0 +1,35 @@
+{% macro render_field(field) %}
+ {% if field.type != 'HiddenField'%}
+ <p class="controls">
+  {{ field.description }}
+  {% if field.type == 'RadioField' %}
+     {% for choice in field %}
+          {{ choice }} {{ choice.label.text }}
+     {% endfor %}
+  {% else %}
+  {{ field(**kwargs)|safe }}
+  {% endif %}
+  {% if field.label.text == 'audio' %}
+      <br><span class="note">
+        Longer recordings (of at least 2 minutes) are recommended.
+        Your uploaded files are stored temporarily on the Dartmouth servers in order to process
+        your job.
+      </span>
+  {% elif field.label.text == 'email' %}
+     <br><span class="note">
+      The results will be e-mailed to you. We will not share your address.
+     </span>
+  {% elif field.label.text == 'delstopwords' %}
+     <br><span class="note"><a href="stopwords" target="_blank">This is the list of stopwords</a> that we filter from the results.
+     </span>
+  {% endif %}
+  {% if field.errors %}
+    <p class=formrequired>
+    {% for error in field.errors %}
+      {{ error }}
+    {% endfor %}
+  </p>
+  {% endif %}
+</p>
+{% endif %}
+{% endmacro %}

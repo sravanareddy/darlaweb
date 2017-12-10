@@ -1,13 +1,15 @@
-$def with(error,uploadlink)
-
+{% extends "layout.html" %}
+{% block title %}Error{% endblock %}
+{% block content %}
 <div class="container">
 
     <h2>Oh, no!</h2>
 
 <p class="alert alert-danger">
-  $error</p>
-  
-<a href=$uploadlink><small>Click here to start over and try
+  {{ error }}</p>
+
+<a href="{{ uploadlink }}"><small>Click here to start over and try
   again.</small></a>
-  
+
 </div>
+{% endblock %}

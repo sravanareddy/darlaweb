@@ -6,7 +6,6 @@ task=$3
 delstopwords=$4
 maxbandwidth=$5
 delunstressedvowels=$6
-appdir=$7
 
 dot="$(cd "$(dirname "$0")"; pwd)"
 favedir=$dot'/FAVE-extract'

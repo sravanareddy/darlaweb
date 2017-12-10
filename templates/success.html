@@ -1,14 +1,16 @@
-$def with(message)
-
+{% extends "layout.html" %}
+{% block title %}Error{% endblock %}
+{% block content %}
 <div class="container">
 
   <h2>Success!</h2>
 
 <p class="alert alert-success">
-  $if message=='':
+  {% if message=='' %}:
       You may now close this window or go to another page. We will email you the results. Thank you!
-  $else:
-      $message
+  {% else %}:
+      {{ message }}
   </p>
-  
+
 </div>
+{% endblock %}

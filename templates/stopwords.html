@@ -1,11 +1,14 @@
-$def with(wordlist)
-
+{% extends "layout.html" %}
+{% block title %}Stopwords List{% endblock %}
+{% block content %}
 <div class="container">
 <h2>Stop-Word List</h2>
 
 <p>
 <tt>
-$wordlist
+{{ wordlist }}
 </tt>
 </p>
 </div>
+{% endblock %}
+
