@@ -8,7 +8,6 @@ import os
 from web import form
 import myform
 import utilities
-import pipeline
 from evaluate import run_evaluation
 import asredit
 import time
@@ -17,6 +16,10 @@ import sys
 from mturk import mturk, mturksubmit
 from backend import align_extract, featurize_recognize
 from formfields import make_uploadsound, make_uploadtxttrans, make_email, make_delstopwords, make_delunstressedvowels, make_filterbandwidths, make_audio_validator, speaker_form
+import urllib
+from backend import featurize_recognize, align_extract
+from hyp2mfa import asrjob_mfa, txtalignjob_mfa
+
 # [END import_libraries]
 
 render = web.template.render('templates/', base='layout')
@@ -31,7 +34,7 @@ urls = ('/', 'index',
         '/stopwords', 'stopwords',
         '/mturksubmit', 'mturksubmit',
         '/upload/(.+)', 'uploadjob',
-        '/pipeline', pipeline.app_pipeline,
+        '/pipeline', 'pipeline',
         '/uploadeval', 'uploadeval',
         '/asredit', asredit.app_asredit)
 
@@ -199,6 +202,42 @@ class uploadjob:
             return render.asrjob(pageform, speakers)
         elif job == 'txtalign':
             return render.txtalignjob(pageform, speakers)
+
+class pipeline:
+    def GET(self):
+        return render.error("That is not a valid link.", "index")
+
+    def POST(self):
+		post_list = web.data().split("&")
+		parameters = {}
+
+		for form_input in post_list:
+			split = form_input.split("=")
+			parameters[split[0]] = split[1]
+
+		taskdir = urllib.unquote(parameters["taskdir"])
+		job = parameters["job"]
+
+		utilities.write_speaker_info(os.path.join(taskdir, 'speaker'), parameters["name"], parameters["sex"])
+
+		if job == 'asr':
+			result = featurize_recognize.delay(taskdir)
+			while not result.ready():
+				pass
+
+			if result.get() == False:
+				return render.error("There is something wrong with your audio file. We could not extract acoustic features or run ASR.", "upload/asr")
+
+			asrjob_mfa(taskdir)
+
+		elif job == 'txtalign':
+			txtalignjob_mfa(taskdir)
+
+		result = align_extract.delay(taskdir, confirmation_sent = (job == 'asr'))
+		while not result.ready():
+			pass
+
+		return render.success('')
 
 """
 class uploadtxttrans:
