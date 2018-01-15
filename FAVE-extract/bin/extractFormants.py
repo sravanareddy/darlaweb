@@ -935,7 +935,7 @@ def getWordsAndPhones(tg, phoneset, speaker, vowelSystem):
 
     words = []
     # iterate along word tier for given speaker
-    for w in tg[0]:  # for each interval...
+    for w in tg[1]:  # for each interval in word tier...
         word = Word()
         word.transcription = w.mark()
         word.xmin = w.xmin()
@@ -947,7 +947,7 @@ def getWordsAndPhones(tg, phoneset, speaker, vowelSystem):
         left = bisect_left(phone_midpoints, word.xmin)
         right = bisect_left(phone_midpoints, word.xmax)
 
-        for p in tg[1][left:right]:
+        for p in tg[0][left:right]:
             phone = Phone()
             phone.label = p.mark().upper()
             phone.xmin = p.xmin()

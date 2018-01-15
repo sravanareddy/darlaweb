@@ -23,8 +23,8 @@ def send_init_email(tasktype, receiver, filename):
                       'googleasr': 'Completely Automated Vowel Extraction',
                       'txt': 'Alignment and Extraction',
                       'bound': 'Alignment and Extraction',
-                      'extract': 'Formant Extraction',
-                      'asredit': 'Alignment and Extraction on Corrected Transcripts'}
+                      'extract': 'Formant Extraction'}
+#                      'asredit': 'Alignment and Extraction on Corrected Transcripts'}
 
     subject = subjectmap[tasktype]+': Task Started for '+filename
 
@@ -60,8 +60,8 @@ def send_email(tasktype, receiver, filename, taskdir, error_check):
                       'googleasr': 'Completely Automated Vowel Extraction',
                       'txt': 'Alignment and Extraction',
                       'bound': 'Alignment and Extraction',
-                      'extract': 'Formant Extraction',
-                      'asredit': 'Alignment and Extraction on Corrected Transcripts'}
+                      'extract': 'Formant Extraction'}
+                      #  'asredit': 'Alignment and Extraction on Corrected Transcripts'}
 
         subject = '{0}: Vowel Analysis Results for {1}'.format(subjectmap[tasktype], filename)
         body = 'The formant extraction results for your data are attached:\n\n'
@@ -87,10 +87,12 @@ def send_email(tasktype, receiver, filename, taskdir, error_check):
             body += 'If you manually correct the alignments in the TextGrid, you may re-upload your data with the new TextGrid to '
             body += filepaths['URLBASE']+'/uploadtextgrid and receive revised formant measurements and plots.\n'
 
+            """
             body += '\nTo use our online playback tool to edit the ASR transcriptions and then re-run alignment and extraction, go to '
             body += filepaths['URLBASE']+'/asredit?taskname={0} \n'.format(os.path.basename(taskdir))
             body += 'Note that this link is only guaranteed to work for 72 hours since we periodically delete user files.\n\n'
-            body += 'Alternately, you may upload corrected plaintext transcriptions to '+filepaths['URLBASE']+'/uploadtxt \n'
+            """
+            body += '\nYou may upload corrected plaintext transcriptions to '+filepaths['URLBASE']+'/uploadtxt and rerun your job \n'
 
         body += '\n'
         body += 'Do not share this e-mail if you need to preserve the privacy of your uploaded data.\n\n'
@@ -106,7 +108,7 @@ def send_email(tasktype, receiver, filename, taskdir, error_check):
         filelist = [('formants.csv', os.path.join(taskdir, 'aggvowels_formants.csv')),
                                        ('formants.fornorm.tsv', os.path.join(taskdir, 'fornorm.tsv')),
                                        ('plot.pdf', os.path.join(taskdir, 'plot.pdf')),
-                                       (filename+'.TextGrid', os.path.join(taskdir, 'aligned', 'audio.flipped.TextGrid'))]
+                                       (filename+'.TextGrid', os.path.join(taskdir, 'aligned', 'audio.ordered.TextGrid'))]
         for nicename, realfilename in filelist:
                 part = MIMEBase('application', "octet-stream")
                 try:

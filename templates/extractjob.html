@@ -2,14 +2,18 @@ $def with (form, speakerform)
 
 <div class="container">
 
-<h2>Automated Vowel Extraction with Revised Transcriptions</h2><p><p>
+<h2>Automated Vowel Extraction with Pre-Specified Alignments</h2><p><p>
 
 <p class="lead">
-Upload your audio files with the corrected TextGrid to run formant extraction using FAVE-extract. (The word tier is ignored; you only need to correct the phone tier.)</p>
+Upload your audio files with a word and phoneme aligned TextGrid
+to run formant extraction using FAVE-extract.
+(The word tier is ignored, so if you are correcting automatic alignments,
+you only need to correct the phone tier.)
+</p>
 
-<p><a href="uploadtextgrid"><small>Click here at any time to cancel or start over.</small></a><p>
+<p><a href="uploadextract"><small>Click here at any time to cancel or start over.</small></a><p>
 
-<form name="uploadtextgrid" method="post" enctype="multipart/form-data"> 
+<form name="uploadextract" method="post" enctype="multipart/form-data">
 $if not form.valid: <p class="alert alert-danger">Correct the errors below.</p>
 $if not speakerform:
      $:form.render()
@@ -19,7 +23,7 @@ $if speakerform:
         $:form.render_disabled()
 	<h3>Enter speaker information</h3>
 	<span class="note">Does not affect the automatic transcription, but required for vowel extraction results.</span><p>
-	<form action="extract" name="extract" method="post" onsubmit="progress()">
+	<form action="pipeline" name="pipeline" method="post" onsubmit="progress()">
 	$if not speakerform.valid: <p class="alert alert-danger">Correct the errors below.</p>
 	$:speakerform.render()
 	<input type="submit" />
@@ -31,4 +35,3 @@ $if speakerform:
 	<br>
 
 </div>
-

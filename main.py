@@ -15,7 +15,7 @@ import json
 import sys
 from mturk import mturk, mturksubmit
 from backend import align_extract, featurize_recognize
-from formfields import make_uploadsound, make_uploadtxttrans, make_uploadboundtrans, make_email, make_delstopwords, make_delunstressedvowels, make_filterbandwidths, make_audio_validator, speaker_form
+from formfields import make_uploadsound, make_uploadtxttrans, make_uploadboundtrans, make_uploadtgtrans, make_email, make_delstopwords, make_delunstressedvowels, make_filterbandwidths, make_audio_validator, speaker_form
 import urllib
 from backend import featurize_recognize, align_extract
 from hyp2mfa import asrjob_mfa, txtjob_mfa, boundjob_mfa
@@ -71,6 +71,7 @@ class uploadjob:
     uploadfile = make_uploadsound(MINDURATION)
     uploadtxtfile = make_uploadtxttrans()
     uploadboundfile = make_uploadboundtrans()
+    uploadtgfile = make_uploadtgtrans()
     delstopwords = make_delstopwords()
     delunstressedvowels = make_delunstressedvowels()
     filterbandwidths = make_filterbandwidths()
@@ -109,6 +110,15 @@ class uploadjob:
                                            self.email, self.taskname, self.submit)
             pageform = formbuilder()
             return render.boundjob(pageform, "")
+        elif job == 'extract':
+            formbuilder = myform.MyForm(self.uploadfile,
+                                           self.uploadtgfile,
+                                           self.delstopwords,
+                                           self.delunstressedvowels,
+                                           self.filterbandwidths,
+                                           self.email, self.taskname, self.submit)
+            pageform = formbuilder()
+            return render.extractjob(pageform, "")
 
 
     def POST(self, job):
@@ -139,6 +149,15 @@ class uploadjob:
                                            self.email, self.taskname, self.submit)
             x = web.input(uploadfile={}, uploadboundfile={})
 
+        elif job == 'extract':
+            formbuilder = myform.MyForm(self.uploadfile,
+                                           self.uploadtgfile,
+                                           self.delstopwords,
+                                           self.delunstressedvowels,
+                                           self.filterbandwidths,
+                                           self.email, self.taskname, self.submit)
+            x = web.input(uploadfile={}, uploadtgfile={})
+
         pageform = formbuilder()
 
         if job == 'txt':
@@ -150,10 +169,15 @@ class uploadjob:
 
         elif job == 'bound':
             boundfilename, boundextension = utilities.get_basename(x.uploadboundfile.filename)
-
-            if boundextension != '.TextGrid':  #TODO: check textgrid validity
+            if boundextension != '.textgrid':  #TODO: check textgrid validity
                 pageform.note = 'Upload a TextGrid file with a .TextGrid extension.'
                 return render.boundjob(pageform, "")
+
+        elif job == 'extract':
+            tgfilename, tgextension = utilities.get_basename(x.uploadtgfile.filename)
+            if tgextension != '.textgrid':  #TODO: check textgrid validity
+                pageform.note = 'Upload a TextGrid file with a .TextGrid extension.'
+                return render.extractjob(pageform, "")
 
         if not pageform.validates(): #not validated
             if job == 'asr':
@@ -162,7 +186,8 @@ class uploadjob:
                 return render.txtjob(pageform, "")
             elif job == 'bound':
                 return render.boundjob(pageform, "")
-
+            elif job == 'extract':
+                return render.extractjob(pageform, "")
 
         #make taskname
         taskname, taskdir, error = utilities.make_task(self.datadir)
@@ -174,6 +199,8 @@ class uploadjob:
                 return render.txtjob(pageform, "")
             elif job == 'bound':
                 return render.boundjob(pageform, "")
+            elif job == 'extract':
+                return render.extractjob(pageform, "")
 
         pageform.taskname.value = taskname
 
@@ -188,6 +215,8 @@ class uploadjob:
                 return render.txtjob(pageform, "")
             elif job == 'bound':
                 return render.boundjob(pageform, "")
+            elif job == 'extract':
+                return render.extractjob(pageform, "")
 
         if job == 'asr':
             total_size, chunks, error = utilities.process_audio(taskdir,
@@ -230,6 +259,20 @@ class uploadjob:
             with open(os.path.join(taskdir, 'raw.TextGrid'), 'w') as o:
                 o.write(x.uploadboundfile.file.read())
 
+        elif job == 'extract':
+            total_size, _ , error = utilities.process_audio(taskdir,
+                                                                        filename,
+                                                                        extension,
+                                                                        x.uploadfile.file.read(),
+                                                                        dochunk=None)
+            if error!="":
+                pageform.note = error
+                return render.extractjob(pageform, "")
+
+            # write textgrid
+            with open(os.path.join(taskdir, 'raw.TextGrid'), 'w') as o:
+                o.write(x.uploadtgfile.file.read())
+
 
         if total_size < MINDURATION:
             pageform.note = "Warning: Your file totals only {:.2f} minutes of speech. We recommend at least {:.0f} minutes for best results.".format(total_size, MINDURATION)
@@ -252,6 +295,8 @@ class uploadjob:
             return render.txtjob(pageform, speakers)
         elif job == 'bound':
             return render.boundjob(pageform, speakers)
+        elif job == 'extract':
+            return render.extractjob(pageform, speakers)
 
 class pipeline:
     def GET(self):
@@ -283,6 +328,9 @@ class pipeline:
 		elif job == 'txt':
 			txtjob_mfa(taskdir)
 
+		elif job == 'bound':
+			boundjob_mfa(taskdir)
+
 		result = align_extract.delay(taskdir, confirmation_sent = (job == 'asr'))
 		while not result.ready():
 			pass
@@ -290,166 +338,6 @@ class pipeline:
 		return render.success('')
 
 """
-class uploadtxttrans:
-    delstopwords = make_delstopwords()
-    delunstressedvowels = make_delunstressedvowels()
-    filterbandwidths = make_filterbandwidths()
-    email = make_email()
-    taskname = form.Hidden('taskname')
-    submit = form.Button('submit', type='submit', description='Submit')
-
-    soundvalid = make_audio_validator()
-
-    datadir = utilities.read_filepaths()['DATA']
-
-    def GET(self):
-        uploadtxttrans = myform.MyForm(self.uploadfile,
-                                       self.uploadtxtfile,
-                                       self.delstopwords,
-                                       self.delunstressedvowels,
-                                       self.filterbandwidths,
-                                       self.email, self.taskname, self.submit)
-        pageform = uploadtxttrans()
-        return render.speakerstxttrans(form, "")
-
-    def POST(self):
-        uploadtxttrans = myform.MyForm(self.uploadfile,
-                                       self.uploadtxtfile,
-                                       self.delstopwords,
-                                       self.delunstressedvowels,
-                                       self.filterbandwidths,
-                                       self.email, self.taskname, self.submit,
-                                       validators = self.soundvalid)
-        pageform = uploadtxttrans()
-        x = web.input(uploadfile={}, uploadtxtfile={})
-
-        if not pageform.validates(): #not validated
-            return render.speakerstxttrans(form, "")
-
-        txtfilename, txtextension = utilities.get_basename(x.uploadtxtfile.filename)
-
-        if txtextension != '.txt':  #TODO: check plaintext validity
-            pageform.note = 'Upload a transcript with a .txt extension.'
-            return render.speakerstxttrans(form, "")
-
-        #create new task
-        taskname, audiodir, error = utilities.make_task(self.datadir)
-        if error!="":
-            pageform.note = error
-            return render.speakerstxttrans(form, "")
-
-        pageform.taskname.value = taskname
-
-        #sanitize filename
-        filename, extension = utilities.get_basename(x.uploadfile.filename)
-        if extension not in ['.wav', '.mp3']:
-            pageform.note = "Please upload a .wav or .mp3 file."
-            return render.speakerstxttrans(form, "")
-        else:
-            error = utilities.write_hyp(self.datadir, taskname, filename, x.uploadtxtfile.file.read(), 'cmudict.forhtk.txt')
-            if error!="":
-                pageform.note = error
-                return render.speakerstxttrans(form, "")
-
-            samprate, total_size, _, error = utilities.process_audio(audiodir,
-                                             filename, extension,
-                    x.uploadfile.file.read(),
-                dochunk=None)
-            if error!="":
-                form.note = error
-                return render.speakerstxttrans(form, "")
-
-        utilities.gen_argfiles(self.datadir, pageform.taskname.value, filename, 'txtalign', form.email.value, samprate, form.delstopwords.value, form.filterbandwidths.value, form.delunstressedvowels.value)
-
-        speakers = speaker_form(filename, taskname)
-
-        return render.speakerstxttrans(form, speakers)
-
-class uploadboundtrans:
-    uploadfile = make_uploadfile(MINDURATION)
-    uploadboundfile = myform.MyFile('uploadboundfile',
-                                    form.notnull,
-                                    post = 'Textgrid should contain a tier named "sentence" with sentence/breath group intervals.',
-                                    description='Manual transcription as a .TextGrid file:')
-    delstopwords = make_delstopwords()
-    delunstressedvowels = make_delunstressedvowels()
-    filterbandwidths = make_filterbandwidths()
-    email = make_email()
-    taskname = form.Hidden('taskname')
-    submit = form.Button('submit', type='submit', description='Submit')
-
-    soundvalid = make_audio_validator()
-    datadir = utilities.read_filepaths()['DATA']
-
-    def GET(self):
-        uploadboundtrans = myform.MyForm(self.uploadfile,
-                                         self.uploadboundfile,
-                                         self.delstopwords,
-                                         self.delunstressedvowels,
-                                         self.filterbandwidths,
-                                         self.email, self.taskname, self.submit)
-        form = uploadboundtrans()
-        return render.speakersboundtrans(form, "")
-
-    def POST(self):
-        uploadboundtrans = myform.MyForm(self.uploadfile,
-                                         self.uploadboundfile,
-                                         self.delstopwords,
-                                         self.delunstressedvowels,
-                                         self.filterbandwidths,
-                                         self.email, self.taskname, self.submit,
-                                 validators = self.soundvalid)
-        form = uploadboundtrans()
-        x = web.input(uploadfile={}, uploadboundfile={})
-
-        if not form.validates(): #not validated
-            return render.speakersboundtrans(form, "")
-
-        boundfilename, boundextension = utilities.get_basename(x.uploadboundfile.filename)
-
-        if boundextension != '.textgrid':
-            form.note = 'Upload a transcript with a .TextGrid extension indicating sentence boundaries.'
-            return render.speakersboundtrans(form, "")
-
-        o = codecs.open(os.path.join(self.datadir, boundfilename+boundextension), 'w', 'utf8')
-        o.write(utilities.read_textupload(x.uploadboundfile.file.read()))
-        o.close()
-
-        #create new task
-        taskname, audiodir, error = utilities.make_task(self.datadir)
-        if error!="":
-            form.note = error
-            return render.speakersboundtrans(form, "")
-
-        form.taskname.value = taskname
-
-        #sanitize filename
-        filename, extension = utilities.get_basename(x.uploadfile.filename)
-
-        if extension not in ['.wav', '.mp3']:
-            form.note = "Please upload a .wav or .mp3 file."
-            return render.speakersboundtrans(form, "")
-
-        chunks, error = utilities.write_sentgrid_as_lab(self.datadir, form.taskname.value, filename, boundfilename+boundextension, 'cmudict.forhtk.txt')
-        if error!="":
-            form.note = error
-            return render.speakersboundtrans(form, "")
-
-        samprate, total_size, chunks, error = utilities.process_audio(audiodir,
-                                             filename, extension,
-                    x.uploadfile.file.read(),
-                    dochunk=chunks)
-        if error!="":
-            form.note = error
-            return render.speakersboundtrans(form, "")
-
-        utilities.write_chunks(chunks, os.path.join(self.datadir, taskname+'.chunks'))
-        utilities.gen_argfiles(self.datadir, form.taskname.value, filename, 'boundalign', form.email.value, samprate, form.delstopwords.value, form.filterbandwidths.value, form.delunstressedvowels.value)
-
-        speakers = speaker_form(filename, taskname)
-
-        return render.speakersboundtrans(form, speakers)
-
 class uploadtextgrid:
     uploadfile = make_uploadfile(MINDURATION)
     uploadTGfile = myform.MyFile('uploadTGfile',

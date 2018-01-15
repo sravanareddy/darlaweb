@@ -19,6 +19,11 @@ def make_uploadboundtrans():
                                     post = 'Textgrid should contain a tier named "sentence" with sentence/breath group intervals.',
                                     description='Manual transcription as a .TextGrid file:')
 
+def make_uploadtgtrans():
+    return myform.MyFile('uploadtgfile',
+                                    form.notnull,
+                                    post = 'Textgrid should contain a manually aligned or corrected phone tier as well as a word tier. The names of these tiers should include the strings "word" and "phone" as appropriate.',
+                                    description='Manual alignment as a .TextGrid file:')
 
 def make_email():
     return form.Textbox('email',

@@ -18,8 +18,7 @@
     speech data using automatic speech recognition (ASR), and then
     runs it through forced alignment and formant extraction.</p>
 
-    <p>The semi-automated system is a <a
-    href="http://fave.ling.upenn.edu/">FAVE-based</a> approach that
+    <p>The semi-automated system is a forced-alignment approach that
     aligns and extracts vowel formants from speech with manual
       transcriptions.</p></div>
       </li>
@@ -84,8 +83,8 @@ editing the transcriptions online, and seamlessly re-running your task
 
   <div id="techbody" class="collapse">
 <p>We use the same methods as FAVE. Our forced alignment is done with the
-  <a href="http://prosodylab.org/tools/aligner/">ProsodyLab
-  Aligner</a>, and formant measurement with <a
+  <a href="http://montreal-forced-aligner.readthedocs.io/">Montreal Forced Aligner</a>,
+  and formant measurement with <a
   href="https://github.com/JoFrhwld/FAVE/tree/master/FAVE-extract">FAVE-extract</a>.
   We also use the <a href="http://cran.r-project.org/web/packages/vowels/index.html">R vowels package</a> for plotting.</p>
 </div></li>
@@ -161,7 +160,7 @@ that the system can be useful for extracting a representative vowel
        <div class="collapse" id="semibody">
 <p>This is designed for research that requires accurate human
 transcription.
-Our semi-automated system relies heavily on code from ProsodyLab
+Our semi-automated system relies heavily on code from the Montreal Forced
 	 Aligner and FAVE, but
 	 wraps it in a different interface and provides more output features.</p>
 
