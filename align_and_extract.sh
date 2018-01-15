@@ -14,7 +14,7 @@ stopwords=$dot'/stopwords.txt'
 #get alignments
 mkdir -p $taskdir/tmp
 if [ $task == 'asr' ] || [ $task == 'boundalign' ] || [ $task == 'txtalign' ] ; then
-    $dot'/montreal-forced-aligner/bin/mfa_align' $taskdir $taskdir'/pron.dict' english $taskdir'/aligned' -t $taskdir'/tmp' -j 2 -i -s 1
+    $dot'/montreal-forced-aligner/bin/mfa_align' $taskdir $taskdir'/pron.dict' english $taskdir'/aligned' -t $taskdir'/tmp' -i 
 fi
 
 #run FAVE-extract
