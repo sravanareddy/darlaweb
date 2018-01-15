@@ -15,7 +15,7 @@ import json
 import sys
 from mturk import mturk, mturksubmit
 from backend import align_extract, featurize_recognize
-from formfields import make_uploadsound, make_uploadtxttrans, make_email, make_delstopwords, make_delunstressedvowels, make_filterbandwidths, make_audio_validator, speaker_form
+from formfields import make_uploadsound, make_uploadtxttrans, make_uploadboundtrans, make_email, make_delstopwords, make_delunstressedvowels, make_filterbandwidths, make_audio_validator, speaker_form
 import urllib
 from backend import featurize_recognize, align_extract
 from hyp2mfa import asrjob_mfa, txtalignjob_mfa
@@ -33,7 +33,7 @@ urls = ('/', 'index',
         '/mturk', 'mturk',
         '/stopwords', 'stopwords',
         '/mturksubmit', 'mturksubmit',
-        '/upload/(.+)', 'uploadjob',
+        '/upload(.+)', 'uploadjob',
         '/pipeline', 'pipeline',
         '/uploadeval', 'uploadeval',
         '/asredit', asredit.app_asredit)
@@ -70,6 +70,7 @@ class stopwords:
 class uploadjob:
     uploadfile = make_uploadsound(MINDURATION)
     uploadtxtfile = make_uploadtxttrans()
+    uploadboundfile = make_uploadboundtrans()
     delstopwords = make_delstopwords()
     delunstressedvowels = make_delunstressedvowels()
     filterbandwidths = make_filterbandwidths()
@@ -90,7 +91,7 @@ class uploadjob:
                                     self.email, self.taskname, self.submit)
             pageform = formbuilder()
             return render.asrjob(pageform, "")
-        elif job == 'txtalign':
+        elif job == 'txt':
             formbuilder = myform.MyForm(self.uploadfile,
                                            self.uploadtxtfile,
                                            self.delstopwords,
@@ -98,7 +99,16 @@ class uploadjob:
                                            self.filterbandwidths,
                                            self.email, self.taskname, self.submit)
             pageform = formbuilder()
-            return render.txtalignjob(pageform, "")
+            return render.txtjob(pageform, "")
+        elif job == 'bound':
+            formbuilder = myform.MyForm(self.uploadfile,
+                                           self.uploadboundfile,
+                                           self.delstopwords,
+                                           self.delunstressedvowels,
+                                           self.filterbandwidths,
+                                           self.email, self.taskname, self.submit)
+            pageform = formbuilder()
+            return render.boundjob(pageform, "")
 
 
     def POST(self, job):
@@ -111,7 +121,7 @@ class uploadjob:
                                     validators = self.soundvalid)
             x = web.input(uploadfile={})
 
-        elif job == 'txtalign':
+        elif job == 'txt':
             formbuilder = myform.MyForm(self.uploadfile,
                                            self.uploadtxtfile,
                                            self.delstopwords,
@@ -120,20 +130,29 @@ class uploadjob:
                                            self.email, self.taskname, self.submit)
             x = web.input(uploadfile={}, uploadtxtfile={})
 
+        elif job == 'bound':
+            formbuilder = myform.MyForm(self.uploadfile,
+                                           self.uploadboundfile,
+                                           self.delstopwords,
+                                           self.delunstressedvowels,
+                                           self.filterbandwidths,
+                                           self.email, self.taskname, self.submit)
+            x = web.input(uploadfile={}, uploadboundfile={})
+
         pageform = formbuilder()
 
-        if job == 'txtalign':
+        if job == 'txt':
             txtfilename, txtextension = utilities.get_basename(x.uploadtxtfile.filename)
 
             if txtextension != '.txt':  #TODO: check plaintext validity
                 pageform.note = 'Upload a transcript with a .txt extension.'
-                return render.txtalignjob(pageform, "")
+                return render.txtjob(pageform, "")
 
         if not pageform.validates(): #not validated
             if job == 'asr':
                 return render.asrjob(pageform, "")
-            elif job == 'txtalign':
-                return render.txtalignjob(pageform, "")
+            elif job == 'txt':
+                return render.txtjob(pageform, "")
 
         #make taskname
         taskname, taskdir, error = utilities.make_task(self.datadir)
@@ -141,8 +160,8 @@ class uploadjob:
             pageform.note = error
             if job == 'asr':
                 return render.asrjob(pageform, "")
-            elif job == 'txtalign':
-                return render.txtalignjob(pageform, "")
+            elif job == 'txt':
+                return render.txtjob(pageform, "")
 
         pageform.taskname.value = taskname
 
@@ -153,8 +172,8 @@ class uploadjob:
             pageform.note = "Please upload a .wav or .mp3 audio file."
             if job == 'asr':
                 return render.asrjob(pageform, "")
-            elif job == 'txtalign':
-                return render.txtalignjob(pageform, "")
+            elif job == 'txt':
+                return render.txtjob(pageform, "")
 
         if job == 'asr':
             total_size, chunks, error = utilities.process_audio(taskdir,
@@ -169,7 +188,7 @@ class uploadjob:
 
             utilities.write_chunks(chunks, os.path.join(taskdir, 'chunks'))
 
-        elif job == 'txtalign':
+        elif job == 'txt':
             total_size, _ , error = utilities.process_audio(taskdir,
                                                                         filename,
                                                                         extension,
@@ -177,7 +196,7 @@ class uploadjob:
                                                                         dochunk=None)
             if error!="":
                 pageform.note = error
-                return render.txtalignjob(pageform, "")
+                return render.txtjob(pageform, "")
 
             # write text transcript
             with open(os.path.join(taskdir, 'transcript.txt'), 'w') as o:
@@ -200,8 +219,8 @@ class uploadjob:
         speakers = speaker_form(taskdir, job)
         if job == 'asr':
             return render.asrjob(pageform, speakers)
-        elif job == 'txtalign':
-            return render.txtalignjob(pageform, speakers)
+        elif job == 'txt':
+            return render.txtjob(pageform, speakers)
 
 class pipeline:
     def GET(self):
@@ -226,11 +245,11 @@ class pipeline:
 				pass
 
 			if result.get() == False:
-				return render.error("There is something wrong with your audio file. We could not extract acoustic features or run ASR.", "upload/asr")
+				return render.error("There is something wrong with your audio file. We could not extract acoustic features or run ASR.", "uploadasr")
 
 			asrjob_mfa(taskdir)
 
-		elif job == 'txtalign':
+		elif job == 'txt':
 			txtalignjob_mfa(taskdir)
 
 		result = align_extract.delay(taskdir, confirmation_sent = (job == 'asr'))

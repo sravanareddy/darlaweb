@@ -12,9 +12,12 @@ favedir=$dot'/FAVE-extract'
 stopwords=$dot'/stopwords.txt'
 
 #get alignments
-mkdir -p $taskdir/tmp
-if [ $task == 'asr' ] || [ $task == 'boundalign' ] || [ $task == 'txtalign' ] ; then
-    $dot'/montreal-forced-aligner/bin/mfa_align' $taskdir $taskdir'/pron.dict' english $taskdir'/aligned' -t $taskdir'/tmp' -i 
+mkdir -p $taskdir'/tmp'
+mkdir -p $taskdir'/aligned'
+if [ $task == 'asr' ] || [ $task == 'bound' ] || [ $task == 'txt' ] ; then
+    $dot'/montreal-forced-aligner/bin/mfa_align' $taskdir $taskdir'/pron.dict' english $taskdir'/aligned' -t $taskdir'/tmp' -i -j 2
+    # flip phone and word tiers
+    python $dot'/fliptiers.py' $taskdir'/aligned/audio.TextGrid' $taskdir'/aligned/audio.flipped.TextGrid'
 fi
 
 #run FAVE-extract
@@ -28,6 +31,7 @@ python $favedir/bin/extractFormants.py \
     --stopWordsFile=$stopwords \
     --maxBandwidth=$maxbandwidth \
     $taskdir'/audio.wav' $taskdir'/aligned/audio.TextGrid' $taskdir'/aggvowels' &> $taskdir'/fave_errors.log';
+
 
 #plot
 Rscript plot_vowels.r $taskdir'/aggvowels_formants.csv' $taskdir'/fornorm.tsv' $taskdir'/plot.pdf'

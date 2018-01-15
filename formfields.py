@@ -11,6 +11,15 @@ def make_uploadtxttrans():
                                   form.notnull,
                                   post='We recommend creating this file using Notepad or TextEdit (with <a href="http://scttdvd.com/post/65242711516/how-to-get-rid-of-smart-quotes-osx-mavericks" target="_blank">smart replace turned off</a>) or emacs or any other plaintext editor. Transcripts created by "rich text" editors like Word may contain markup that will interfere with your results.',
                                   description='Manual transcription as a .txt file:')
+
+
+def make_uploadboundtrans():
+    return myform.MyFile('uploadboundfile',
+                                    form.notnull,
+                                    post = 'Textgrid should contain a tier named "sentence" with sentence/breath group intervals.',
+                                    description='Manual transcription as a .TextGrid file:')
+
+
 def make_email():
     return form.Textbox('email',
                          form.notnull,

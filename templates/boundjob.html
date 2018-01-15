@@ -2,15 +2,15 @@ $def with (form, speakerform)
 
 <div class="container">
 
-  <h2>Automated Vowel Extraction with Manual Transcriptions and Utterance Boundaries</h2><p><p>
+  <h2>Automated Vowel Extraction with Manual Transcriptions and Utterance Boundaries</h2>
 
 <p class="lead">Upload your audio files and manual transcriptions
   (with sentence boundaries annotated <a href="semi#boundinst">as described here</a>) to run
   forced alignment followed by formant extraction.</p>
 
-<p><a href="uploadboundtrans"><small>Click here at any time to cancel or start over.</small></a></p>
+<p><a href="uploadbound"><small>Click here at any time to cancel or start over.</small></a></p>
 
-<form name="uploadboundtrans" method="post" enctype="multipart/form-data"> 
+<form name="uploadbound" method="post" enctype="multipart/form-data">
 $if not form.valid: <p class="alert alert-danger">Correct the errors below.</p>
 $if not speakerform:
      $:form.render()
@@ -20,7 +20,7 @@ $if not speakerform:
         $:form.render_disabled()
 	<h3>Enter speaker information</h3>
 	<span class="note">Does not affect the automatic transcription, but required for vowel extraction results.</span><p>
-	<form action="alignextract" name="alignextract" method="post" onsubmit="progress()">
+	<form action="pipeline" name="pipeline" method="post" onsubmit="progress()">
 	$if not speakerform.valid: <p class="alert alert-danger">Correct the errors below.</p>
 	$:speakerform.render()
 	<input type="submit" />
@@ -32,4 +32,3 @@ $if not speakerform:
 	<br>
 
 </div>
-
