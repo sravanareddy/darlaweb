@@ -27,7 +27,7 @@ def asrjob_mfa(taskdir):
     g2p(taskdir, words, 'cmudict.stress.txt')
 
 
-def txtalignjob_mfa(taskdir):
+def txtjob_mfa(taskdir):
     txtfilecontent = open(os.path.join(taskdir, 'transcript.txt')).read()
     tg = TextGrid()
     tier = IntervalTier('sentence')
@@ -38,6 +38,22 @@ def txtalignjob_mfa(taskdir):
     tier.add(0, duration, ' '.join(words))
     tg.append(tier)
     tg.write(os.path.join(taskdir, 'audio.TextGrid'))
+    #make dictionary for OOVs
+    g2p(taskdir, set(words), 'cmudict.stress.txt')
+
+def boundjob_mfa(taskdir):
+    tg = TextGrid()
+    tg.read(os.path.join(taskdir, 'raw.TextGrid'))
+    sentence = [tier for tier in tg.tiers if tier.name == 'sentence'][0]
+    newtier = IntervalTier(sentence.name, sentence.minTime, sentence.maxTime)
+    words = set()
+    for segment_interval in sentence:
+        segment_text = process_usertext(segment_interval.mark.lower())
+        newtier.add(segment_interval.minTime, segment_interval.maxTime, segment_text)
+        words.update(set(segment_text.split()))
+    newtg = TextGrid(tg.name, tg.minTime, tg.maxTime)
+    newtg.append(newtier)
+    newtg.write(os.path.join(taskdir, 'audio.TextGrid'))
     #make dictionary for OOVs
     g2p(taskdir, set(words), 'cmudict.stress.txt')
 

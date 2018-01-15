@@ -18,7 +18,7 @@ from backend import align_extract, featurize_recognize
 from formfields import make_uploadsound, make_uploadtxttrans, make_uploadboundtrans, make_email, make_delstopwords, make_delunstressedvowels, make_filterbandwidths, make_audio_validator, speaker_form
 import urllib
 from backend import featurize_recognize, align_extract
-from hyp2mfa import asrjob_mfa, txtalignjob_mfa
+from hyp2mfa import asrjob_mfa, txtjob_mfa, boundjob_mfa
 
 # [END import_libraries]
 
@@ -148,11 +148,21 @@ class uploadjob:
                 pageform.note = 'Upload a transcript with a .txt extension.'
                 return render.txtjob(pageform, "")
 
+        elif job == 'bound':
+            boundfilename, boundextension = utilities.get_basename(x.uploadboundfile.filename)
+
+            if boundextension != '.TextGrid':  #TODO: check textgrid validity
+                pageform.note = 'Upload a TextGrid file with a .TextGrid extension.'
+                return render.boundjob(pageform, "")
+
         if not pageform.validates(): #not validated
             if job == 'asr':
                 return render.asrjob(pageform, "")
             elif job == 'txt':
                 return render.txtjob(pageform, "")
+            elif job == 'bound':
+                return render.boundjob(pageform, "")
+
 
         #make taskname
         taskname, taskdir, error = utilities.make_task(self.datadir)
@@ -162,6 +172,8 @@ class uploadjob:
                 return render.asrjob(pageform, "")
             elif job == 'txt':
                 return render.txtjob(pageform, "")
+            elif job == 'bound':
+                return render.boundjob(pageform, "")
 
         pageform.taskname.value = taskname
 
@@ -174,6 +186,8 @@ class uploadjob:
                 return render.asrjob(pageform, "")
             elif job == 'txt':
                 return render.txtjob(pageform, "")
+            elif job == 'bound':
+                return render.boundjob(pageform, "")
 
         if job == 'asr':
             total_size, chunks, error = utilities.process_audio(taskdir,
@@ -202,6 +216,21 @@ class uploadjob:
             with open(os.path.join(taskdir, 'transcript.txt'), 'w') as o:
                 o.write(x.uploadtxtfile.file.read())
 
+        elif job == 'bound':
+            total_size, _ , error = utilities.process_audio(taskdir,
+                                                                        filename,
+                                                                        extension,
+                                                                        x.uploadfile.file.read(),
+                                                                        dochunk=None)
+            if error!="":
+                pageform.note = error
+                return render.boundjob(pageform, "")
+
+            # write textgrid
+            with open(os.path.join(taskdir, 'raw.TextGrid'), 'w') as o:
+                o.write(x.uploadboundfile.file.read())
+
+
         if total_size < MINDURATION:
             pageform.note = "Warning: Your file totals only {:.2f} minutes of speech. We recommend at least {:.0f} minutes for best results.".format(total_size, MINDURATION)
 
@@ -221,6 +250,8 @@ class uploadjob:
             return render.asrjob(pageform, speakers)
         elif job == 'txt':
             return render.txtjob(pageform, speakers)
+        elif job == 'bound':
+            return render.boundjob(pageform, speakers)
 
 class pipeline:
     def GET(self):
@@ -250,7 +281,7 @@ class pipeline:
 			asrjob_mfa(taskdir)
 
 		elif job == 'txt':
-			txtalignjob_mfa(taskdir)
+			txtjob_mfa(taskdir)
 
 		result = align_extract.delay(taskdir, confirmation_sent = (job == 'asr'))
 		while not result.ready():
