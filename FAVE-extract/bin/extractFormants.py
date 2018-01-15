@@ -931,11 +931,11 @@ def getWordsAndPhones(tg, phoneset, speaker, vowelSystem):
     """takes a Praat TextGrid file and returns a list of the words in the file,
     along with their associated phones, and Plotnik codes for the vowels"""
 
-    phone_midpoints = [p.xmin() + 0.5 * (p.xmax() - p.xmin()) for p in tg[speaker.tiernum]]
+    phone_midpoints = [p.xmin() + 0.5 * (p.xmax() - p.xmin()) for p in tg[1]]
 
     words = []
     # iterate along word tier for given speaker
-    for w in tg[speaker.tiernum + 1]:  # for each interval...
+    for w in tg[0]:  # for each interval...
         word = Word()
         word.transcription = w.mark()
         word.xmin = w.xmin()
@@ -947,7 +947,7 @@ def getWordsAndPhones(tg, phoneset, speaker, vowelSystem):
         left = bisect_left(phone_midpoints, word.xmin)
         right = bisect_left(phone_midpoints, word.xmax)
 
-        for p in tg[speaker.tiernum][left:right]:
+        for p in tg[1][left:right]:
             phone = Phone()
             phone.label = p.mark().upper()
             phone.xmin = p.xmin()
@@ -957,7 +957,6 @@ def getWordsAndPhones(tg, phoneset, speaker, vowelSystem):
             # transcriptions are discarded on a by-word basis)
             if phone.label and isVowel(phone.label):
                 global count_vowels
-                count_vowels += 1
 
         words.append(word)
 
@@ -966,11 +965,11 @@ def getWordsAndPhones(tg, phoneset, speaker, vowelSystem):
     words = addPlotnikCodes(words, phoneset, speaker, vowelSystem)
 
     # add style codes, if applicable
-    if len(tg) % 2:
-        words = addStyleCodes(words, tg)
+    #if len(tg) % 2:
+    #    words = addStyleCodes(words, tg)
 
     # add overlap coding for phones
-    words = addOverlaps(words, tg, speaker)
+    #words = addOverlaps(words, tg, speaker)
 
     return words
 
