@@ -931,7 +931,7 @@ def getWordsAndPhones(tg, phoneset, speaker, vowelSystem):
     """takes a Praat TextGrid file and returns a list of the words in the file,
     along with their associated phones, and Plotnik codes for the vowels"""
 
-    phone_midpoints = [p.xmin() + 0.5 * (p.xmax() - p.xmin()) for p in tg[1]]
+    phone_midpoints = [p.xmin() + 0.5 * (p.xmax() - p.xmin()) for p in tg[0]]
 
     words = []
     # iterate along word tier for given speaker
@@ -953,10 +953,12 @@ def getWordsAndPhones(tg, phoneset, speaker, vowelSystem):
             phone.xmin = p.xmin()
             phone.xmax = p.xmax()
             word.phones.append(phone)
+            """
             # count initial number of vowels here! (because uncertain
             # transcriptions are discarded on a by-word basis)
             if phone.label and isVowel(phone.label):
                 global count_vowels
+            """
 
         words.append(word)
 
