@@ -35,8 +35,7 @@ urls = ('/', 'index',
         '/mturksubmit', 'mturksubmit',
         '/upload(.+)', 'uploadjob',
         '/pipeline', 'pipeline',
-        '/uploadeval', 'uploadeval',
-        '/asredit', asredit.app_asredit)
+        '/asreval', 'asreval')
 
 app = web.application(urls, globals())
 web.config.debug = True
@@ -337,88 +336,7 @@ class pipeline:
 
 		return render.success('')
 
-"""
-class uploadtextgrid:
-    uploadfile = make_uploadfile(MINDURATION)
-    uploadTGfile = myform.MyFile('uploadTGfile',
-                                 form.notnull,
-                           post = '',
-                           description='Corrected .TextGrid file')
-    delstopwords = make_delstopwords()
-    delunstressedvowels = make_delunstressedvowels()
-    filterbandwidths = make_filterbandwidths()
-    email = make_email()
-    taskname = form.Hidden('taskname')
-    submit = form.Button('submit', type='submit', description='Submit')
-
-    soundvalid = make_audio_validator()
-
-    datadir = utilities.read_filepaths()['DATA']
-
-    def GET(self):
-        uploadtextgrid = myform.MyForm(self.uploadfile,
-                                       self.uploadTGfile,
-                                       self.delstopwords,
-                                       self.delunstressedvowels,
-                                       self.filterbandwidths,
-                                       self.email, self.taskname, self.submit,
-                                       validators = self.soundvalid)
-        form = uploadtextgrid()
-        return render.speakerstextgrid(form, "")
-
-    def POST(self):
-        uploadtextgrid = myform.MyForm(self.uploadfile,
-                                       self.uploadTGfile,
-                                       self.delstopwords,
-                                       self.delunstressedvowels,
-                                       self.filterbandwidths,
-                                       self.email, self.taskname, self.submit,
-                                       validators = self.soundvalid)
-        form = uploadtextgrid()
-        x = web.input(uploadfile={}, uploadTGfile={})
-
-        if not form.validates(): #not validated
-            return render.speakerstextgrid(form, "")
-
-        tgfilename, tgextension = utilities.get_basename(x.uploadTGfile.filename)
-
-        if tgextension != '.textgrid':
-            form.note = 'Upload a file with a .TextGrid extension.'
-            return render.speakerstextgrid(form, "")
-
-        #sanitize filename
-        filename, extension = utilities.get_basename(x.uploadfile.filename)
-
-        if extension not in ['.wav', '.mp3']:
-            form.note = "Please upload a .wav or .mp3 file."
-            return render.speakerstextgrid(form, "")
-
-        #create new task
-        taskname, audiodir, error = utilities.make_task(self.datadir)
-        if error!="":
-            form.note = error
-            return render.speakerstextgrid(form, "")
-
-        form.taskname.value = taskname
-
-        samprate, total_size, chunks, error = utilities.process_audio(audiodir,
-                                             filename, extension,
-                    x.uploadfile.file.read(),
-                    dochunk=None)
-
-        if error!="":
-            form.note = error
-            return render.speakerstextgrid(form, "")
-
-        utilities.write_textgrid(self.datadir, form.taskname.value, filename, utilities.read_textupload(x.uploadTGfile.file.read()))
-
-        utilities.gen_argfiles(self.datadir, form.taskname.value, filename, 'extract', form.email.value, delstopwords=form.delstopwords.value, maxbandwidth=form.filterbandwidths.value, delunstressedvowels=form.delunstressedvowels.value)
-
-        speakers = speaker_form(filename, taskname)
-
-        return render.speakerstextgrid(form, speakers)
-"""
-class uploadeval:
+class asreval:
     reffile = myform.MyFile('reffile',
                             form.notnull,
                             post = 'Your uploaded files are stored temporarily on the Dartmouth servers in order to process your job, and deleted after.',
@@ -437,7 +355,7 @@ class uploadeval:
                                        self.taskname,
                                        self.submit)
             form = uploadeval()
-            return render.uploadeval(form)
+            return render.asreval(form)
 
     def POST(self):
             uploadeval = myform.MyForm(self.reffile,
@@ -476,7 +394,7 @@ class uploadeval:
                     return render.evalresults(evaluation)
             else:
                     form.note = 'Please upload both transcript files.'
-                    return render.uploadeval(form)
+                    return render.asreval(form)
 
 if __name__=="__main__":
     web.internalerror = web.debugerror

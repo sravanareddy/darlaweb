@@ -8,9 +8,9 @@ $def with (form)
 for evaluating ASR transcription error rates at the word and phoneme level. You may also
   use this tool to compare two different manual transcriptions.</p>
 
-<p><a href="uploadeval"><small>Click here at any time to cancel or start over.</small></a></p>
+<p><a href="asreval"><small>Click here at any time to cancel or start over.</small></a></p>
 
-<form action="uploadeval" name="uploadeval" method="post" enctype="multipart/form-data">
+<form action="asreval" name="asreval" method="post" enctype="multipart/form-data">
 $if not form.valid: <p class="error">Correct the errors below.</p>
 $:form.render()
 </form>

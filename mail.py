@@ -85,7 +85,7 @@ def send_email(tasktype, receiver, filename, taskdir, error_check):
         if tasktype == 'asr' or tasktype == 'googleasr' or tasktype == 'asredit' or tasktype == 'boundalign':
             body += '(5) transcription.txt contains the transcriptions.\n\n'
             body += 'If you manually correct the alignments in the TextGrid, you may re-upload your data with the new TextGrid to '
-            body += filepaths['URLBASE']+'/uploadtextgrid and receive revised formant measurements and plots.\n'
+            body += filepaths['URLBASE']+'/uploadextract and receive revised formant measurements and plots.\n'
 
             """
             body += '\nTo use our online playback tool to edit the ASR transcriptions and then re-run alignment and extraction, go to '
