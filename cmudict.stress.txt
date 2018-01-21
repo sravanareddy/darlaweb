@@ -13335,7 +13335,6 @@ bomag B OW1 M AE0 G
 boman B OW1 M AH0 N
 bomar B AH0 M AA1 R
 bomb B AA1 M
-bomb(2) B AO1 M
 bomb's B AA1 M Z
 bomba B AA1 M B AH0
 bombard B AA0 M B AA1 R D
@@ -33598,7 +33597,6 @@ dockworkers D AA1 K W ER2 K ER0 Z
 dockyard D AA1 K Y AA2 R D
 docs D AA1 K S
 doctor D AA1 K T ER0
-doctor(2) D AO1 K T ER0
 doctor's D AA1 K T ER0 Z
 doctoral D AA1 K T ER0 AH0 L
 doctorate D AA1 K T ER0 AH0 T
@@ -33803,14 +33801,10 @@ doll D AA1 L
 doll's D AA1 L Z
 dollan D OW1 L AH0 N
 dollar D AA1 L ER0
-dollar(2) D AO1 L ER0
 dollar's D AA1 L ER0 Z
-dollar's(2) D AA1 L AH0 Z
-dollar's(3) D AO1 L ER0 Z
 dollard D AA1 L ER0 D
 dollarhide D AA1 L ER0 HH AY2 D
 dollars D AA1 L ER0 Z
-dollars(2) D AO1 L ER0 Z
 dollars' D AA1 L ER0 Z
 dolle D AA1 L
 dolled D AA1 L D
@@ -80272,10 +80266,8 @@ modrow M AA1 D R OW0
 modugno M OW0 D UW1 G N OW0
 modulaire M AO1 JH UW0 L EH2 R
 modular M AA1 JH AH0 L ER0
-modulate M AO1 JH Y UW0 L EY0 T
-modulate(2) M AO1 JH UW0 L EY0 T
-modulated M AO1 JH Y UW0 L EY0 T IH0 D
-modulated(2) M AO1 JH UW0 L EY0 T IH0 D
+modulate M AA1 JH Y UW0 L EY0 T
+modulated M AA1 JH Y UW0 L EY0 T IH0 D
 modulation M AA2 JH AH0 L EY1 SH AH0 N
 modulator M AA1 JH AH0 L EY2 T ER0
 module M AA1 JH UW0 L
@@ -80887,7 +80879,7 @@ montooth M AA1 N T UW2 TH
 montoya M AA0 N T OY1 AH0
 montpelier M AA0 N T P IY1 L IY0 ER0
 montpelier's M AA0 N T P IY1 L IY0 ER0 Z
-montreal M AH2 N T R IY0 AO1 L
+montreal M AH2 N T R IY0 AA1 L
 montreal's M AA2 N T R IY0 AA1 L Z
 montrealer M AH2 N T R IY0 AO1 L ER0
 montrealer's M AH2 N T R IY0 AO1 L ER0 Z
@@ -87105,12 +87097,10 @@ operandi(3) AA2 P ER0 EH1 N D AY0
 operant AA1 P ER0 AH0 N T
 operas AA1 P R AH0 Z
 operate AA1 P ER0 EY2 T
-operate(2) AO1 P ER0 EY2 T
 operated AA1 P ER0 EY2 T AH0 D
 operates AA1 P ER0 EY2 T S
 operatic AA2 P ER0 AE1 T IH0 K
 operating AA1 P ER0 EY2 T IH0 NG
-operating(2) AO1 P ER0 EY2 T IH0 NG
 operation AA2 P ER0 EY1 SH AH0 N
 operation's AA2 P ER0 EY1 SH AH0 N Z
 operational AA2 P ER0 EY1 SH AH0 N AH0 L
@@ -87696,9 +87686,9 @@ osbun AA1 S B AH0 N
 osburn AA1 S B ER2 N
 osby AA1 S B IY0
 oscalus AO1 S K AH0 L AH0 S
-oscar AO1 S K ER0
-oscar's AO1 S K ER0 Z
-oscars AO1 S K ER0 Z
+oscar AA1 S K ER0
+oscar's AA1 S K ER0 Z
+oscars AA1 S K ER0 Z
 oscarson AA1 S K AA0 R S AH0 N
 osceola AO2 S K IY0 OW1 L AH0
 osceola(2) AO2 S IY0 OW1 L AH0
@@ -118325,7 +118315,6 @@ swainston S W EY1 N S T AH0 N
 swales S W EY1 L Z
 swalley S W AO1 L IY0
 swallow S W AA1 L OW0
-swallow(2) S W AO1 L OW0
 swallowed S W AA1 L OW0 D
 swallowing S W AA1 L OW0 IH0 NG
 swallows S W AA1 L OW0 Z
@@ -124897,13 +124886,13 @@ unabashedly AH2 N AH0 B AE1 SH IH0 D L IY0
 unabated AH2 N AH0 B EY1 T IH0 D
 unable AH0 N EY1 B AH0 L
 unabom Y UW1 N AH0 B AO2 M
-unabomb Y UW1 N AH0 B AO2 M
-unabomb's Y UW1 N AH0 B AO2 M Z
-unabomber Y UW1 N AH0 B AO2 M ER0
-unabomber's Y UW1 N AH0 B AO2 M ER0 Z
-unabombers Y UW1 N AH0 B AO2 M ER0 Z
-unabombing Y UW1 N AH0 B AO2 M IH0 NG
-unabombings Y UW1 N AH0 B AO2 M IH0 NG Z
+unabomb Y UW1 N AH0 B AA2 M
+unabomb's Y UW1 N AH0 B AA2 M Z
+unabomber Y UW1 N AH0 B AA2 M ER0
+unabomber's Y UW1 N AH0 B AA2 M ER0 Z
+unabombers Y UW1 N AH0 B AA2 M ER0 Z
+unabombing Y UW1 N AH0 B AA2 M IH0 NG
+unabombings Y UW1 N AH0 B AA2 M IH0 NG Z
 unabridged AH2 N AH0 B R IH1 JH D
 unacceptable AH2 N AE0 K S EH1 P T AH0 B AH0 L
 unacceptably AH2 N AE0 K S EH1 P T AH0 B L IY0
@@ -125503,7 +125492,7 @@ unglamorous AH0 N G L AE1 M ER0 AH0 S
 unglue AH0 N G L UW1
 unglued AH0 N G L UW1 D
 ungo AH0 N G OW1
-ungodly AH0 N G AO1 D L IY0
+ungodly AH0 N G AA1 D L IY0
 ungovernable AH0 N G AH1 V ER0 N AH0 B AH0 L
 ungrateful AH0 N G R EY1 T F AH0 L
 unguarded AH0 N G AA1 R D IH0 D
