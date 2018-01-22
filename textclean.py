@@ -41,12 +41,12 @@ def process_usertext(inputstring):
         inputstring = to_unicode(inputstring, encoding='utf-8', errors='ignore')   # catch-all?
 
     cleaned = inputstring.replace('[', '').replace(']', '')  # common in linguists' transcriptions
-    cleaned = cleaned.replace('-', ' ').replace('/', ' ').strip(string.punctuation)  # one more tok pass
+    cleaned = cleaned.replace('-', ' ').replace('/', ' ')
     # convert digits and normalize $n
     digitconverter = inflect.engine()
     returnstr = ''
     for line in cleaned.splitlines():
-        wordlist = line.split()
+        wordlist = map(lambda word: word.strip(string.punctuation), line.split())
         wordlist = ' '.join(map(norm_dollar_signs,
                        wordlist)).split()
         returnstr += ' '.join(map(lambda word:
