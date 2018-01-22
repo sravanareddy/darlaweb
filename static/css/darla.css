@@ -15,6 +15,15 @@ body {
    color: #003200;
 }
 
+#noty-holder{
+    width: 100%;
+    top: 0;
+    font-weight: bold;
+    z-index: 1031; /* Max Z-Index in Fixed Nav Menu is 1030*/
+    text-align: center;
+    position: fixed;
+}
+
 textarea {
    font-size: 16pt;
    font-family: Courier;
