@@ -23,8 +23,10 @@ class extract:
 	def GET(self):
 		return render.error("That is not a valid link.", "uploadtextgrid")
 	def POST(self):
-		datadir = open('filepaths.txt').readline().split()[1]
-		post_list = web.data().split("&")
+		filepaths = utilities.read_filepaths()
+                datadir = filepaths['DATA']
+                appdir = filepaths['APPDIR']
+                post_list = web.data().split("&")
 		parameters = {}
 
 		for form_input in post_list:
@@ -42,11 +44,11 @@ class extract:
 			return render.error("There was an error processing "+filename, "uploadtextgrid")
 
 		if celeryon:
-			result = align_extract.delay(os.path.join(datadir, taskname))
+			result = align_extract.delay(os.path.join(datadir, taskname), appdir)
 			while not result.ready():
 				pass
 		else:
-			align_extract(os.path.join(datadir, taskname))
+			align_extract(os.path.join(datadir, taskname), appdir)
 
 		return render.success('')
 

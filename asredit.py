@@ -25,7 +25,9 @@ urls = {
 	 }
 
 class asredit:
-        datadir = open('filepaths.txt').readline().split()[1]
+        filepaths = utilities.read_filepaths()
+        datadir = filepaths['DATA']
+        appdir = filepaths['APPDIR']
 	def GET(self):
                 taskname = web.input()['taskname']
                 #copy sound files to public
@@ -86,11 +88,11 @@ class asredit:
                 
                 #now re-run alignment and extraction
                 if celeryon:
-                        result = align_extract.delay(os.path.join(self.datadir, taskname))
+                        result = align_extract.delay(os.path.join(self.datadir, taskname), appdir)
                         while not result.ready():
                                 pass
                 else:
-                        align_extract(os.path.join(self.datadir, taskname))
+                        align_extract(os.path.join(self.datadir, taskname), appdir)
                 return render.success('')
             
 app_asredit = web.application(urls, locals())

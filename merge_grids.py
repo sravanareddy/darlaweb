@@ -5,20 +5,20 @@ from collections import defaultdict
 
 def merge_grids(tg1, tg2):
         """merge tg2 into tg1"""
-        gap = tg2.minTime - tg1.maxTime
+        gap = float(tg2.minTime) - float(tg1.maxTime)
         if gap > 0:  
-            tg1.tiers[0].add(tg1.maxTime, tg2.minTime, 'sil')
-            tg1.tiers[1].add(tg1.maxTime, tg2.minTime, 'sil')
+            tg1.tiers[0].add(float(tg1.maxTime), float(tg2.minTime), 'sil')
+            tg1.tiers[1].add(float(tg1.maxTime), float(tg2.minTime), 'sil')
         for tier in tg2.tiers:
                 if tier.name=='phone':
                         for interval in tier:
-                                tg1.tiers[0].add(interval.minTime+tg2.minTime,
-                                                 interval.maxTime+tg2.minTime,
+                                tg1.tiers[0].add(float(interval.minTime)+float(tg2.minTime),
+                                                 float(interval.maxTime)+float(tg2.minTime),
                                                  interval.mark)
                 elif tier.name=='word':
                         for interval in tier:
-                                tg1.tiers[1].add(interval.minTime+tg2.minTime,
-                                                interval.maxTime+tg2.minTime,
+                                tg1.tiers[1].add(float(interval.minTime)+float(tg2.minTime),
+                                                float(interval.maxTime)+float(tg2.minTime),
                                                 interval.mark)
         tg1.maxTime = tg2.maxTime
         
