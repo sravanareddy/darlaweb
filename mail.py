@@ -79,7 +79,7 @@ def send_email(tasktype, receiver, filename, taskdir, error_check):
         else:
             body += 'You elected to retain unstressed vowels. '
         body += '\n'
-        body += '(2) formants.fornorm.tsv can be uploaded to the NORM online tool (http://lvc.uoregon.edu/norm/index.php) for additional normalization and plotting options\n'
+        body += '(2) formants.fornorm.tsv can be uploaded to the NORM online tool (http://lingtools.uoregon.edu/norm/) for additional normalization and plotting options\n'
         body += '(3) plot.pdf shows the F1/F2 vowel space of your speakers\n'
         body += '(4) The .TextGrid file contains the transcription aligned with the audio\n'
         if tasktype == 'asr' or tasktype == 'googleasr' or tasktype == 'asredit' or tasktype == 'bound':

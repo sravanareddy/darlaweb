@@ -16,7 +16,9 @@
       <div class="col-lg-6">
     	  <h2>Semi-Automated Alignment and Extraction</h2>
     	  <p class="text-success">Audio + Transcriptions &#x2192; Formants</p>
-              <p>Equivalent to the FAVE pipeline, with additional input and output
+              <p>Similar to the FAVE pipeline
+                (but using the Montreal Forced Aligner instead of FAVE-Align)
+                with additional input and output
       options.
       Designed for research goals that require very accurate transcriptions. </p>
               <p><a class="btn btn-success" href="semi" role="button">See
@@ -41,9 +43,9 @@
   <a href="http://linguistics.dartmouth.edu/people/james-n-stanford">James Stanford</a>.</p>
 
 	     <p> Our system makes use of automatic speech recognition
-	    using the <a href="https://cloud.google.com/speech/">Google Speech API</a>,
+	    using the CMU Sphinx,
       <a href="https://github.com/JoFrhwld/FAVE/tree/master/FAVE-extract">FAVE-Extract</a>,
-      <a href="http://prosodylab.org/tools/aligner/">ProsodyLab-Aligner</a>,
+      <a href="http://montreal-forced-aligner.readthedocs.io/en/latest/">Montreal Forced Aligner</a>,
       and the <a href="http://cran.r-project.org/web/packages/vowels/index.html">R
 	      Vowels package</a> to automate vowel analysis for
 	      sociophonetics.</p>

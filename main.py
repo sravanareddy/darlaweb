@@ -32,6 +32,7 @@ urls = ('/', 'index',
         '/semi', 'semi',
         '/mturk', 'mturk',
         '/stopwords', 'stopwords',
+        '/cmudict', 'cmudict',
         '/mturksubmit', 'mturksubmit',
         '/upload(.+)', 'uploadjob',
         '/pipeline', 'pipeline',
@@ -65,6 +66,10 @@ class semi:
 class stopwords:
     def GET(self):
         return render.stopwords(', '.join(open('stopwords.txt').read().split()))
+
+class cmudict:
+    def GET(self):
+        return render.cmudict(open('cmudict.stress.txt').readlines())
 
 class uploadjob:
     uploadfile = make_uploadsound(MINDURATION)
@@ -385,7 +390,7 @@ class asreval:
                                                                           taskname,
                                                                           x.reffile.file.read(),
                                                                           x.hypfile.file.read(),
-                                                                          'cmudict.forhtk.txt')
+                                                                          'cmudict.nostress.txt')
                     if numreflines!=numhyplines:
                         form.note = 'Files should have the same number of lines, corresponding to each speech input. Please try again.'
                         return render.uploadeval(form)

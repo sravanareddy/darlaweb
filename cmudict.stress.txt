@@ -55002,6 +55002,7 @@ hezbullah(2) HH EH1 Z B AA0 L AH2
 hezbullah's HH EH1 Z B AA0 L AH2 Z
 hfdf EY1 CH EH1 F D IY1 EH1 F
 hgh EY1 CH JH IY1 EY1 CH
+hh HH
 hi HH AY1
 hi-fi HH AY1 F AY1
 hiaa EY1 CH AY1 EY1 EY1

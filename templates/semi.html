@@ -22,30 +22,14 @@ This system runs FAVE-style semi-automated analysis using both the
   </p>
 
   <ul class="list-group">
-    <li class="list-group-item" id="txtinst"><h3>Audio with transcriptions in a plaintext file</h3>
+
+<li class="list-group-item" id="boundinst"><h3>Audio with transcriptions showing sentence
+  or breath group boundaries (as TextGrids)
+</h3>
+
 <p>
-This option lets you upload a plaintext (.txt) file with a transcription along with your audio file. The transcription could be your own manual transcription or a transcription from any ASR method (DARLA, Nuance Dragon, etc.). </p>
-<p>If you want to make corrections on the aligned TextGrid file,
-    upload it to the <a href="uploadextract">TextGrid input
-    interface</a> and re-run formant extraction.</p>
-
-<p>For best results, we recommend that you first delete noises, loud breaths, other voices, etc., from your audio file
-  (in Praat, select the noise and use Cmd-X or Ctrl-X to delete). </p>
-
-<p>As for the plaintext file, we recommend creating this file using Notepad or TextEdit
-  (with "smart replace" turned off) or emacs or another plaintext editor.
-    Transcripts created by "rich text" editors like Word may contain markup that will interfere with your results,
-    or cause DARLA to fail on your job.
-    Please remove punctuation and other extraneous symbols as far as possible.
+<span class="label label-sm label-warning">Recommended</span>
 </p>
-
-          <p> <a class="btn btn-xs btn-success" href="uploadtxt" role="button">Try it out</a></p>
-
-
-
-    </li>
-
-<li class="list-group-item" id="boundinst"><h3>Audio with transcriptions showing sentence or breath group boundaries (as TextGrids)</h3>
 
 <p>This option is designed to make it possible to easily upload a TextGrid with simple paired boundaries around each sentence, and receive alignment and formant extraction results. To produce the boundaries annotations:</p>
 
@@ -61,6 +45,29 @@ This option lets you upload a plaintext (.txt) file with a transcription along w
 </p>
 
           <p> <a class="btn btn-xs btn-success" href="uploadbound" role="button">Try it out</a></p>
+
+</li>
+
+<li class="list-group-item" id="txtinst"><h3>Audio with transcriptions in a plaintext file</h3>
+<p>
+This option lets you upload a plaintext (.txt) file with a transcription along with your audio file. The transcription could be your own manual transcription or a transcription from any ASR method (DARLA, Nuance Dragon, etc.). </p>
+<p>If you want to make corrections on the aligned TextGrid file,
+upload it to the <a href="uploadextract">TextGrid input
+interface</a> and re-run formant extraction.</p>
+
+<p>For best results, we recommend that you first delete noises, loud breaths, other voices, etc., from your audio file
+(in Praat, select the noise and use Cmd-X or Ctrl-X to delete). </p>
+
+<p>As for the plaintext file, we recommend creating this file using Notepad or TextEdit
+(with "smart replace" turned off) or emacs or another plaintext editor.
+Transcripts created by "rich text" editors like Word may contain markup that will interfere with your results,
+or cause DARLA to fail on your job.
+Please remove punctuation and other extraneous symbols as far as possible.
+</p>
+
+      <p> <a class="btn btn-xs btn-success" href="uploadtxt" role="button">Try it out</a></p>
+
+
 
 </li>
 

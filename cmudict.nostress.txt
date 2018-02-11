@@ -54617,6 +54617,7 @@ hezbullah HH EH Z B AA L AH
 hezbullah(2) HH EH Z B AA L AH
 hfdf EY CH EH F D IY EH F
 hgh EY CH JH IY EY CH
+hh HH
 hi HH AY
 hi-fi HH AY F AY
 hiaa EY CH AY EY EY
