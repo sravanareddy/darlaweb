@@ -152,6 +152,7 @@ def send_error_email(receiver, filename, message, first):
         subject = 'Error trying to process '+filename
         body = 'Unfortunately, there was an error running your job for '+filename + ". "+message
         body += '\nTo help us try and identify what exactly the problem is, please message us with attached file(s) at darla.dartmouth@gmail.com.'
+        body += '\nYou might also want to look over our Helpful Hints page (http://www.dartmouth.edu/~jstanford/DARLA_Helpful_Hints_page.html), which includes a discussion of common problems when using the semi-automated tool.'
         body += '\nSorry about the inconvenience. We will try to identify and solve the problem shortly.'
         message = MIMEMultipart()
         message['From'] = 'DARLA <'+sender+'>'
