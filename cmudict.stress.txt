@@ -6842,8 +6842,7 @@ augspurger(2) AO1 G S P ER0 G ER0
 augur AO1 G ER0
 auguring AO1 G ER0 IH0 NG
 augurs AO1 G ER0 Z
-august AA1 G AH0 S T
-august(2) AO1 G AH0 S T
+august AO1 G AH0 S T
 august's AO1 G AH0 S T S
 augusta AH0 G AH1 S T AH0
 augusta's AH0 G AH1 S T AH0 Z
@@ -13906,11 +13905,10 @@ bostian B AA1 S CH IH0 N
 bostic B AA1 S T IH0 K
 bostick B OW1 S T IH0 K
 bostock B OW1 S T AA2 K
-boston B AA1 S T AH0 N
-boston(2) B AO1 S T AH0 N
+boston B AO1 S T AH0 N
 boston's B AO1 S T AH0 N Z
 bostonian B AO2 S T OW1 N IY0 AH0 N
-bostonians B AA1 S T OW0 N IY0 AH0 N Z
+bostonians B AO1 S T OW0 N IY0 AH0 N Z
 bostra B AA1 S T R AH0
 bostrom B AA1 S T R AH0 M
 bostwick B AA1 S T W IH0 K
@@ -23317,7 +23315,6 @@ colony K AA1 L AH0 N IY0
 colony's K AA1 L AH0 N IY0 Z
 colopy K AH0 L OW1 P IY0
 color K AH1 L ER0
-color(2) K AO1 L ER0
 coloradan K AA2 L ER0 AA1 D AH0 N
 coloradans K AA2 L ER0 AA1 D AH0 N Z
 colorado K AA2 L ER0 AA1 D OW0
@@ -33608,7 +33605,6 @@ doctors' D AA1 K T ER0 Z
 doctrinaire D AA2 K T R AH0 N EH1 R
 doctrinal D AA1 K T R AH0 N AH0 L
 doctrine D AA1 K T R AH0 N
-doctrine(2) D AO1 K T ER0 IH0 N
 doctrine's D AA1 K T R AH0 N Z
 doctrines D AA1 K T R AH0 N Z
 docudrama D OW2 K AH0 D R AE1 M AH0
@@ -34889,7 +34885,6 @@ drooped D R UW1 P T
 drooping D R UW1 P IH0 NG
 droopy D R UW1 P IY0
 drop D R AA1 P
-drop(2) D R AO1 P
 drop-off D R AA1 P AO2 F
 drop-offs D R AA1 P AO2 F S
 dropbox D R AA1 P B AA2 K S
@@ -40899,7 +40894,6 @@ falklands F AO1 K L AH0 N D Z
 falkner F AO1 K N ER0
 falkowski F AH0 L K AO1 F S K IY0
 fall F AO1 L
-fall(2) F AA1 L
 fall's F AO1 L Z
 falla F AE1 L AH0
 fallacies F AE1 L AH0 S IY0 Z
@@ -98594,7 +98588,7 @@ ravishankar R AA2 V IY0 SH AA1 NG K AA2 R
 ravishing R AE1 V IH0 SH IH0 NG
 ravitch R AE1 V IH0 CH
 ravitz R AE1 V IH0 T S
-raw R AA1
+raw R AO1
 rawalpindi R AE2 W AO0 L P IH1 N D IY0
 rawding R AO1 D IH0 NG
 rawdon R AO1 D AH0 N
@@ -122349,7 +122343,6 @@ toots(2) T UH1 T S
 tootsie T UW1 T S IY1
 tootsie(2) T UH1 T S IY1
 top T AA1 P
-top(2) T AO1 P
 top-down T AA1 P D AW1 N
 top-secret T AA1 P S IY1 K R AH0 T
 top-up T AA1 P AH2 P
@@ -129669,11 +129662,9 @@ waszkiewicz V AA2 SH K EH1 V IH0 CH
 wat W AO1 T
 watanabe W AA2 T AA0 N AA1 B EY0
 watch W AA1 CH
-watch(2) W AO1 CH
 watchdog W AA1 CH D AO2 G
 watchdogs W AA1 CH D AO2 G Z
 watched W AA1 CH T
-watched(2) W AO1 CH T
 watcher W AA1 CH ER0
 watchers W AA1 CH ER0 Z
 watches W AA1 CH AH0 Z
