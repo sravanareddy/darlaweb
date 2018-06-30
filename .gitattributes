@@ -27,3 +27,7 @@ acoustic_dir/sphinx-16/mixture_weights filter=lfs diff=lfs merge=lfs -text
 acoustic_dir/sphinx-16/noisedict filter=lfs diff=lfs merge=lfs -text
 acoustic_dir/sphinx-16/README filter=lfs diff=lfs merge=lfs -text
 montreal-forced-aligner filter=lfs diff=lfs merge=lfs -text
+montreal-forced-aligner/bin/mfa_align filter=lfs diff=lfs merge=lfs -text
+montreal-forced-aligner/bin/mfa_generate_dictionary filter=lfs diff=lfs merge=lfs -text
+montreal-forced-aligner/bin/mfa_train_and_align filter=lfs diff=lfs merge=lfs -text
+montreal-forced-aligner/bin/mfa_train_g2p filter=lfs diff=lfs merge=lfs -text
