@@ -18849,10 +18849,8 @@ carrico K AA0 R IY1 K OW0
 carrie K EH1 R IY0
 carried K AE1 R IY0 D
 carried(2) K EH1 R IY0 D
-carrier K AE1 R IY0 ER0
-carrier(2) K EH1 R IY0 ER0
-carrier's K AE1 R IY0 ER0 Z
-carrier's(2) K EH1 R IY0 ER0 Z
+carrier K EH1 R IY0 ER0
+carrier's K EH1 R IY0 ER0 Z
 carriere K AA0 R IH1 R IY0
 carriero K AA0 R IH1 R OW0
 carriers K AE1 R IY0 ER0 Z
@@ -46591,7 +46589,7 @@ garrigus G AA0 R IY1 G IH0 S
 garringer G AE1 R IH0 NG ER0
 garriott G AE1 R IY0 AH0 T
 garris G AE1 R IH0 S
-garrison G AE1 R IH0 S AH0 N
+garrison G EH1 R IH0 S AH0 N
 garrisoned G AE1 R AH0 S AH0 N D
 garritano G AA0 R IY0 T AA1 N OW0
 garritt G AE1 R IH0 T
@@ -52979,7 +52977,7 @@ harrisburgh HH AE1 R IH0 S B ER0 G
 harrisburgh(2) HH EH1 R IH0 S B ER0 G
 harrisburgh's HH AE1 R IH0 S B ER0 G Z
 harrisburgh's(2) HH EH1 R IH0 S B ER0 G Z
-harrises HH AE1 R IH0 S IH0 Z
+harrises HH EH1 R IH0 S IH0 Z
 harrison HH EH1 R IH0 S AH0 N
 harrison's HH EH1 R IH0 S AH0 N Z
 harriss HH AE1 R IH0 S
@@ -52991,8 +52989,8 @@ harrold HH EH1 R AH0 L D
 harron HH AE1 R AH0 N
 harrop HH EH1 R AH0 P
 harroun HH ER0 UW1 N
-harrow HH AE1 R OW0
-harrower HH AE1 R OW0 W ER0
+harrow HH EH1 R OW0
+harrower HH EH1 R OW0 W ER0
 harrowing HH EH1 R OW0 IH0 NG
 harry HH EH1 R IY0
 harry's HH EH1 R IY0 Z
@@ -60480,8 +60478,8 @@ intermagnetics IH2 N T ER0 M AE0 G N EH1 T IH0 K S
 intermark IH2 N T ER0 M AA1 R K
 intermarket IH2 N T ER0 M AA1 R K IH0 T
 intermarriage IH2 N T ER0 M EH1 R IH0 JH
-intermarried IH2 N T ER0 M AE1 R IY0 D
-intermarry IH2 N T ER0 M AE1 R IY0
+intermarried IH2 N T ER0 M EH1 R IY0 D
+intermarry IH2 N T ER0 M EH1 R IY0
 intermec IH1 N T ER0 M AH0 K
 intermedia IH2 N T ER0 M IY1 D IY0 AH0
 intermediaries IH2 N T ER0 M IY1 D IY0 EH2 R IY0 Z
