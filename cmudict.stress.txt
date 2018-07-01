@@ -18853,12 +18853,9 @@ carrier K EH1 R IY0 ER0
 carrier's K EH1 R IY0 ER0 Z
 carriere K AA0 R IH1 R IY0
 carriero K AA0 R IH1 R OW0
-carriers K AE1 R IY0 ER0 Z
-carriers(2) K EH1 R IY0 ER0 Z
+carriers K EH1 R IY0 ER0 Z
 carriers' K EH1 R IY0 ER0 Z
-carriers's K AE1 R IY0 ER0 Z IH0 Z
-carries K AE1 R IY0 Z
-carries(2) K EH1 R IY0 Z
+carries K EH1 R IY0 Z
 carrig K AE1 R IH0 G
 carrigan K AE1 R IH0 G AH0 N
 carriger K AE1 R IH0 JH ER0
@@ -46590,7 +46587,7 @@ garringer G AE1 R IH0 NG ER0
 garriott G AE1 R IY0 AH0 T
 garris G AE1 R IH0 S
 garrison G EH1 R IH0 S AH0 N
-garrisoned G AE1 R AH0 S AH0 N D
+garrisoned G EH1 R AH0 S AH0 N D
 garritano G AA0 R IY0 T AA1 N OW0
 garritt G AE1 R IH0 T
 garrity G EH1 R IH0 T IY0
