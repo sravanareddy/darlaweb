@@ -1712,10 +1712,8 @@ aftershocks AE1 F T ER0 SH AA2 K S
 aftertaste AE1 F T ER0 T EY2 S T
 aftertastes AE1 F T ER0 T EY2 S T S
 aftertax AE1 F T ER0 T AE2 K S
-afterthought AE1 F T ER0 TH AA2 T
-afterthought(2) AE1 F T ER0 TH AO2 T
-afterthoughts AE1 F T ER0 TH AA2 T S
-afterthoughts(2) AE1 F T ER0 TH AO2 T S
+afterthought AE1 F T ER0 TH AO2 T
+afterthoughts AE1 F T ER0 TH AO2 T S
 afterward AE1 F T ER0 W ER0 D
 afterwards AE1 F T ER0 W ER0 D Z
 afula AH0 F UW1 L AH0
@@ -14023,8 +14021,7 @@ bougher B AW1 ER0
 boughman B AW1 M AH0 N
 boughner B AW1 N ER0
 boughs B AW1 Z
-bought B AA1 T
-bought(2) B AO1 T
+bought B AO1 T
 boughten B AO1 T AH0 N
 boughter B AO1 T ER0
 boughton B AW1 T AH0 N
@@ -19471,8 +19468,7 @@ caughey K AO1 IY0
 caughlin K AO1 L IH0 N
 caughman K AO1 M AH0 N
 caughron K AO1 R AH0 N
-caught K AA1 T
-caught(2) K AO1 T
+caught K AO1 T
 caul K AA1 L
 caul(2) K AO1 L
 caulder K AO1 L D ER0
@@ -19492,8 +19488,7 @@ causation K AO2 Z EY1 SH AH0 N
 causative K AA1 Z AH0 T IH0 V
 causative(2) K AO1 Z AH0 T IH0 V
 causby K AO1 Z B IY0
-cause K AA1 Z
-cause(2) K AO1 Z
+cause K AO1 Z
 caused K AA1 Z D
 caused(2) K AO1 Z D
 causer K AO1 Z ER0
