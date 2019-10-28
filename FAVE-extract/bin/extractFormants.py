@@ -1373,7 +1373,7 @@ def outputFormantSettings(measurements, speaker, outputFile):
     outfilename = outputFile + ".nFormants"
     f = open(outfilename, 'w')
     f.write("Formant settings for %s:\n\n" % outputFile)
-    f.write(', '.join([speaker.name, speaker.age, speaker.sex, speaker.city, speaker.state, speaker.year]))
+    f.write(', '.join([speaker.name, speaker.age, 'Low' if speaker.sex == 'M' else 'High' , speaker.city, speaker.state, speaker.year]))
     f.write('\n\n')
     f.write('\t'.join(['vowel', '3', '4', '5', '6']))
     f.write('\n')
@@ -1398,7 +1398,8 @@ def outputMeasurements(outputFormat, measurements, m_means, speaker, outputFile,
             # speaker information
             s_dict = speaker.__dict__
             s_keys = ['name', 'sex']
-            fw.write(','.join(s_keys))
+            s_keys_mapped = ['name', 'voicetype']
+            fw.write(','.join(s_keys_mapped))
             fw.write(',')
 
             fw.write(','.join(['vowel', 'stress', 'pre_word', 'word', 'fol_word',
@@ -1425,7 +1426,10 @@ def outputMeasurements(outputFormat, measurements, m_means, speaker, outputFile,
                 continue  # ignore (default of maxBandwidth is 1e10)
 
             for speaker_attr in s_keys:
-                fw.write(str(s_dict[speaker_attr]))
+                if speaker_attr=='sex':
+                    fw.write('Low' if s_dict['sex'] == 'M' else 'High')
+                else:
+                    fw.write(str(s_dict[speaker_attr]))
                 fw.write(',')
 
             fw.write(','.join([vm.phone, str(vm.stress), vm.pre_word, vm.word, vm.fol_word])) #vowel (ARPABET coding), stress, prev word, word, following word
@@ -2132,9 +2136,9 @@ def extractFormants(wavInput, tgInput, output, opts, SPATH='', PPATH=''):
             speaker = whichSpeaker(speakers)  # -> returns Speaker object
             """
         # adjust maximum formant frequency to speaker sex
-        if speaker.sex in ["m", "M", "male", "MALE"]:
+        if speaker.sex in ["m", "M", "male", "MALE", "Low"]:
             opts.maxFormant = 5000
-        elif speaker.sex in ["f", "F", "female", "FEMALE"]:
+        elif speaker.sex in ["f", "F", "female", "FEMALE", "High"]:
             opts.maxFormant = 5500
         else:
             sys.exit("ERROR!  Speaker sex undefined.")

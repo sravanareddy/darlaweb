@@ -67,7 +67,7 @@ def speaker_form(taskdir, job):
     taskdir = form.Hidden(name="taskdir", value=taskdir)
     job = form.Hidden(name="job", value=job)
     speaker_name = form.Textbox('name', description='Speaker ID: ')
-    sex = myform.MyRadio('sex', [('M','Male ', 'M'), ('F','Female ', 'F'), ('F','Child ', 'C')], description='Sex: ')
+    sex = myform.MyRadio('sex', [('M','Low ', 'M'), ('F','High ', 'F')], description='Voice type: ')
     sex.value = 'M'  # default if not checked
 
     speakers = myform.MyForm(taskdir,
