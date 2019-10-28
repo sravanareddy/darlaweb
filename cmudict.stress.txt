@@ -7269,8 +7269,7 @@ awe(2) AO1
 awed AO1 D
 aweida AH0 W EY1 D AH0
 aweida(2) AH0 W AY1 D AH0
-awesome AA1 S AH0 M
-awesome(2) AO1 S AH0 M
+awesome AO1 S AH0 M
 awesomely AA1 S AH0 M L IY0
 awesomely(2) AO1 S AH0 M L IY0
 awesomeness AO1 S AH0 M N EH2 S
