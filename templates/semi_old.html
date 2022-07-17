@@ -1,0 +1,86 @@
+<div class="container">
+
+  <h2>Semi-Automated Alignment and Vowel Extraction</h2>
+
+<p class="lead">
+This system runs FAVE-style semi-automated analysis using both the
+  audio and manual transcriptions, with three different transcription
+  types.
+  </p>
+
+  <p>The pronunciations of words in your transcriptions are taken from <a
+  href="cmudict">the CMU
+  Dictionary</a>, which contains Standard American English
+  pronunciations.
+  We use a grapheme-to-phoneme model (<a
+  href="https://www-i6.informatik.rwth-aachen.de/web/Software/g2p.html">Sequitur</a>
+  trained on the same dictionary) to predict pronunciations for words that are not in the dictionary, such as proper
+  names or slang terms. This model is quite accurate, but may
+  introduce a few errors.</p>
+
+ <p>The returned results are in formats convenient for analysis: a basic vowel plot, spreadsheets with raw and Lobanov-normalized data, a spreadsheet formatted for the online NORM system (which has other plotting and normalization options), the transcription, and the aligned TextGrid file.
+  </p>
+
+  <ul class="list-group">
+
+<li class="list-group-item" id="boundinst"><h3>Audio with transcriptions showing sentence
+  or breath group boundaries (as TextGrids)
+</h3>
+
+<p>
+<span class="label label-sm label-warning">Recommended</span>
+</p>
+
+<p>This option is designed to make it possible to easily upload a
+  TextGrid with simple paired boundaries around each sentence,
+  and receive alignment and formant extraction results
+  <a href="http://www.dartmouth.edu/~jstanford/DARLA_Helpful_Hints_page.html">(helpful hints)</a>. 
+  To produce the boundaries annotations:</p>
+
+<ol>
+  <li>Open the audio file in Praat. In the Praat Objects window, click "Annotate", then "To TextGrid".
+  <li>For "All tier names", type "sentence"
+  <li>For "Which of these are point tiers?", just leave it blank. Click OK.
+  <li>Now highlight both the audio file and the TextGrid file (hold down Cmd or Ctrl on the keyboard). Click "View & Edit".
+  <li>Use the mouse to select a sentence or clause, hit Return. A pair of boundaries (blue) should appear on either side of your sentence.
+  <li>Transcribe the sentence inside that pair of boundaries
+  <li>Move on to the next sentence and create a pair of boundaries in the same way. When finished with the whole audio file, click "File", then "Save TextGrid as..."
+</ol>
+</p>
+
+          <p> <a class="btn btn-xs btn-success" href="uploadbound" role="button">Try it out</a></p>
+
+</li>
+
+<li class="list-group-item" id="txtinst"><h3>Audio with transcriptions in a plaintext file</h3>
+<p>
+This option lets you upload a plaintext (.txt) file with a transcription along with your audio file. The transcription could be your own manual transcription or a transcription from any ASR method (DARLA, Nuance Dragon, etc.). </p>
+<p>If you want to make corrections on the aligned TextGrid file,
+upload it to the <a href="uploadextract">TextGrid input
+interface</a> and re-run formant extraction.</p>
+
+<p>For best results, we recommend that you first delete noises, loud breaths, other voices, etc., from your audio file
+(in Praat, select the noise and use Cmd-X or Ctrl-X to delete). </p>
+
+<p>As for the plaintext file, we recommend creating this file using Notepad or TextEdit
+(with "smart replace" turned off) or emacs or another plaintext editor.
+Transcripts created by "rich text" editors like Word may contain markup that will interfere with your results,
+or cause DARLA to fail on your job.
+Please remove punctuation and other extraneous symbols as far as possible.
+</p>
+
+      <p> <a class="btn btn-xs btn-success" href="uploadtxt" role="button">Try it out</a></p>
+
+
+
+</li>
+
+        <li class="list-group-item"><h3>Audio with aligned TextGrids, for formant extraction only</a></h3>
+	<p>With the other options on this website, the system produces an automatically aligned TextGrid. This option is designed to give you the opportunity to upload a hand-corrected alignment and re-run it through the formant extraction step.
+</p>
+
+         <p> <a class="btn btn-xs btn-success" href="uploadextract"
+role="button">Try it out</a></p>
+
+</ul>
+</div>
