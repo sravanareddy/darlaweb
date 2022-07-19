@@ -307,39 +307,39 @@ class pipeline:
         return render.error("That is not a valid link.", "index")
 
     def POST(self):
-		post_list = web.data().split("&")
-		parameters = {}
+        post_list = web.data().split("&")
+        parameters = {}
 
-		for form_input in post_list:
-			split = form_input.split("=")
-			parameters[split[0]] = split[1]
+        for form_input in post_list:
+            split = form_input.split("=")
+            parameters[split[0]] = split[1]
 
-		taskdir = urllib.unquote(parameters["taskdir"])
-		job = parameters["job"]
+        taskdir = urllib.unquote(parameters["taskdir"])
+        job = parameters["job"]
 
-		utilities.write_speaker_info(os.path.join(taskdir, 'speaker'), parameters["name"], parameters["sex"])
+        utilities.write_speaker_info(os.path.join(taskdir, 'speaker'), parameters["name"], parameters["sex"])
 
-		if job == 'asr':
-			result = featurize_recognize.delay(taskdir)
-			while not result.ready():
-				pass
+        if job == 'asr':
+            result = featurize_recognize.delay(taskdir)
+            while not result.ready():
+                pass
 
-			if result.get() == False:
-				return render.error("There is something wrong with your audio file. We could not extract acoustic features or run ASR.", "uploadasr")
+            if result.get() == False:
+                return render.error("There is something wrong with your audio file. We could not extract acoustic features or run ASR.", "uploadasr")
 
-			asrjob_mfa(taskdir)
+            asrjob_mfa(taskdir)
 
-		elif job == 'txt':
-			txtjob_mfa(taskdir)
+        elif job == 'txt':
+            txtjob_mfa(taskdir)
 
-		elif job == 'bound':
-			boundjob_mfa(taskdir)
+        elif job == 'bound':
+            boundjob_mfa(taskdir)
 
-		result = align_extract.delay(taskdir, confirmation_sent = (job == 'asr'))
-		while not result.ready():
-			pass
+        result = align_extract.delay(taskdir, confirmation_sent = (job == 'asr'))
+        while not result.ready():
+            pass
 
-		return render.success('')
+        return render.success('')
 
 class asreval:
     reffile = myform.MyFile('reffile',
