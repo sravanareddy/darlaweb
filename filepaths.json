@@ -1,7 +1,0 @@
-{"URLBASE": "http://darla.dartmouth.edu", 
-"APPDIR": "/home/darla/applications/", 
-"LM": "/home/darla/languagemodels/en-us.lm.dmp", 
-"ACOUSTICMODELS": "/home/darla/acousticmodels/", 
-"PASSWORD": "/home/darla/emailinfo.txt", 
-"DATA": "/home/darla/produploads/",
-"GOOGLESPEECH": "/home/darla/google-serviceprivatekey.json"}

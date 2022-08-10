@@ -259,7 +259,7 @@ def sox_conversion(filename, taskdir, dochunk=None):
 def gen_argfiles(taskdir, task, filename, duration, email, delstopwords='Y', maxbandwidth='10000000000', delunstressedvowels='Y'):
     acoustic_dir = 'acoustic_dir'
     """create ctl files if applicable"""
-    if task=='asr':
+    if task=='asr' or task == 'azure':
         filelist = map(lambda x: x[:-4],
                           filter(lambda x: x.endswith('.wav'),
                                  os.listdir(os.path.join(taskdir, 'splits'))))

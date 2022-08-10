@@ -39,11 +39,14 @@ On Mac OS, execute main.py and preview in `http://localhost:8080/`
 
 For cross-computer compatibility, create a file named `filepaths.json` containing a dictionary as a json file as follows:
 
-```
-{"DATA": "/absolute/path/to/directory/where/user/uploads/will/be/processed",
-"PASSWORD": "/absolute/path/to/text/file/containing/the/GMail/password",
-"URLBASE": "http://base.url.on.this.machine",
-"GOOGLESPEECH": "/absolute/path/to/googleprivatekeyjson"}
+```json
+{
+	"DATA": "/absolute/path/to/directory/where/user/uploads/will/be/processed",
+	"PASSWORD": "/absolute/path/to/text/file/containing/the/GMail/password",
+	"URLBASE": "http://base.url.on.this.machine",
+	"GOOGLESPEECH": "/absolute/path/to/googleprivatekeyjson",
+	"AZURE_API_KEY": "/absolute/path/to/azure-api-key.txt"
+}
 ```
 
 Do *not* push `filepaths.json` to the repo, since it is dependent on the local environment.
@@ -52,10 +55,9 @@ Do *not* push `filepaths.json` to the repo, since it is dependent on the local e
 
 Lighttpd does not automatically recompile the code after changes (unlike Apache), and needs to be manually restarted like so:
 
-```
+```shell
 killall lighttpd
 /etc/init.d/lighttpd start
 ```
 
 This is only relevant for the production server.
-

@@ -8,6 +8,7 @@ from textgrid import TextGrid, IntervalTier
 from textclean import process_usertext
 from utilities import g2p
 
+
 def asrjob_mfa(taskdir):
     hyps = open(os.path.join(taskdir, 'hyp')).readlines()
     hyps = map(lambda line: line.split()[:-1], hyps)
@@ -19,6 +20,24 @@ def asrjob_mfa(taskdir):
     for hypline, chunk in zip(hyps, chunks):
         chunk = map(int, chunk.split())
         text = map(lambda word: word.strip(string.punctuation), hypline[:-1])
+        tier.add(chunk[0], chunk[1], ' '.join(text))  #.replace("'", "\\'"))
+        words.update(set(text))
+    tg.append(tier)
+    tg.write(os.path.join(taskdir, 'audio.TextGrid'))
+    #make dictionary for OOVs
+    g2p(taskdir, words, 'cmudict.stress.txt')
+
+
+def azurejob_mfa(taskdir):
+    hyps = open(os.path.join(taskdir, 'hyp')).readlines()
+    hyps = [line.strip().split() for line in hyps]
+    chunks = open(os.path.join(taskdir, 'chunks')).readlines()
+    words = set()
+    tg = TextGrid()
+    tier = IntervalTier('sentence')
+    for hypline, chunk in zip(hyps, chunks):
+        chunk = map(int, chunk.split())
+        text = map(lambda word: word.strip(string.punctuation), hypline)
         tier.add(chunk[0], chunk[1], ' '.join(text))  #.replace("'", "\\'"))
         words.update(set(text))
     tg.append(tier)

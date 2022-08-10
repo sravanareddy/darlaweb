@@ -14,11 +14,11 @@ import time
 import json
 import sys
 from mturk import mturk, mturksubmit
-from backend import align_extract, featurize_recognize
+from backend import align_extract, azure_transcription, featurize_recognize
 from formfields import make_uploadsound, make_uploadtxttrans, make_uploadboundtrans, make_uploadtgtrans, make_email, make_delstopwords, make_delunstressedvowels, make_filterbandwidths, make_audio_validator, speaker_form
 import urllib
 from backend import featurize_recognize, align_extract
-from hyp2mfa import asrjob_mfa, txtjob_mfa, boundjob_mfa
+from hyp2mfa import asrjob_mfa, azurejob_mfa, txtjob_mfa, boundjob_mfa
 
 # [END import_libraries]
 
@@ -96,6 +96,14 @@ class uploadjob:
                                     self.email, self.taskname, self.submit)
             pageform = formbuilder()
             return render.asrjob(pageform, "")
+        elif job == 'azure':
+            formbuilder = myform.MyForm(self.uploadfile,
+                                    self.delstopwords,
+                                    self.delunstressedvowels,
+                                    self.filterbandwidths,
+                                    self.email, self.taskname, self.submit)
+            pageform = formbuilder()
+            return render.azurejob(pageform, "")
         elif job == 'txt':
             formbuilder = myform.MyForm(self.uploadfile,
                                            self.uploadtxtfile,
@@ -126,7 +134,7 @@ class uploadjob:
 
 
     def POST(self, job):
-        if job == 'asr':
+        if job == 'asr' or job == 'azure':
             formbuilder = myform.MyForm(self.uploadfile,
                                     self.delstopwords,
                                     self.delunstressedvowels,
@@ -186,6 +194,8 @@ class uploadjob:
         if not pageform.validates(): #not validated
             if job == 'asr':
                 return render.asrjob(pageform, "")
+            elif job == 'azure':
+                return render.azurejob(pageform, "")
             elif job == 'txt':
                 return render.txtjob(pageform, "")
             elif job == 'bound':
@@ -199,6 +209,8 @@ class uploadjob:
             pageform.note = error
             if job == 'asr':
                 return render.asrjob(pageform, "")
+            elif job == 'azure':
+                return render.azurejob(pageform, "")
             elif job == 'txt':
                 return render.txtjob(pageform, "")
             elif job == 'bound':
@@ -215,6 +227,8 @@ class uploadjob:
             pageform.note = "Please upload a .wav or .mp3 audio file."
             if job == 'asr':
                 return render.asrjob(pageform, "")
+            elif job == 'azure':
+                return render.azurejob(pageform, "")
             elif job == 'txt':
                 return render.txtjob(pageform, "")
             elif job == 'bound':
@@ -232,6 +246,20 @@ class uploadjob:
             if error!="":
                 pageform.note = error
                 return render.asrjob(pageform, "")
+
+            utilities.write_chunks(chunks, os.path.join(taskdir, 'chunks'))
+        
+        elif job == 'azure':
+            total_size, chunks, error = utilities.process_audio(taskdir,
+                filename,
+                extension,
+                x.uploadfile.file.read(),
+                dochunk=570,
+            )
+
+            if error!="":
+                pageform.note = error
+                return render.azurejob(pageform, "")
 
             utilities.write_chunks(chunks, os.path.join(taskdir, 'chunks'))
 
@@ -295,6 +323,8 @@ class uploadjob:
         speakers = speaker_form(taskdir, job)
         if job == 'asr':
             return render.asrjob(pageform, speakers)
+        elif job == 'azure':
+                return render.azurejob(pageform, speakers)
         elif job == 'txt':
             return render.txtjob(pageform, speakers)
         elif job == 'bound':
@@ -329,13 +359,23 @@ class pipeline:
 
             asrjob_mfa(taskdir)
 
+        elif job == 'azure':
+            result = azure_transcription.delay(taskdir)
+            while not result.ready():
+                pass
+
+            if result.get() == False:
+                return render.error("There is something wrong with your audio file. We could not extract acoustic features or run ASR.", "uploadazure")
+
+            azurejob_mfa(taskdir)
+
         elif job == 'txt':
             txtjob_mfa(taskdir)
 
         elif job == 'bound':
             boundjob_mfa(taskdir)
 
-        result = align_extract.delay(taskdir, confirmation_sent = (job == 'asr'))
+        result = align_extract.delay(taskdir, confirmation_sent = (job == 'asr' or job == 'azure'))
         while not result.ready():
             pass
 
