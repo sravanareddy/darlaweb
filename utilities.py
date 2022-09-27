@@ -17,7 +17,6 @@ import json
 from collections import defaultdict
 from textgrid.textgrid import TextGrid
 from datetime import datetime
-
 from textclean import process_usertext
 
 # ERROR = 0
@@ -56,7 +55,7 @@ def read_filepaths():
 def g2p(taskdir, transwords, cmudictfile):
     """Predict pronunciations of words not in dictionary and add"""
     cmudict = read_prdict(cmudictfile)
-    oov = filter(lambda word: word not in cmudict, set(transwords))
+    oov = list(filter(lambda word: word not in cmudict, set(transwords)))
     if len(oov)>0:
         with open(os.path.join(taskdir, 'oov'), 'w') as o:
             o.write('\n'.join(oov)+'\n')
@@ -294,7 +293,9 @@ def gen_argfiles(taskdir, task, filename, duration, email, delstopwords='Y', max
 
         o = open(os.path.join(taskdir, 'featurize_args'), 'w')
         options['c'] = os.path.join(taskdir, 'ctl')
-        o.write('\n'.join(map(lambda (k, v): '-'+k+' '+v,
+        def write_helper(k, v):
+            return '-' + k + ' ' + v
+        o.write('\n'.join(map(write_helper,
                               options.items())))
         o.close()
 
@@ -328,7 +329,7 @@ def gen_argfiles(taskdir, task, filename, duration, email, delstopwords='Y', max
         options.update({'ctl': os.path.join(taskdir, 'ctl'),
                         'hyp': os.path.join(taskdir, 'hyp'),
                         'hypseg': os.path.join(taskdir, 'hypseg')})
-        o.write('\n'.join(map(lambda (k, v): '-'+k+' '+v,
+        o.write('\n'.join(map(write_helper,
                           options.items())))
         o.close()
 
@@ -343,3 +344,15 @@ def gen_argfiles(taskdir, task, filename, duration, email, delstopwords='Y', max
     with open(os.path.join(taskdir, 'alext_args.json'), 'w') as o:
         json.dump(alext_args, o)
     return
+
+def gen_bedword_files(taskdir, email, filename, extension, audio_length, diarize, punctuate, output_formats, send_to_darla):
+    args = {'email': email,
+            'filename': filename,
+            'extension': extension,
+            'audio_length': audio_length,
+            'diarize': diarize,
+            'punctuate': punctuate,
+            'output_formats': output_formats,
+            'send_to_darla': send_to_darla}
+    with open(os.path.join(taskdir, 'bedword_args.json'), 'w') as o:
+        json.dump(args, o)

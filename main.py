@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import subprocess
 import web
 import shutil
 import codecs
@@ -13,9 +14,12 @@ import asredit
 import time
 import json
 import sys
+import shlex
 from mturk import mturk, mturksubmit
-from backend import align_extract, azure_transcription, featurize_recognize
-from formfields import make_uploadsound, make_uploadtxttrans, make_uploadboundtrans, make_uploadtgtrans, make_email, make_delstopwords, make_delunstressedvowels, make_filterbandwidths, make_audio_validator, speaker_form
+from backend import align_extract, azure_transcription, featurize_recognize, bedword_transcription
+from formfields import make_uploadsound, make_uploadtxttrans, make_uploadboundtrans, make_uploadtgtrans, \
+    make_email, make_delstopwords, make_delunstressedvowels, make_filterbandwidths, \
+        make_audio_validator, speaker_form, make_format_checkbox, make_diarize, make_punctuate, make_send_to_darla
 import urllib
 from backend import featurize_recognize, align_extract
 from hyp2mfa import asrjob_mfa, azurejob_mfa, txtjob_mfa, boundjob_mfa
@@ -36,7 +40,8 @@ urls = ('/', 'index',
         '/mturksubmit', 'mturksubmit',
         '/upload(.+)', 'uploadjob',
         '/pipeline', 'pipeline',
-        '/asreval', 'asreval')
+        '/asreval', 'asreval',
+        '/bedword', 'bedword')
 
 app = web.application(urls, globals())
 web.config.debug = True
@@ -440,6 +445,162 @@ class asreval:
             else:
                     form.note = 'Please upload both transcript files.'
                     return render.asreval(form)
+
+class bedword:
+    upload_api_key = form.Textbox('api_key', form.notnull,
+            form.regexp(r'^[A-Za-z0-9_-]*$', 'Please enter a valid Deepgram API Key.'),
+            post='You can access your API Key from your Deepgram account.',
+            description='Deepgram API Key:')
+    upload_audio_file = myform.MyFile('audio_file', description='Audio file:')
+    diarize_selection = make_diarize()
+    punctuate_selection = make_punctuate()
+
+    # For now, we decided that it just makes sense to email all output formats rather than
+    # have the users select which ones they want. If this decision changes in the future, feel
+    # free to uncomment the relevant lines below
+    
+    # textgrid_format = make_format_checkbox('.TextGrid')
+    # csv_format = make_format_checkbox('.csv')
+    # txt_format = make_format_checkbox('.txt')
+    # eaf_format = make_format_checkbox('.eaf')
+    send_to_darla = make_send_to_darla()
+    stop_words = make_delstopwords()
+    unstressed_vowels = make_delunstressedvowels()
+    bandwidths = make_filterbandwidths()
+    speaker_type = myform.MyRadio('sex', [('M','Low ', 'M'), ('F','High ', 'F')], description='Voice type: ')
+    speaker_type.value = 'M'  # default if not checked
+    upload_email = make_email()
+    submit = form.Button('submit', type='submit', description='Submit')
+
+    def GET(self):
+        # TODO: make web form pretty
+        builder = myform.MyForm(self.upload_api_key,
+                                self.upload_audio_file,
+                                self.diarize_selection,
+                                self.punctuate_selection,
+                                # self.textgrid_format,
+                                # self.csv_format,
+                                # self.txt_format,
+                                # self.eaf_format,
+                                self.send_to_darla,
+                                self.stop_words,
+                                self.unstressed_vowels,
+                                self.bandwidths,
+                                self.speaker_type,
+                                self.upload_email,
+                                self.submit)
+        pageform = builder()
+        return render.bedword(pageform)
+
+    def POST(self):
+        builder = myform.MyForm(self.upload_api_key,
+                                self.upload_audio_file,
+                                self.diarize_selection,
+                                self.punctuate_selection,
+                                # self.textgrid_format,
+                                # self.csv_format,
+                                # self.txt_format,
+                                # self.eaf_format,
+                                self.send_to_darla,
+                                self.stop_words,
+                                self.unstressed_vowels,
+                                self.bandwidths,
+                                self.speaker_type,
+                                self.upload_email,
+                                self.submit)
+        pageform = builder()
+
+        # clean input and get form values
+        if not pageform.validates():
+            return render.bedword(pageform)
+
+        api_key = pageform.api_key.value
+        diarize = pageform.diarize.value == 'Y'
+        punctuate = pageform.diarize.value == 'Y'
+        # output_formats = []
+        # for format in ['.TextGrid', '.csv', '.txt', '.eaf']:
+        #     if pageform[format].value == 'Y':
+        #         output_formats.append(format)
+        # if len(output_formats) == 0:
+        #     pageform.note = 'Please select at least one output format.'
+            # return render.bedword(pageform)
+        output_formats = ['.TextGrid', '.csv', '.txt', '.eaf']
+        send_to_darla = pageform.send_to_darla.value == 'Y'
+        delstopwords = pageform.delstopwords.value
+        maxbandwidth = pageform.filterbandwidths.value
+        delunstressedvowels = pageform.delunstressedvowels.value
+        sex = pageform.sex.value
+        email = pageform.email.value
+        
+        # generate backend task dir and accessory files
+        datadir = utilities.read_filepaths()['DATA']
+        taskname, taskdir, error = utilities.make_task(datadir)
+
+        if error != "":
+            pageform.note = error
+            return render.bedword(pageform)
+
+        print(taskdir)
+
+        # validate api_key by running validate_deepgram_key.py
+        # we have to do this in a child process because the deepgram API needs python3
+        # and this code is being run in python2. The child process will create a file in
+        # taskdir that tells us if the key is valid or not
+        args = ' '.join(['python3', './validate_deepgram_key.py', taskdir, api_key])
+        key_validation = subprocess.Popen(shlex.split(args))
+        retval = key_validation.wait()
+
+        if retval != 0:
+            pageform.note = 'Please enter a valid Deepgram API Key.'
+            return render.bedword(pageform)
+
+        x = web.input(audio_file={})
+
+        filename, extension = utilities.get_basename(x.audio_file.filename)
+
+        if extension not in ['.wav', '.mp3']:
+            pageform.note = "Please upload a .wav or .mp3 audio file."
+            return render.bedword(pageform)
+        
+        total_size, _, error = utilities.process_audio(taskdir,
+                                                            filename,
+                                                            extension,
+                                                            x.audio_file.file.read(),
+                                                            dochunk=None)
+
+        audio_length = total_size * 60.0
+
+        if error != "":
+            pageform.note = error
+            return render.bedword(pageform)
+
+        print(taskdir)
+
+        utilities.gen_bedword_files(taskdir,
+                                    email,
+                                    filename,
+                                    extension,
+                                    audio_length,
+                                    diarize,
+                                    punctuate,
+                                    output_formats,
+                                    send_to_darla)
+
+        if send_to_darla: # write darla files so it's nice and compatable
+            utilities.gen_argfiles(taskdir,
+                                    'bound',
+                                    filename,
+                                    audio_length, 
+                                    email,
+                                    delstopwords,
+                                    maxbandwidth,
+                                    delunstressedvowels)
+            utilities.write_speaker_info(os.path.join(taskdir, 'speaker'), filename, sex)
+
+
+        bedword_transcription.delay(taskdir, api_key)
+        return render.success('')
+
 
 if __name__=="__main__":
     web.internalerror = web.debugerror

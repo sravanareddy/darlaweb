@@ -86,3 +86,15 @@ def align_extract(taskdir, confirmation_sent = False):
     else:
         send_email(alext_args['tasktype'], alext_args['email'], alext_args['filename'], taskdir, True) #passes in true for no errors so no multiple emails. Will have to change if anything is done before align_extract and before featrec that could send error emails.
     return True
+
+@task(serializer='json')
+def bedword_transcription(taskdir, api_key):
+
+    bedword_args = json.load(open(os.path.join(taskdir, 'bedword_args.json')))
+    send_init_email('bedword', bedword_args['email'], bedword_args['filename'])
+    args = ' '.join(["python3",
+                     'bedword_funcs.py',
+                     taskdir,
+                     api_key])
+    subprocess.Popen(shlex.split(args), stderr=subprocess.STDOUT)
+    return True

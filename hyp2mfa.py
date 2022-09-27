@@ -60,7 +60,7 @@ def txtjob_mfa(taskdir):
     #make dictionary for OOVs
     g2p(taskdir, set(words), 'cmudict.stress.txt')
 
-def boundjob_mfa(taskdir):
+def boundjob_mfa(taskdir, clean_text=True):
     """process text in boundaries file"""
     tg = TextGrid()
     tg.read(os.path.join(taskdir, 'raw.TextGrid'))
@@ -72,7 +72,10 @@ def boundjob_mfa(taskdir):
     for sentence in sentences:
         newtier = IntervalTier(sentence.name, sentence.minTime, sentence.maxTime)
         for segment_interval in sentence:
-            segment_text = process_usertext(segment_interval.mark.lower())
+            if clean_text:
+                segment_text = process_usertext(segment_interval.mark.lower())
+            else:
+                segment_text = segment_interval.mark.lower()
             newtier.add(segment_interval.minTime, segment_interval.maxTime, segment_text)
             words.update(set(segment_text.split()))
 

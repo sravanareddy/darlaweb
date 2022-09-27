@@ -76,3 +76,82 @@ def speaker_form(taskdir, job):
                              sex)
 
     return speakers()
+
+def make_format_checkbox(format):
+    f = myform.MyRadio(format,[('Y', 'Yes ', 'Y'),
+                        ('N', 'No ', 'N')],
+                       description='Transcribe to ' + format + ' format? ')
+    f.value = 'N'
+    return f
+
+def make_diarize():
+    f = myform.MyRadio('diarize', [('Y', 'Yes ', 'Y'),
+                        ('N', 'No ', 'N')],
+                       description='Remove interviewer transcription? ',
+                       post='Deepgram will try to identify two separate speakers in the audio, and only keep'
+                        + ' the transcription of the interviewee. <br> (We are assuming that the interviewee is just '
+                        + 'the person who speaks more). <br> Deepgram charges $1.25 per audio hour for this service instead of the usual $0.75 per hour.')
+    f.value = 'N'
+    return f
+
+def make_punctuate():
+    f = myform.MyRadio('punctuate',
+                       [('Y', 'Yes ', 'Y'),
+                        ('N', 'No ', 'N')],
+                       description='Include punctuation in output? ',
+                       post='This includes commas, periods, and capitalization.')
+    f.value = 'N'  # default
+    return f
+
+def make_send_to_darla():
+    # need to make custom radio button that hides and shows fields based on selection
+    class DarlaRadio(form.Radio):
+        def get_type(self):
+            return 'radio'
+        def render(self):
+            x = """<script type="text/javascript">
+            window.onload = function() {
+                document.getElementById('delstopwords').style.display = 'none';
+                document.getElementById('delunstressedvowels').style.display = 'none';
+                document.getElementById('filterbandwidths').style.display = 'none';
+                document.getElementById('sex').style.display = 'none';
+            }
+            function toggleVisibility() {
+                if (document.getElementById('delstopwords').style.display == 'none') {
+                    document.getElementById('delstopwords').style.display = 'block';
+                    document.getElementById('delunstressedvowels').style.display = 'block';
+                    document.getElementById('filterbandwidths').style.display = 'block';
+                    document.getElementById('sex').style.display = 'block';
+                } 
+                else  {
+                    document.getElementById('delstopwords').style.display = 'none';
+                    document.getElementById('delunstressedvowels').style.display = 'none';
+                    document.getElementById('filterbandwidths').style.display = 'none';
+                    document.getElementById('sex').style.display = 'none';
+            }
+            } </script> """
+            x += '<span>'
+            for arg in self.args:
+                if isinstance(arg, (tuple, list)):
+                    value, desc, id= arg
+                else:
+                    value, desc, id= arg, arg, arg
+                attrs = self.attrs.copy()
+                attrs['name'] = self.name
+                attrs['type'] = 'radio'
+                attrs['value'] = value
+                attrs['id'] = id #add id
+                attrs['onclick'] = 'javascript:toggleVisibility();'
+                if self.value == value:
+                    attrs['checked'] = 'checked'
+                x += '<input %s/> %s' % (attrs, desc)
+            x += '</span>'
+            return x  
+
+    f = DarlaRadio('send_to_darla',
+                       [('Y', 'Yes ', 'Y'),
+                        ('N', 'No ', 'N')],
+                       description='Send results through DARLA Vowel Extraction after? ',
+                       post="This will happen after your transcription and you'll automatically be emailed the results.")
+    f.value = 'N'  # default
+    return f

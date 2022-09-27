@@ -1,10 +1,16 @@
 import string
-import inflect
-from kitchen.text.converters import to_unicode
+try:
+    import inflect
+    from kitchen.text.converters import to_unicode
+except:
+    pass # for python3 version
 
 transfrom = '\xd5\xd3\xd2\xd0\xd1\xcd\xd4'
 transto = '\'""--\'\''
-unimaketrans = string.maketrans(transfrom, transto)
+try:
+    unimaketrans = string.maketrans(transfrom, transto)
+except:
+    unimaketrans = str.maketrans(transfrom, transto) # for python3 version
 
 replacement_mappings = {"\xe2\x80\x93": " - ",
                         '\xe2\x80\x94': " - ",

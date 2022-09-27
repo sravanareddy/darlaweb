@@ -20,7 +20,7 @@ class MyRadio(web.form.Radio):
                         attrs['checked'] = 'checked'
                     x += '<input %s/> %s' % (attrs, desc)
                 x += '</span>'
-                return x
+                return x                               
 
 class MyButton(web.form.Button):
         """get_type not implemented in original"""
@@ -66,7 +66,7 @@ class MyForm(web.form.Form):
                 out.append(self.rendernote(self.note, attached_to_form = True))
                 for i in self.inputs:
                         if not i.is_hidden():
-                                out.append('<p>')
+                                out.append('<p id=' + i.id + '>')
                                 out.append(i.description+' ')
                         out.append(i.render())
                         if not i.is_hidden():
