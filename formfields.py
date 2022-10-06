@@ -88,9 +88,9 @@ def make_diarize():
     f = myform.MyRadio('diarize', [('Y', 'Yes ', 'Y'),
                         ('N', 'No ', 'N')],
                        description='Remove interviewer transcription? ',
-                       post='Deepgram will try to identify two separate speakers in the audio, and only keep'
-                        + ' the transcription of the interviewee. <br> (We are assuming that the interviewee is just '
-                        + 'the person who speaks more). <br> Deepgram charges $1.25 per audio hour for this service instead of the usual $0.75 per hour.')
+                       post='By default, Deepgram will transcribe everything and will not identify speakers. <br>' +
+                       'If \'Yes\' is selected, Deepgram will try to identify two separate speakers in the audio, and only keep'
+                        + ' the interviewee (assumed to be the person who speaks more). <br> In the future, we hope to add features to transcribe and separate both speakers. <br> Deepgram charges $1.25 per audio hour for this service instead of the usual $0.75 per hour.')
     f.value = 'N'
     return f
 
@@ -99,7 +99,7 @@ def make_punctuate():
                        [('Y', 'Yes ', 'Y'),
                         ('N', 'No ', 'N')],
                        description='Include punctuation in output? ',
-                       post='This includes commas, periods, and capitalization.')
+                       post='This includes commas, periods, and capitalizaation.')
     f.value = 'N'  # default
     return f
 
@@ -151,7 +151,7 @@ def make_send_to_darla():
     f = DarlaRadio('send_to_darla',
                        [('Y', 'Yes ', 'Y'),
                         ('N', 'No ', 'N')],
-                       description='Send results through DARLA Vowel Extraction after? ',
+                       description="Send results through DARLA's Alignment and Vowel Extraction system after? ",
                        post="This will happen after your transcription and you'll automatically be emailed the results.")
     f.value = 'N'  # default
     return f

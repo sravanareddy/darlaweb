@@ -14,14 +14,26 @@
     <p> <a class="btn btn-xs btn-success" href="googlespeech" role="button">Try it out</a></p>
 -->
 
-<li class="list-group-item"><h3>Audio with transcriptions provided by Azure Conversation Transcription</h3>
-  <p>
-    ... to be described ...
+<li class="list-group-item"><h3>Bed Word: Automated Interview Transcription via Deepgram</h3>
+  <p> <b style="color: red; font-size: larger;">NEW!</b>
+    Bed Word is a new tool that utilizes state-of-the-art ASR models to get computer-generated
+    transcriptions of audio files. We are currently using a third-party transcription service called Deepgram.
+    You will need to 
+    <a target="_blank" href="https://developers.deepgram.com/documentation/getting-started/authentication/">
+    create your own 
+    Deepgram account and API Key 
+    </a>
+    and provide this information to Bed Word - your uploaded audio will be
+    processed through Deepgram to get an initial transcription, then Bed Word will perform the final touches to make the transcriptions suitable for linguistic analysis.
+    Your Deepgram account will be charged <a target="_blank" href="https://deepgram.com/pricing/">based on their pricing, </a>  which right now is \$0.75 per audio hour.
+    (DARLA is a completely free service, but Bed Word uses
+        a third-party company called Deepgram that has its own fee. We do not make any money from this tool.)
   </p>
-<p> <a class="btn btn-xs btn-success" href="uploadazure" role="button">Try it out</a></p>
+<p> <a class="btn btn-xs btn-success" href="bedword" role="button">Try it out</a></p>
 
 <li class="list-group-item"><h3>Audio with transcriptions provided by our in-house speech recognition</h3>
   <p>
+    This is our legacy speaker recognition system, which lacks the accuracy of more recent ASR systems. For the best results using automatic transcription, we recommend using Bed Word.
     This system uses ASR built upon the CMU Sphinx framework to transcribe your data
     and then runs it through automated alignment and extraction using Montreal Forced Aligner and
     FAVE-Extract.
