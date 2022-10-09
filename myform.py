@@ -1,9 +1,9 @@
 import web
 
 class MyRadio(web.form.Radio):
-	"""get_type not implemented in original"""
-	def get_type(self):
-		return 'radio'
+        """get_type not implemented in original"""
+        def get_type(self):
+                return 'radio'
         def render(self):
                 x = '<span>'
                 for arg in self.args:
@@ -20,29 +20,29 @@ class MyRadio(web.form.Radio):
                         attrs['checked'] = 'checked'
                     x += '<input %s/> %s' % (attrs, desc)
                 x += '</span>'
-                return x
+                return x                               
 
 class MyButton(web.form.Button):
-	"""get_type not implemented in original"""
+        """get_type not implemented in original"""
 
-	def get_type(self):
-		return 'button'
+        def get_type(self):
+                return 'button'
 
 class MyDropdown(web.form.Dropdown):
-	def get_type(self):
+        def get_type(self):
                 return 'dropdown'
 
 class MyFile(web.form.File):
-	"""Rendering for files should not try to display contents"""
-	def render(self):
-		attrs = self.attrs.copy()
-		attrs['type'] = self.get_type()
-		if attrs['type']=='file':
-			attrs['value'] = ''
-		else:
-			attrs['value'] = self.value
-		attrs['name'] = self.name
-		return '<input %s/>' % attrs
+        """Rendering for files should not try to display contents"""
+        def render(self):
+                attrs = self.attrs.copy()
+                attrs['type'] = self.get_type()
+                if attrs['type']=='file':
+                        attrs['value'] = ''
+                else:
+                        attrs['value'] = self.value
+                attrs['name'] = self.name
+                return '<input %s/>' % attrs
 
 class MyForm(web.form.Form):
         """Modify default rendering behavior"""
@@ -64,9 +64,9 @@ class MyForm(web.form.Form):
         def render(self):
                 out = []
                 out.append(self.rendernote(self.note, attached_to_form = True))
-		for i in self.inputs:
+                for i in self.inputs:
                         if not i.is_hidden():
-                                out.append('<p>')
+                                out.append('<p id=' + i.id + '>')
                                 out.append(i.description+' ')
                         out.append(i.render())
                         if not i.is_hidden():
@@ -75,21 +75,21 @@ class MyForm(web.form.Form):
                             out.append('</p>\n')
                 return ''.join(out)
 
-	def render_list(self):
-		out = []
-		out.append(self.rendernote(self.note, attached_to_form = True))
-		out.append('<ul class="list-group">')
-		for i in self.inputs:
-			if not i.is_hidden():
-				out.append('<li id="{0}" class="list-group-item">'.format(i.name))
-				out.append(i.description+' ')
-			out.append(i.render())
-			if not i.is_hidden():
-				out.append(self.rendernote(i.note))
-				out.append('<br><span class="note">{0}</span>'.format(i.post))
-				out.append('</li>\n')
-		out.append('</ul>')
-		return ''.join(out)
+        def render_list(self):
+                out = []
+                out.append(self.rendernote(self.note, attached_to_form = True))
+                out.append('<ul class="list-group">')
+                for i in self.inputs:
+                        if not i.is_hidden():
+                                out.append('<li id="{0}" class="list-group-item">'.format(i.name))
+                                out.append(i.description+' ')
+                        out.append(i.render())
+                        if not i.is_hidden():
+                                out.append(self.rendernote(i.note))
+                                out.append('<br><span class="note">{0}</span>'.format(i.post))
+                                out.append('</li>\n')
+                out.append('</ul>')
+                return ''.join(out)
 
         def render_disabled(self):
                 out = []

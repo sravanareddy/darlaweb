@@ -1,0 +1,22 @@
+$def with (form)
+
+<div class="container">
+
+<h2>Bed Word: Automated Interview Transcription via Deepgram</h2>
+<p class="lead">Bed Word requires a Deepgram API Key to use. To create an account and get a key, follow
+  <a target="_blank" href="https://developers.deepgram.com/documentation/getting-started/authentication/">the instructions here</a>.
+  Bed Word uses your Deepgram account to transcribe the audio, then formats the result into the appropriate output files (including TextGrids).
+  You also have the option to directly send this automated transcription to DARLA's Alignment and Vowel Extraction system.
+  <p>
+  Per <a target="_blank" href="https://deepgram.com/pricing/"> Deepgram's current pricing,</a> one hour of audio transcription
+  will cost \$0.75 to transcribe. Please note if you use Bed Word, your data will be sent to a third-party outside of the DARLA system. (<a target="_blank" href="https://deepgram.com/privacy/">Deepgram privacy notice</a>).
+  </p>
+</p> 
+<p><a href="bedword"><small>Click here at any time to cancel or start over.</small></a></p>
+
+<form name="bedword" method="post" enctype="multipart/form-data">
+$if not form.valid: <p class="error">Correct the errors below.</p>
+$:form.render()
+</form>
+
+</div>

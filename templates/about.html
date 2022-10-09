@@ -16,7 +16,7 @@
 
 <p>The completely automated system transcribes the input
     speech data using automatic speech recognition (ASR), and then
-    runs it through forced alignment and formant extraction.</p>
+    runs it through forced alignment and formant extraction. There is also a new option to use a system called Bed Word, which provides industry-quality transcriptions.</p>
 
     <p>The semi-automated system is a forced-alignment approach that
     aligns and extracts vowel formants from speech with manual
@@ -67,7 +67,9 @@ and high-bandwidth vowels.
     <h3 id="asr">What ASR is used for the completely automated feature?</h3></a>
 
      <div id="asrbody" class="collapse">
-    <p>We use a model trained on over 400 hours of speech data with the CMU
+    <p>
+      For Bed Word, we are using a third party company called Deepgram, which has its own state-of-the-art model. <br>
+      We also have an older, in-house option, which is a model that is trained on over 400 hours of speech data with the CMU
       Sphinx toolkit.
      </div></li>
 
@@ -97,6 +99,12 @@ and high-bandwidth vowels.
   and formant measurement with <a
   href="https://github.com/JoFrhwld/FAVE/tree/master/FAVE-extract">FAVE-extract</a>.
   We also use the <a href="http://cran.r-project.org/web/packages/vowels/index.html">R vowels package</a> for plotting.</p>
+  <p>
+    Here is a recent paper that tested DARLA's alignment system: MacKenzie, Laurel, and Danielle Turton (2020). Assessing the accuracy of existing forced alignment software on varieties of British English. Linguistics Vanguard.
+    <a target="_blank" href="https://doi.org/10.1515/lingvan-2018-0061">https://doi.org/10.1515/lingvan-2018-0061 </a>
+
+
+  </p>
 </div></li>
 
 <li class="list-group-item">
@@ -124,7 +132,7 @@ to sociolinguists.
     </a>
 
      <div class="collapse" id="whybody">
-<p>In the last few years, sociolinguists have begun using semi-automated speech processing methods such as Penn's <a href="http://fave.ling.upenn.edu/index.html">FAVE</a> program to extract vowel formants. These systems have accelerated the pace of linguistic research, but require significant human effort to manually create sentence-level transcriptions. </p>
+<p>In recent years, sociolinguists have begun using semi-automated speech processing methods such as Penn's <a href="http://fave.ling.upenn.edu/index.html">FAVE</a> program to extract vowel formants. These systems have accelerated the pace of linguistic research, but require significant human effort to manually create sentence-level transcriptions. </p>
 
 <p>We believe that sociolinguistics is on the brink of an even more
   transformative technology: large-scale, completely automated vowel
@@ -141,7 +149,7 @@ to sociolinguists.
       <h3 id="errors">How do we deal with ASR errors?</h3></a>
 
       <div class="collapse" id="errorsbody">
-<p>While ASR is far from perfect, we believe sociophoneticians do not need to wait for years to take advantage of speech recognition. Unlike applications like dictation software where accurate word recognition is the primary goal, sociophonetics typically focuses on a much narrower objective: extracting a representative vowel space for speakers, based on stressed vowel tokens.
+<p>While ASR is not perfect, we believe sociophoneticians do not need to wait for years to take advantage of speech recognition. Unlike applications like dictation software where accurate word recognition is the primary goal, sociophonetics typically focuses on a much narrower objective: extracting a representative vowel space for speakers, based on stressed vowel tokens.
 For example, it would usually not be crucial to know that the stressed vowel in the word "turning" was extracted from "turn it" rather than "turning", or that "tack" was wrongly transcribed as "sack".  Such differences will have little effect on the speaker's vowel space for many sociophonetic questions. </p>
 
 <p>It turns out that most ASR errors affect the identity of the <i>words</i> but not the identity of the <i>vowels</i> (especially stressed vowels), making it an ideal technology for automated vowel analysis.
@@ -162,12 +170,7 @@ Of course, there will be instances of vowel error, but the effect of these error
       <h3 id="limits">Sounds great! What's the catch with the completely automated system?</h3></a>
 
        <div class="collapse" id="limitsbody">
-<p> DARLA's completely automated system cannot provide perfect transcriptions. The automatic
-transcriptions typically contain a very large number of errors,
-especially in free speech data, even using Google's ASR.
-Current technology cannot match the accuracy of human manual transcriptions.</p>
-
-<p>DARLA's completely automated approach to sociophonetics may help open the way
+<p> DARLA's completely automated system cannot provide perfect transcriptions. DARLA's completely automated approach to sociophonetics may help open the way
 toward large-scale audio analysis, but there is a tradeoff. As with
 many other sciences, automated processing necessitates error-reporting
 in the measurements, not just in the statistical modeling. We find
@@ -180,6 +183,19 @@ that the system can be useful for extracting a representative vowel
 
        </li>
 
+
+       <li class="list-group-item">
+        <a href="#privacy" data-toggle="collapse" data-target="#privacybody">
+              <h3 id="errors">Does DARLA use my audio data for other services? How is it stored?</h3></a>
+        
+              <div class="collapse" id="privacybody">
+        <p> When using any of DARLA's in-house services, your files are uploaded to the DARLA servers, where they are processed and then deleted later. We will not use your data or your email address 
+          for any other purpose. <br>
+        For Bed Word, since we use Deepgram as a third-party service, we upload your audio data to Deepgram's servers. We do not provide your email address to Deepgram. <a target="_blank" href="https://deepgram.com/privacy/">Per their privacy notice</a>,
+        Deepgram maintains the right to hold records of uploaded audio data but will not use it for any purpose without permission from the audio owner. As with any academic research, it is important to consult with your university's 
+      Institutional Review Board when using third-party data services.</p>
+              </div>
+              </li>
 
        <li class="list-group-item">
        <a href="#limits" data-toggle="collapse" data-target="#semibody">
@@ -208,7 +224,7 @@ You can also upload manually aligned/corrected TextGrids for formant
 <p> For research requiring perfect transcriptions:
 <ol>
 <li>
-Use the <a href="uploadasr">completely automated ASR</a> option
+Use the <a href="cave">completely automated ASR</a> option
 as a first pass and then correct the transcriptions
 online with our playback tool, OR
 
@@ -230,9 +246,8 @@ around the parts of the recording that you want.</p>
 
        <div class="collapse" id="noisebody">
 
-	 <p>The system cannot currently handle recordings with
-	 multiple speakers in an automated way (though this is an idea
-	 for future work). </p>
+	 <p>The Alignment and Vowel Extraction system cannot currently handle transcriptions with
+	 multiple speakers in an automated way. However, Bed Word can remove interviewer audio. </p>
 
 	 	<p>When DARLA processes a recording with noise, laughter, loud breaths, background
 	 voices, music, etc., the ASR transcriptions or
