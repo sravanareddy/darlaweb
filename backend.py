@@ -56,7 +56,7 @@ def azure_transcription(taskdir):
         error_check = send_error_email(receiver, filename, "There was a problem extracting acoustic features for ASR. Please check your file and try again.", error_check)
         return False
     
-    with open(os.path.join(taskdir, 'hyp'), 'w') as f:
+    with open(os.path.join(taskdir, 'transcript.txt'), 'w') as f:
         f.writelines(transcriptions)
 
     return True

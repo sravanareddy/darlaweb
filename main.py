@@ -18,7 +18,7 @@ from backend import align_extract, azure_transcription, featurize_recognize
 from formfields import make_uploadsound, make_uploadtxttrans, make_uploadboundtrans, make_uploadtgtrans, make_email, make_delstopwords, make_delunstressedvowels, make_filterbandwidths, make_audio_validator, speaker_form
 import urllib
 from backend import featurize_recognize, align_extract
-from hyp2mfa import asrjob_mfa, azurejob_mfa, txtjob_mfa, boundjob_mfa
+from hyp2mfa import asrjob_mfa, txtjob_mfa, boundjob_mfa
 
 # [END import_libraries]
 
@@ -254,7 +254,7 @@ class uploadjob:
                 filename,
                 extension,
                 x.uploadfile.file.read(),
-                dochunk=570,
+                dochunk=20,
             )
 
             if error!="":
@@ -367,7 +367,8 @@ class pipeline:
             if result.get() == False:
                 return render.error("There is something wrong with your audio file. We could not extract acoustic features or run ASR.", "uploadazure")
 
-            azurejob_mfa(taskdir)
+            # azurejob_mfa(taskdir)
+            txtjob_mfa(taskdir)
 
         elif job == 'txt':
             txtjob_mfa(taskdir)

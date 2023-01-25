@@ -58,6 +58,7 @@ def send_email(tasktype, receiver, filename, taskdir, error_check):
         alext_args = json.load(open(os.path.join(taskdir, 'alext_args.json')))
 
         subjectmap = {'asr': 'Completely Automated Vowel Extraction',
+                      'azure': 'Azure-Based Automated Vowel Extraction',
                       'googleasr': 'Completely Automated Vowel Extraction',
                       'txt': 'Alignment and Extraction',
                       'bound': 'Alignment and Extraction',
