@@ -9,6 +9,7 @@ from mail import send_email, send_init_email, send_error_email
 import subprocess
 import shlex
 import json
+from azure_api import AzureAPI
 
 @task(serializer='json', ignore_result=True)
 def featurize_recognize(taskdir):
@@ -30,6 +31,36 @@ def featurize_recognize(taskdir):
         error_check = send_error_email(alext_args['email'], alext_args['filename'], "There was a problem running ASR. Please check your file and try again.", error_check)
         return False
     return True
+
+
+@task(serializer='json', ignore_result=True)
+def azure_transcription(taskdir):
+
+    alext_args = json.load(open(os.path.join(taskdir, 'alext_args.json')))
+    receiver = alext_args['email']
+    filename = alext_args['filename']
+    send_init_email(alext_args['tasktype'], receiver, filename)
+    error_check = True
+
+    # filelist = map(lambda x: x[:-4],
+    #                     filter(lambda x: x.endswith('.wav'),
+    #                             os.listdir(os.path.join(taskdir, 'splits'))))
+    filelist = open(os.path.join(taskdir, 'ctl'), 'r').read().splitlines()
+    filelist = sorted(filelist, key=lambda x: int(x[5:]))
+    transcriptions = [
+        AzureAPI(os.path.join(taskdir, 'splits', file+'.wav')).get_transcription()
+        for file in filelist
+    ]
+
+    if any(transcription is None for transcription in transcriptions) and receiver!='none':
+        error_check = send_error_email(receiver, filename, "There was a problem extracting acoustic features for ASR. Please check your file and try again.", error_check)
+        return False
+    
+    with open(os.path.join(taskdir, 'transcript.txt'), 'w') as f:
+        f.writelines(transcriptions)
+
+    return True
+
 
 @task(serializer='json')
 def align_extract(taskdir, confirmation_sent = False):

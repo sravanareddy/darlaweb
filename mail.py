@@ -20,6 +20,7 @@ def send_init_email(tasktype, receiver, filename):
     sender = username+'@gmail.com'
 
     subjectmap = {'asr': 'Completely Automated Vowel Extraction',
+                      'azure': 'Azure-Based Automated Vowel Extraction',
                       'googleasr': 'Completely Automated Vowel Extraction',
                       'txt': 'Alignment and Extraction',
                       'bound': 'Alignment and Extraction',
@@ -57,6 +58,7 @@ def send_email(tasktype, receiver, filename, taskdir, error_check):
         alext_args = json.load(open(os.path.join(taskdir, 'alext_args.json')))
 
         subjectmap = {'asr': 'Completely Automated Vowel Extraction',
+                      'azure': 'Azure-Based Automated Vowel Extraction',
                       'googleasr': 'Completely Automated Vowel Extraction',
                       'txt': 'Alignment and Extraction',
                       'bound': 'Alignment and Extraction',
@@ -82,7 +84,7 @@ def send_email(tasktype, receiver, filename, taskdir, error_check):
         body += '(2) formants.fornorm.tsv can be uploaded to the NORM online tool (http://lingtools.uoregon.edu/norm/) for additional normalization and plotting options\n'
         body += '(3) plot.pdf shows the F1/F2 vowel space of your speakers\n'
         body += '(4) The .TextGrid file contains the transcription aligned with the audio\n'
-        if tasktype == 'asr' or tasktype == 'googleasr' or tasktype == 'asredit' or tasktype == 'bound':
+        if tasktype == 'asr' or tasktype == 'azure' or tasktype == 'googleasr' or tasktype == 'asredit' or tasktype == 'bound':
             body += '(5) transcription.txt contains the transcriptions.\n\n'
             body += 'If you manually correct the alignments in the TextGrid, you may re-upload your data with the new TextGrid to '
             body += filepaths['URLBASE']+'/uploadextract and receive revised formant measurements and plots.\n'
@@ -118,7 +120,7 @@ def send_email(tasktype, receiver, filename, taskdir, error_check):
                     message.attach(part)
                 except:
                     error_check = send_error_email(receiver, filename, "Your job was not completed.", error_check) # returns false after error sends
-        if tasktype == 'asr' or tasktype == 'googleasr' or tasktype == 'asredit' or tasktype == 'bound': #send transcription
+        if tasktype == 'asr' or tasktype == 'azure' or tasktype == 'googleasr' or tasktype == 'asredit' or tasktype == 'bound': #send transcription
             try:
                 part = MIMEBase('application', "octet-stream")
                 extract_trans_from_tg(os.path.join(taskdir, 'audio.TextGrid'), os.path.join(taskdir, 'transcript.txt'))
