@@ -16,12 +16,25 @@ class AzureAPI:
     def __init__(self, audio_path):
         self.payload = open(audio_path, "rb").read()
 
-        self.response = requests.post(
+        # self.response = requests.post(
+        #     self.AZURE_API_URL,
+        #     data=self.payload,
+        #     headers=self.HEADERS,
+        #     verify=False,  # ! some HTTPS issue
+        # ).json()
+
+    def get_transcription(self):
+        try:
+            return self.response.get("Transcription")
+        except Exception:
+            return " "
+
+    @property
+    def response(self):
+        return requests.post(
             self.AZURE_API_URL,
             data=self.payload,
             headers=self.HEADERS,
+            timeout=20,
             verify=False,  # ! some HTTPS issue
         ).json()
-
-    def get_transcription(self):
-        return self.response.get("Transcription")

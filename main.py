@@ -254,7 +254,7 @@ class uploadjob:
                 filename,
                 extension,
                 x.uploadfile.file.read(),
-                dochunk=20,
+                dochunk=30,
             )
 
             if error!="":
