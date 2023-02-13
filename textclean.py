@@ -48,6 +48,8 @@ def process_usertext(inputstring):
 
     cleaned = inputstring.replace('[', '').replace(']', '')  # common in linguists' transcriptions
     cleaned = cleaned.replace('-', ' ').replace('/', ' ')
+    cleaned = cleaned.replace(u'\u2019', "'").replace(u'\u2018', "'")
+    cleaned = cleaned.replace('&', ' and ')
     # convert digits and normalize $n
     digitconverter = inflect.engine()
     returnstr = ''
