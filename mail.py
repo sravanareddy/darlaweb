@@ -6,12 +6,18 @@ from email.mime.text import MIMEText
 from email.utils import COMMASPACE, formatdate
 from email import encoders
 from utilities import read_filepaths
-from hyp2mfa import extract_trans_from_tg
+from textgrid import TextGrid
 from collections import defaultdict
 import json
 import sys
 import os
 
+def extract_trans_from_tg(tgfile, outfile):
+    """extract transcript from TextGrid"""
+    with open(outfile, 'w') as o:
+        tg = TextGrid()
+        tg.read(tgfile)
+        o.write(' '.join(map(lambda interval: interval.mark, tg.tiers[0])))
 
 def send_init_email(tasktype, receiver, filename):
     filepaths = read_filepaths()
@@ -177,6 +183,39 @@ def send_error_email(receiver, filename, message, first):
     else:
         sys.stderr.write('Error email already sent')
         return False
+
+def send_unicode_warning_email(receiver, filename, warning):
+    # sends unicode warning email
+    
+    sys.stderr.write('Unicode warning email sent: ' + warning)
+
+    filepaths = read_filepaths()
+    password = open(filepaths['PASSWORD']).read().strip()
+    username = 'darla.dartmouth'
+    sender = username+'@gmail.com'
+    subject = 'WARNING: Invalid (non-ASCII) character found when trying to process ' + filename
+    body = 'The following encoding error was caught when running your job for ' + filename + '.\n'
+    body += warning
+    body += unicode(u'\nThe error was caught and the job was completed by omitting non-ASCII characters in your transcription, but the output may not be accurate; for accurate results, please remove these characters and reupload. For example, if you spell "caf\u00e9" with an acute accent instead of pure ASCII ("cafe"), it would be filtered as "caf", which will result in the misalignment of the second vowel.')
+    body += '\nYou might also want to look over our Helpful Hints page (http://jstanford.host.dartmouth.edu/DARLA_Helpful_Hints_page.html), which includes a discussion of common problems when using the semi-automated tool.'
+    message = MIMEMultipart()
+    message['From'] = 'DARLA <'+sender+'>'
+    message['To'] = receiver
+    message['Subject']=subject
+    message['Date'] = formatdate(localtime = True)
+
+    message.attach(MIMEText(body, _charset='utf-8'))
+
+    try:
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(username, password)
+        server.sendmail(sender, receiver, message.as_string())
+        server.quit()
+        return False
+
+    except smtplib.SMTPException:
+        sys.stderr.write('Unable to send error e-mail message: \n {0} \n to {1}'.format(body, receiver))
 
 def send_bedword_email(receiver, filename, taskdir, formats, punctuate, diarize, using_darla):
         filepaths = read_filepaths()
